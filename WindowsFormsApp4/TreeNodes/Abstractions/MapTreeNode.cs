@@ -24,6 +24,11 @@ namespace WindowsFormsApp4.TreeNodes
 
         public void Delete()
         {
+            if (Nodes.Count != 0)
+            {
+                return;
+            }
+
             Shapefile.StartEditingShapes();
             if (Shapefile.EditDeleteShape(ShapeIndex) && Shapefile.Save())
             {
