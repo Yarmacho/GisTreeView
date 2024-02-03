@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal class ProfilNodesBuilder : MapTreeNodesBuilder<ProfilTreeNode>
+    internal class ProfilNodesBuilder : ShapeNodesBuilder<ProfilTreeNode>
     {
         private readonly IReadOnlyDictionary<int, ShipTreeNode> _shipNodes;
 
@@ -12,7 +13,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             _shipNodes = shipNodes;
         }
 
-        public override IEnumerable<ProfilTreeNode> BuildNodes(BuildNodesParams buildNodesParams)
+        public override async ValueTask<IEnumerable<ProfilTreeNode>> BuildNodes(BuildNodesParams buildNodesParams)
         {
             var nodes = new Dictionary<int, ProfilTreeNode>();
 

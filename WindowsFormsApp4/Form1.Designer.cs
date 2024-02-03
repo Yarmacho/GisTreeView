@@ -38,10 +38,10 @@ namespace WindowsFormsApp4
             // axMap1
             // 
             this.axMap1.Enabled = true;
-            this.axMap1.Location = new System.Drawing.Point(226, 26);
+            this.axMap1.Location = new System.Drawing.Point(205, 26);
             this.axMap1.Name = "axMap1";
             this.axMap1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap1.OcxState")));
-            this.axMap1.Size = new System.Drawing.Size(472, 273);
+            this.axMap1.Size = new System.Drawing.Size(583, 412);
             this.axMap1.TabIndex = 0;
             // 
             // treeView1

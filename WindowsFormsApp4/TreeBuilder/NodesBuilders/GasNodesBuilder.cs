@@ -1,11 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal class GasNodesBuilder : MapTreeNodesBuilder<GasTreeNode>
+    internal class GasNodesBuilder : ShapeNodesBuilder<GasTreeNode>
     {
-        public override IEnumerable<GasTreeNode> BuildNodes(BuildNodesParams buildNodesParams)
+        private readonly IReadOnlyDictionary<int, ExperimentTreeNode> _experimentNodes;
+
+        public GasNodesBuilder(IReadOnlyDictionary<int, ExperimentTreeNode> experimentNodes)
+        {
+            _experimentNodes = experimentNodes;
+        }
+        public GasNodesBuilder()
+        {
+        }
+
+        public override async ValueTask<IEnumerable<GasTreeNode>> BuildNodes(BuildNodesParams buildNodesParams)
         {
             var nodes = new Dictionary<int, GasTreeNode>();
             var shapefile = buildNodesParams.Map.get_Shapefile(buildNodesParams.GasLayerHandle);

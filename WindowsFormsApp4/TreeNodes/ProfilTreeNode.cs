@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class ProfilTreeNode : MapTreeNode
+    internal class ProfilTreeNode : ShapeTreeNode
     {
         public ProfilTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle) 
             : base(shapefile, shapeIndex, layerHandle)

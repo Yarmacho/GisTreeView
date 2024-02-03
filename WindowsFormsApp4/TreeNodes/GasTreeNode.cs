@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class GasTreeNode : MapTreeNode
+    internal class GasTreeNode : ShapeTreeNode
     {
         public GasTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle) : base(shapefile, shapeIndex, layerHandle)
         {

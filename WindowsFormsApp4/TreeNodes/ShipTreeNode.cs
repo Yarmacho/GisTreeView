@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    class ShipTreeNode : MapTreeNode
+    class ShipTreeNode : ShapeTreeNode
     {
         public ShipTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
             : base(shapefile, shapeIndex, layerHandle)

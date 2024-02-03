@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class SceneTreeNode : MapTreeNode
+    internal class SceneTreeNode : ShapeTreeNode
     {
         public SceneTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
             : base(shapefile, shapeIndex, layerHandle)
@@ -27,6 +28,18 @@ namespace WindowsFormsApp4.TreeNodes
         public void AddNode(ShipTreeNode node)
         {
             Nodes.Add(node);
+        }
+
+        protected override ContextMenu BuildContextMenu()
+        {
+            var menu = base.BuildContextMenu();
+            menu.MenuItems.Add(new MenuItem("Add sea object", (s, e) => 
+            {
+                Shapefile.StartAppendMode();
+                AppendModeKey = "Ship";
+            }));
+
+            return menu;
         }
     }
 }

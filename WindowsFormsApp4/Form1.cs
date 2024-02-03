@@ -1,43 +1,39 @@
-﻿using MapWinGIS;
+﻿using Interfaces.Database.Repositories;
+using MapWinGIS;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4
 {
     public partial class Form1 : Form
     {
-        private const string _path = @"C:\Users\Yarmak Dmytro\Desktop\Maps";
+        private readonly IServiceProvider _serviceProvider;
+        private const string _path = @"C:\Users\Yarmak Dmytro\Downloads\HydroPackege\Maps";
 
-        public Form1()
+        private int _gasLayerHandle;
+        private int _shipLayerHandle;
+        private int _sceneLayerHandle;
+        private int _profilLayerHandle;
+        private int _tracesLayerHandle;
+
+        public Form1(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             if (Directory.Exists(_path))
             {
-                //var file = Path.Combine(_path, "Gas.shp");
-                //var shapeFile = new Shapefile();
-                //if (shapeFile.Open(file))
-                //{
-                //    for (int i = 0; i < shapeFile.NumShapes; i++)
-                //    {
-                //        var node = new GasTreeNode(shapeFile, i);
-                //        treeView1.Nodes.Add(node);
-
-                //        node.SetMap(axMap1);
-                //        treeView1.AfterSelect += TreeView1_AfterSelect;
-                //    }
-                //}
-                var buildParams = new BuildNodesParams() { Map = axMap1 };
                 try
                 {
                     axMap1.Projection = tkMapProjection.PROJECTION_CUSTOM;
-                    axMap1.GrabProjectionFromData = true;
                     axMap1.RemoveAllLayers();
                     axMap1.LockWindow(tkLockMode.lmLock);
                     foreach (var file in Directory.EnumerateFiles(_path))
@@ -49,24 +45,23 @@ namespace WindowsFormsApp4
                                 var shapeFile = new Shapefile();
                                 if (shapeFile.Open(file))
                                 {
-                                    layerHandle = axMap1.AddLayerFromFilename(file, tkFileOpenStrategy.fosAutoDetect, false);
-                                    //axMap1.AddLayer(shapeFile, false);
-                                    //shapeFile.Save();
+                                    layerHandle = axMap1.AddLayer(shapeFile, true);
+                                    shapeFile.Save();
                                 }
 
                                 switch (Path.GetFileNameWithoutExtension(file))
                                 {
                                     case "Gas":
-                                        buildParams.GasLayerHandle = layerHandle;
+                                        _gasLayerHandle = layerHandle;
                                         break;
                                     case "Scene":
-                                        buildParams.SceneLayerHandle = layerHandle;
+                                        _sceneLayerHandle = layerHandle;
                                         break;
                                     case "Ship":
-                                        buildParams.ShipLayerHandle = layerHandle;
+                                        _shipLayerHandle = layerHandle;
                                         break;
                                     case "Profil":
-                                        buildParams.ProfileLayerHandle = layerHandle;
+                                        _profilLayerHandle = layerHandle;
                                         break;
                                 }
 
@@ -96,18 +91,60 @@ namespace WindowsFormsApp4
                     axMap1.Redraw();
                 }
 
-                var nodes = new MapObjectsTreeBuilder().BuidNodes(buildParams);
+                var nodes = await new MapObjectsTreeBuilder(_serviceProvider).BuidNodes(new BuildNodesParams() 
+                { 
+                    Map = axMap1,
+                    GasLayerHandle = _gasLayerHandle,
+                    ProfileLayerHandle = _profilLayerHandle,
+                    SceneLayerHandle = _sceneLayerHandle,
+                    ShipLayerHandle = _shipLayerHandle,
+                    ShowExperiments = true
+                });
                 treeView1.Nodes.AddRange(nodes.ToArray());
                 treeView1.AfterSelect += TreeView1_AfterSelect;
+
+                var menuItems = new MenuItem[]
+                {
+                    new MenuItem("Add Experiment", async (s, e1) => 
+                    {
+                        var repository = GetService<IExperimentsRepository>();
+                        var entity = await repository.AddAsync(new Entities.Experiment()
+                        {
+                            Name = "Test",
+                            Description = "some desc"
+                        });
+
+                        if (await repository.SaveChanges())
+                        {
+                            treeView1.Nodes.Add(new TreeNode(entity.Name));
+                        }
+                    })
+                };
+                treeView1.ContextMenu = new ContextMenu(menuItems);
+
+                axMap1.MouseDownEvent += AxMap1_MouseDownEvent;
+            }
+        }
+
+        private void AxMap1_MouseDownEvent(object sender, AxMapWinGIS._DMapEvents_MouseDownEvent e)
+        {
+            if (treeView1.SelectedNode is ShapeTreeNode mapTreeNode &&
+                mapTreeNode.AppendMode)
+            {
             }
         }
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is MapTreeNode treeNode)
+            if (e.Node is ShapeTreeNode treeNode)
             {
                 treeNode.Focus();
             }
+        }
+
+        private T GetService<T>()
+        {
+            return _serviceProvider.GetRequiredService<T>();
         }
     }
 }

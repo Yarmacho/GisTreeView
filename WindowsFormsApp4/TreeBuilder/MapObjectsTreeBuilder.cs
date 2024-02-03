@@ -1,22 +1,32 @@
-﻿using MapWinGIS;
+﻿using Interfaces.Database.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WindowsFormsApp4.TreeBuilder.NodesBuilders;
 using WindowsFormsApp4.TreeBuilder.NodesBuilders.Abstractions;
 using WindowsFormsApp4.TreeNodes;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4
 {
     internal class MapObjectsTreeBuilder
     {
-        public IEnumerable<MapTreeNode> BuidNodes(BuildNodesParams buildNodesParams)
+        private readonly IServiceProvider _serviceProvider;
+
+        public MapObjectsTreeBuilder(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        public async ValueTask<IEnumerable<MapTreeNodeBase>> BuidNodes(BuildNodesParams buildNodesParams)
         {
             if (buildNodesParams.Map == null || buildNodesParams.GasLayerHandle == -1)
             {
-                return new List<MapTreeNode>();
+                return new List<MapTreeNodeBase>();
             }
 
-            var nodes = getRootBuilder(buildNodesParams).BuildNodes(buildNodesParams);
+            var nodes = await getRootBuilder(buildNodesParams).BuildNodes(buildNodesParams);
             foreach (var node in nodes)
             {
                 node.SetMap(buildNodesParams.Map);
@@ -25,9 +35,13 @@ namespace WindowsFormsApp4
             return nodes;
         }
 
-        private static IMapTreeNodesBuilder getRootBuilder(BuildNodesParams buildNodesParams)
+        private IMapTreeNodesBuilder getRootBuilder(BuildNodesParams buildNodesParams)
         {
-            if (buildNodesParams.GasLayerHandle != -1)
+            if (buildNodesParams.ShowExperiments)
+            {
+                return new ExperimentsNodesBuilder(_serviceProvider.GetRequiredService<IRepositoriesProvider>());
+            }
+            else if (buildNodesParams.GasLayerHandle != -1)
             {
                 return new GasNodesBuilder();
             }

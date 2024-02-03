@@ -1,16 +1,16 @@
-﻿using AxMapWinGIS;
-using MapWinGIS;
+﻿using MapWinGIS;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WindowsFormsApp4.TreeBuilder.NodesBuilders.Abstractions;
-using WindowsFormsApp4.TreeNodes;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal abstract class MapTreeNodesBuilder<TNode> : IMapTreeNodesBuilder
-        where TNode : MapTreeNode
+    internal abstract class ShapeNodesBuilder<TNode> : IMapTreeNodesBuilder
+        where TNode : ShapeTreeNode
     {
-        public abstract IEnumerable<TNode> BuildNodes(BuildNodesParams buildNodesParams);
+        public abstract ValueTask<IEnumerable<TNode>> BuildNodes(BuildNodesParams buildNodesParams);
 
         protected T GetProperty<T>(Shapefile shapefile, int shape, string property)
         {
@@ -23,9 +23,9 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             return default;
         }
 
-        IEnumerable<MapTreeNode> IMapTreeNodesBuilder.BuildNodes(BuildNodesParams buildNodesParams)
+        async ValueTask<IEnumerable<MapTreeNodeBase>> IMapTreeNodesBuilder.BuildNodes(BuildNodesParams buildNodesParams)
         {
-            return BuildNodes(buildNodesParams);
+            return await BuildNodes(buildNodesParams);
         }
     }
 }

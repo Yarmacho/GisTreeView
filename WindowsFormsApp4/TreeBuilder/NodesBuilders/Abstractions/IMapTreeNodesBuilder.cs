@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using WindowsFormsApp4.TreeNodes;
+using System.Threading.Tasks;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders.Abstractions
 {
     interface IMapTreeNodesBuilder
     {
-        IEnumerable<MapTreeNode> BuildNodes(BuildNodesParams buildNodesParams);
+        ValueTask<IEnumerable<MapTreeNodeBase>> BuildNodes(BuildNodesParams buildNodesParams);
     }
 }
