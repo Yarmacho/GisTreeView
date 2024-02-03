@@ -1,11 +1,13 @@
-﻿using Interfaces.Database.Repositories;
+﻿using DynamicForms;
+using DynamicForms.Attributes;
+using DynamicForms.Factories;
+using Entities;
 using MapWinGIS;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using WindowsFormsApp4.TreeNodes;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4
@@ -13,117 +15,50 @@ namespace WindowsFormsApp4
     public partial class Form1 : Form
     {
         private readonly IServiceProvider _serviceProvider;
-        private const string _path = @"C:\Users\Yarmak Dmytro\Downloads\HydroPackege\Maps";
+        private readonly string _path;
 
-        private int _gasLayerHandle;
-        private int _shipLayerHandle;
-        private int _sceneLayerHandle;
-        private int _profilLayerHandle;
-        private int _tracesLayerHandle;
-
-        public Form1(IServiceProvider serviceProvider)
+        public Form1(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
+            _path = configuration.GetValue<string>("MapsPath");
             InitializeComponent();
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            if (Directory.Exists(_path))
+            var initResult = MapInitializer.Init(_path, axMap1);
+
+            var nodes = await new MapObjectsTreeBuilder(_serviceProvider).BuidNodes(new BuildNodesParams()
             {
-                try
-                {
-                    axMap1.Projection = tkMapProjection.PROJECTION_CUSTOM;
-                    axMap1.RemoveAllLayers();
-                    axMap1.LockWindow(tkLockMode.lmLock);
-                    foreach (var file in Directory.EnumerateFiles(_path))
+                Map = axMap1,
+                GasLayerHandle = initResult.GasLayerHandle,
+                ProfileLayerHandle = initResult.ProfilLayerHandle,
+                SceneLayerHandle = initResult.SceneLayerHandle,
+                ShipLayerHandle = initResult.ShipLayerHandle,
+                ShowExperiments = true
+            });
+            treeView1.Nodes.AddRange(nodes.ToArray());
+            treeView1.AfterSelect += TreeView1_AfterSelect;
+
+            var menuItems = new MenuItem[]
+            {
+                    new MenuItem("Add Experiment", async (s, e1) =>
                     {
-                        int layerHandle = -1;
-                        switch (Path.GetExtension(file).ToLowerInvariant())
+                        var form = FormFactory.CreateFormWithMap(new Experiment()
                         {
-                            case ".shp":
-                                var shapeFile = new Shapefile();
-                                if (shapeFile.Open(file))
-                                {
-                                    layerHandle = axMap1.AddLayer(shapeFile, true);
-                                    shapeFile.Save();
-                                }
-
-                                switch (Path.GetFileNameWithoutExtension(file))
-                                {
-                                    case "Gas":
-                                        _gasLayerHandle = layerHandle;
-                                        break;
-                                    case "Scene":
-                                        _sceneLayerHandle = layerHandle;
-                                        break;
-                                    case "Ship":
-                                        _shipLayerHandle = layerHandle;
-                                        break;
-                                    case "Profil":
-                                        _profilLayerHandle = layerHandle;
-                                        break;
-                                }
-
-                                break;
-                            case ".tif":
-                                var image = new Image();
-                                if (image.Open(file, ImageType.TIFF_FILE))
-                                {
-                                    var colorScheme = new ColorScheme();
-                                    colorScheme.SetColors2(tkMapColor.BlueViolet, tkMapColor.Blue);
-
-                                    var greedColorScheme = new GridColorScheme();
-                                    greedColorScheme.ApplyColors(tkColorSchemeType.ctSchemeGraduated, colorScheme, false);
-
-                                    image.CustomColorScheme = greedColorScheme;
-                                    axMap1.AddLayer(image, true);
-
-                                    axMap1.GeoProjection = image.GeoProjection;
-                                }
-                                break;
-                        }
-                    }
-                }
-                finally
-                {
-                    axMap1.LockWindow(tkLockMode.lmUnlock);
-                    axMap1.Redraw();
-                }
-
-                var nodes = await new MapObjectsTreeBuilder(_serviceProvider).BuidNodes(new BuildNodesParams() 
-                { 
-                    Map = axMap1,
-                    GasLayerHandle = _gasLayerHandle,
-                    ProfileLayerHandle = _profilLayerHandle,
-                    SceneLayerHandle = _sceneLayerHandle,
-                    ShipLayerHandle = _shipLayerHandle,
-                    ShowExperiments = true
-                });
-                treeView1.Nodes.AddRange(nodes.ToArray());
-                treeView1.AfterSelect += TreeView1_AfterSelect;
-
-                var menuItems = new MenuItem[]
-                {
-                    new MenuItem("Add Experiment", async (s, e1) => 
-                    {
-                        var repository = GetService<IExperimentsRepository>();
-                        var entity = await repository.AddAsync(new Entities.Experiment()
-                        {
-                            Name = "Test",
+                            Name = "My test exp",
                             Description = "some desc"
-                        });
+                        }, _path, ShpfileType.SHP_POINT, EditMode.Add);
 
-                        if (await repository.SaveChanges())
+                        if (form.Activate() == DialogResult.OK)
                         {
-                            treeView1.Nodes.Add(new TreeNode(entity.Name));
+                            var newExp = form.GetEntity<Experiment>();
                         }
                     })
-                };
-                treeView1.ContextMenu = new ContextMenu(menuItems);
+            };
+            treeView1.ContextMenu = new ContextMenu(menuItems);
 
-                axMap1.MouseDownEvent += AxMap1_MouseDownEvent;
-            }
+            axMap1.MouseDownEvent += AxMap1_MouseDownEvent;
         }
 
         private void AxMap1_MouseDownEvent(object sender, AxMapWinGIS._DMapEvents_MouseDownEvent e)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DynamicForms.Attributes;
 
 namespace Entities
 {
@@ -12,6 +8,7 @@ namespace Entities
 
         public string Description { get; set; }
 
+        [IgnoreProperty(EditMode.Add)]
         public int GasId { get; set; }
     }
 }

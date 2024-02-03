@@ -134,7 +134,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="appsettings.json" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -181,6 +180,10 @@
       <Project>{1f342b40-80ea-400c-9778-1adc4a299f92}</Project>
       <Name>Database</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DynamicForms\DynamicForms.csproj">
+      <Project>{a6439ad8-fb0e-4298-b48d-ad7a895514d9}</Project>
+      <Name>DynamicForms</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Entities\Entities.csproj">
       <Project>{91222ced-eb60-4e3e-9aa9-190e523a4f8d}</Project>
       <Name>Entities</Name>
@@ -188,6 +191,10 @@
     <ProjectReference Include="..\Interfaces.Database\Interfaces.Database.csproj">
       <Project>{2c99c054-5d26-4ca8-8d66-2d8cafefcfb9}</Project>
       <Name>Interfaces.Database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tools\Tools.csproj">
+      <Project>{c9f344ad-9207-4205-91ac-05d48b041877}</Project>
+      <Name>Tools</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

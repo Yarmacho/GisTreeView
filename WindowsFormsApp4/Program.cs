@@ -39,6 +39,7 @@ namespace WindowsFormsApp4
                 .ConfigureServices((context, services) => 
                 {
                     services.AddTransient<Form1>();
+                    services.AddSingleton<IConfiguration>(config);
                     services.AddDataBase(config);
                 });
         }
