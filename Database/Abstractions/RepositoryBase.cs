@@ -52,7 +52,7 @@ namespace Database.Abstractions
 
         public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            if (await ExistsAsync(entity, cancellationToken))
+            if (!await ExistsAsync(entity, cancellationToken))
             {
                 return null;
             }
@@ -63,7 +63,7 @@ namespace Database.Abstractions
         
         public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            if (await ExistsAsync(entity, cancellationToken))
+            if (!await ExistsAsync(entity, cancellationToken))
             {
                 return null;
             }
