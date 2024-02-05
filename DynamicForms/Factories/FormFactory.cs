@@ -13,23 +13,23 @@ namespace DynamicForms.Factories
 {
     public static class FormFactory
     {
-        public static IEntityFormWithMap CreateFormWithMap(object entity, string mapsPath = null, ShpfileType shapeType = ShpfileType.SHP_POINT, EditMode editMode = EditMode.View)
+        public static IEntityFormWithMap CreateFormWithMap(object entity, Shapefile shapefile, string mapsPath = null, EditMode editMode = EditMode.View)
         {
             var form = new EntityFormWithMap(entity);
             configureForm(form, entity, editMode);
-            addMap(form, mapsPath, shapeType);
+            addMap(form, mapsPath, shapefile);
             configureButtons(form, editMode);
 
             return form;
         }
 
-        public static IEntityFormWithMap CreateFormWithMap<T>( string mapsPath = null, ShpfileType shapeType = ShpfileType.SHP_POINT, EditMode editMode = EditMode.View)
+        public static IEntityFormWithMap CreateFormWithMap<T>(Shapefile shapefile, string mapsPath = null, EditMode editMode = EditMode.View)
             where T : new()
         {
-            return CreateFormWithMap(new T(), mapsPath, shapeType, editMode);
+            return CreateFormWithMap(new T(), shapefile, mapsPath, editMode);
         }
 
-        private static void addMap(EntityFormWithMap form, string mapPath, ShpfileType shapeType = ShpfileType.SHP_POINT)
+        private static void addMap(EntityFormWithMap form, string mapPath, Shapefile shapefile)
         {
             var map = new AxMap();
 
@@ -43,18 +43,31 @@ namespace DynamicForms.Factories
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(form.GetType());
             map.OcxState = ((AxHost.State)(resources.GetObject("axMap1.OcxState")));
 
-            var tempFileName = Path.Combine(mapPath, $"{Guid.NewGuid()}.shp");
-            var shapeFile = new Shapefile();
-            shapeFile.DefaultDrawingOptions.SetDefaultPointSymbol(tkDefaultPointSymbol.dpsStar);
-            shapeFile.DefaultDrawingOptions.FillColor = new Utils().ColorByName(tkMapColor.Blue);
+            var directory = Path.Combine("mapPath", "Temp");
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var tempFileName = Path.Combine(directory, $"{Guid.NewGuid()}.shp");
+            var shapeFileClone = shapefile.Clone();
             form.Load += (s, e) =>
             {
                 map.SendMouseDown = true;
                 map.CursorMode = MapWinGIS.tkCursorMode.cmPan;
                 MapInitializer.Init(mapPath, map);
-                if (shapeFile.CreateNew(tempFileName, shapeType))
+                if (shapeFileClone.CreateNew(tempFileName, shapefile.ShapefileType))
                 {
-                    map.AddLayer(shapeFile, true);
+                    map.AddLayer(shapeFileClone, true);
+                }
+            };
+
+            form.FormClosed += (s, e) =>
+            {
+                map.Dispose();
+                foreach (var file in Directory.GetFiles(directory, $"{Path.GetFileNameWithoutExtension(tempFileName)}.*"))
+                {
+                    File.Delete(file);
                 }
             };
 
@@ -68,22 +81,22 @@ namespace DynamicForms.Factories
 
                     if (form.Shape == null)
                     {
-                        shapeFile.StartAppendMode();
+                        shapeFileClone.StartAppendMode();
                         var shape = new Shape();
-                        shape.Create(shapeType);
+                        shape.Create(shapeFileClone.ShapefileType);
                         form.Shape = shape;
 
                         var shapeIndex = 0;
-                        shapeFile.EditInsertShape(form.Shape, ref shapeIndex);
-                        shapeFile.StopAppendMode();
+                        shapeFileClone.EditInsertShape(form.Shape, ref shapeIndex);
+                        shapeFileClone.StopAppendMode();
                     }
 
                     var point = new Point();
                     point.x = projX;
                     point.y = projY;
 
-                    shapeFile.StartEditingShapes();
-                    if (shapeType == ShpfileType.SHP_POINT && form.Shape.numPoints == 1)
+                    shapeFileClone.StartEditingShapes();
+                    if (shapeFileClone.ShapefileType == ShpfileType.SHP_POINT && form.Shape.numPoints == 1)
                     {
                         form.Shape.Point[0] = point;
                     }
@@ -92,7 +105,7 @@ namespace DynamicForms.Factories
                         var pointIndex = 0;
                         form.Shape.InsertPoint(point, ref pointIndex);
                     }
-                    shapeFile.StopEditingShapes();
+                    shapeFileClone.StopEditingShapes();
                 }
             };
 
