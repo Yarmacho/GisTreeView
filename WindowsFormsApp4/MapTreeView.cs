@@ -1,5 +1,7 @@
 ﻿using AxMapWinGIS;
 using DynamicForms;
+using Interfaces.Database.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,10 @@ namespace WindowsFormsApp4
         public AxMap Map { get; internal set; }
 
         public MapInitResult LayersInfo { get; internal set; }
+
+        public IRepositoriesProvider RepositoriesProvider => ServiceProvider.GetRequiredService<IRepositoriesProvider>();
+
+        public IServiceProvider ServiceProvider { get; internal set; }
 
         private void InitializeComponent()
         {

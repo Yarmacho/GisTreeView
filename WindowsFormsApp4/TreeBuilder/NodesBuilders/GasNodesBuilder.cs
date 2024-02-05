@@ -30,6 +30,12 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
                 var node = new GasTreeNode(shapefile, i, buildNodesParams.GasLayerHandle);
                 nodes[id] = node;
+
+                var experimentId = GetProperty<int>(shapefile, i, "Experiment");
+                if (_experimentNodes.TryGetValue(experimentId, out var experimentTreeNode))
+                {
+                    experimentTreeNode.Nodes.Add(node);
+                }
             }
 
             if (nodes.Count > 0 && buildNodesParams.SceneLayerHandle != -1)

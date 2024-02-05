@@ -27,6 +27,7 @@ namespace WindowsFormsApp4
             _path = configuration.GetValue<string>("MapsPath");
             InitializeComponent();
             treeView1.Map = axMap1;
+            treeView1.ServiceProvider = _serviceProvider;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -80,7 +81,9 @@ namespace WindowsFormsApp4
                 await repository.AddAsync(entity);
                 if (await repository.SaveChanges())
                 {
-                    treeView1.Nodes.Add(new ExperimentTreeNode(entity, GetService<IRepositoriesProvider>()));
+                    var node = new ExperimentTreeNode(entity, GetService<IRepositoriesProvider>());
+                    node.SetMap(axMap1);
+                    treeView1.Nodes.Add(node);
                 }
             }
         }

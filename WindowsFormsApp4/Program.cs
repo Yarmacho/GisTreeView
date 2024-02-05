@@ -1,9 +1,11 @@
 ﻿using Database.DI;
+using Entities.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Windows.Forms;
+using WindowsFormsApp4.ShapeConverters;
 
 namespace WindowsFormsApp4
 {
@@ -39,7 +41,8 @@ namespace WindowsFormsApp4
                 .ConfigureServices((context, services) => 
                 {
                     services.AddTransient<Form1>();
-                    services.AddSingleton<IConfiguration>(config);
+                    services.AddSingleton(config);
+                    services.AddTransient<IShapeEntityConverter<Gas>, ShapeToGasConverter>();
                     services.AddDataBase(config);
                 });
         }

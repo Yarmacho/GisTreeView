@@ -7,6 +7,6 @@ namespace Entities.Entities
         public string Name { get; set; }
 
         [IgnoreProperty(EditMode.Add)]
-        public int SceneId { get; set; }
+        public int ExperimentId { get; set; }
     }
 }

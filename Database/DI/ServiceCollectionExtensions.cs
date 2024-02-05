@@ -19,6 +19,7 @@ namespace Database.DI
                 SQLitePCL.Batteries.Init();
             }, ServiceLifetime.Transient)
                 .AddAsBoth<IExperimentsRepository, ExperimentsRepository>()
+                .AddAsBoth<IGasRepository, GasRepository>()
                 .AddSingleton<IRepositoriesProvider, RepositoriesProvider>()
                 .AddTransient<IDbManager, DbManager>();
         }

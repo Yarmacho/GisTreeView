@@ -1,6 +1,7 @@
 ﻿using Entities;
 using Entities.Entities;
 using Interfaces.Database.Abstractions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
@@ -30,6 +31,19 @@ namespace WindowsFormsApp4.TreeNodes
             menu.MenuItems.Add(new MenuItem("Add Gas", async (s, e) => await AppendChild<Gas, GasTreeNode>()));
 
             return menu;
+        }
+
+        protected override ValueTask OnAppendingNode(object entity)
+        {
+            return new ValueTask();
+        }
+
+        protected override void ConfigureChildNodeEntity(object childEntity)
+        {
+            if (childEntity is Gas gas)
+            {
+                gas.ExperimentId = ExperimentId;
+            }
         }
     }
 }

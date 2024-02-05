@@ -51,6 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Abstractions\IRepository.cs" />
     <Compile Include="Repositories\IExperimentsRepository.cs" />
+    <Compile Include="Repositories\IGasRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
