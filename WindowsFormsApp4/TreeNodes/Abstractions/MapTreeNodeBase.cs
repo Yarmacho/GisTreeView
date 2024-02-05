@@ -44,7 +44,22 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             if (isShapeNode)
             {
                 var entityType = typeof(TChildEntity);
-ix
+                entityLayerHandle = entityType == typeof(Gas)
+                    ? TreeView.LayersInfo.GasLayerHandle
+                    : -1;
+                if (entityLayerHandle == -1)
+                {
+                    return;
+                }
+
+                shapeFile = Map.get_Shapefile(entityLayerHandle);
+                if (shapeFile == null)
+                {
+                    return;
+                }
+
+                form = FormFactory.CreateFormWithMap<TChildEntity>(shapeFile, Path.GetDirectoryName(shapeFile.Filename),
+                    DynamicForms.Attributes.EditMode.Add);
             }
             else
             {
