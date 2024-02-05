@@ -32,7 +32,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
             if (nodes.Count > 0 && buildNodesParams.GasLayerHandle != -1)
             {
-                new GasNodesBuilder(nodes).BuildNodes(buildNodesParams);
+                await new GasNodesBuilder(nodes).BuildNodes(buildNodesParams);
             }
 
             return nodes.Values;

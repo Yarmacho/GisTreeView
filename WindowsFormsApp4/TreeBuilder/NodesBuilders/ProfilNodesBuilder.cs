@@ -32,7 +32,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 var shipId = GetProperty<int>(shapefile, i, "ShipId");
                 if (shipId != 0 && _shipNodes.TryGetValue(shipId, out var shipNode))
                 {
-                          shipNode.AddNode(node);
+                    shipNode.AddNode(node);
                 }
             }
 

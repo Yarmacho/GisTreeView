@@ -13,7 +13,7 @@ namespace DynamicForms.Factories
 {
     public static class FormFactory
     {
-        public static IEntityForm CreateFormWithMap(object entity, string mapsPath = null, ShpfileType shapeType = ShpfileType.SHP_POINT, EditMode editMode = EditMode.View)
+        public static IEntityFormWithMap CreateFormWithMap(object entity, string mapsPath = null, ShpfileType shapeType = ShpfileType.SHP_POINT, EditMode editMode = EditMode.View)
         {
             var form = new EntityFormWithMap(entity);
             configureForm(form, entity, editMode);
@@ -21,6 +21,12 @@ namespace DynamicForms.Factories
             configureButtons(form, editMode);
 
             return form;
+        }
+
+        public static IEntityFormWithMap CreateFormWithMap<T>( string mapsPath = null, ShpfileType shapeType = ShpfileType.SHP_POINT, EditMode editMode = EditMode.View)
+            where T : new()
+        {
+            return CreateFormWithMap(new T(), mapsPath, shapeType, editMode);
         }
 
         private static void addMap(EntityFormWithMap form, string mapPath, ShpfileType shapeType = ShpfileType.SHP_POINT)
@@ -124,6 +130,12 @@ namespace DynamicForms.Factories
             return form;
         }
 
+        public static IEntityForm CreateForm<T>(EditMode editMode = EditMode.View)
+            where T : new()
+        {
+            return CreateForm(new T(), editMode);
+        }
+
         private static void configureForm(EntityForm form, object entity, EditMode editMode = EditMode.View)
         {
             form.SuspendLayout();
@@ -155,7 +167,7 @@ namespace DynamicForms.Factories
                 textBox.Text = property.GetValue(entity)?.ToString();
                 textBox.Top = usedHeight + 5;
                 textBox.Width = 115;
-                textBox.Enabled = editMode != EditMode.View && editMode != EditMode.Delete;
+                textBox.Enabled = (displayAttribute?.Enabled ?? true) && editMode != EditMode.View && editMode != EditMode.Delete;
                 textBox.TextChanged += (s, e) =>
                 {
                     property.SetValue(entity, TypeTools.Convert(textBox.Text, property.PropertyType));

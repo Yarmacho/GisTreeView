@@ -2,12 +2,16 @@
 using DynamicForms.Attributes;
 using DynamicForms.Factories;
 using Entities;
+using Interfaces.Database.Abstractions;
+using Interfaces.Database.Repositories;
 using MapWinGIS;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsFormsApp4.TreeNodes;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4
@@ -22,11 +26,13 @@ namespace WindowsFormsApp4
             _serviceProvider = serviceProvider;
             _path = configuration.GetValue<string>("MapsPath");
             InitializeComponent();
+            treeView1.Map = axMap1;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
             var initResult = MapInitializer.Init(_path, axMap1);
+            treeView1.LayersInfo = initResult;
 
             var nodes = await new MapObjectsTreeBuilder(_serviceProvider).BuidNodes(new BuildNodesParams()
             {
@@ -40,31 +46,12 @@ namespace WindowsFormsApp4
             treeView1.Nodes.AddRange(nodes.ToArray());
             treeView1.AfterSelect += TreeView1_AfterSelect;
 
-            var menuItems = new MenuItem[]
-            {
-                    new MenuItem("Add Experiment", async (s, e1) =>
-                    {
-                        var form = FormFactory.CreateFormWithMap(new Experiment()
-                        {
-                            Name = "My test exp",
-                            Description = "some desc"
-                        }, _path, ShpfileType.SHP_POINT, EditMode.Add);
-
-                        if (form.Activate() == DialogResult.OK)
-                        {
-                            var newExp = form.GetEntity<Experiment>();
-                        }
-                    })
-            };
-            treeView1.ContextMenu = new ContextMenu(menuItems);
-
             axMap1.MouseDownEvent += AxMap1_MouseDownEvent;
         }
 
         private void AxMap1_MouseDownEvent(object sender, AxMapWinGIS._DMapEvents_MouseDownEvent e)
         {
-            if (treeView1.SelectedNode is ShapeTreeNode mapTreeNode &&
-                mapTreeNode.AppendMode)
+            if (treeView1.SelectedNode is ShapeTreeNode mapTreeNode)
             {
             }
         }
@@ -80,6 +67,22 @@ namespace WindowsFormsApp4
         private T GetService<T>()
         {
             return _serviceProvider.GetRequiredService<T>();
+        }
+
+        private async void addExperimentBtn_Click(object sender, EventArgs e)
+        {
+            var form = FormFactory.CreateForm<Experiment>(EditMode.Add);
+            if (form.Activate() == DialogResult.OK)
+            {
+                var entity = form.GetEntity<Experiment>();
+
+                var repository = GetService<IExperimentsRepository>();
+                await repository.AddAsync(entity);
+                if (await repository.SaveChanges())
+                {
+                    treeView1.Nodes.Add(new ExperimentTreeNode(entity, GetService<IRepositoriesProvider>()));
+                }
+            }
         }
     }
 }

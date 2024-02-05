@@ -34,7 +34,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
             if (nodes.Count > 0 && buildNodesParams.SceneLayerHandle != -1)
             {
-                new SceneNodesBuider(nodes).BuildNodes(buildNodesParams);
+                await new SceneNodesBuider(nodes).BuildNodes(buildNodesParams);
             }
 
             return nodes.Values;

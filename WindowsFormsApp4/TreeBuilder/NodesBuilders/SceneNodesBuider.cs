@@ -37,7 +37,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
             if (nodes.Count > 0 && buildNodesParams.ShipLayerHandle != -1)
             {
-                new ShipNodesBuilder(nodes).BuildNodes(buildNodesParams);
+                await new ShipNodesBuilder(nodes).BuildNodes(buildNodesParams);
             }
 
             return nodes.Values;

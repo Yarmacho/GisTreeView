@@ -33,11 +33,7 @@ namespace WindowsFormsApp4.TreeNodes
         protected override ContextMenu BuildContextMenu()
         {
             var menu = base.BuildContextMenu();
-            menu.MenuItems.Add(new MenuItem("Add sea object", (s, e) => 
-            {
-                Shapefile.StartAppendMode();
-                AppendModeKey = "Ship";
-            }));
+            //menu.MenuItems.Add(new MenuItem("Add sea object", (s, e) => AppendChild<>));
 
             return menu;
         }

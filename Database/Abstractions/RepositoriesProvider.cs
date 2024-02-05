@@ -11,6 +11,8 @@ namespace Database.Abstractions
     {
         private readonly IServiceProvider _serviceProvider;
 
+        private readonly ConcurrentDictionary<Type, Type> _cache = new ConcurrentDictionary<Type, Type>();
+
         public RepositoriesProvider(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -19,9 +21,17 @@ namespace Database.Abstractions
         public T Get<T>() where T : IRepository
         {
             var repositoryType = typeof(T);
+            if (_cache.TryGetValue(repositoryType, out var implementationType))
+            {
+                return (T)_serviceProvider.GetRequiredService(implementationType);
+            }
+
             try
             {
-                return _serviceProvider.GetService<T>();
+                var repository = _serviceProvider.GetRequiredService<T>();
+                _cache.TryAdd(repositoryType, repositoryType);
+
+                return repository;
             }
             catch
             {
@@ -30,6 +40,7 @@ namespace Database.Abstractions
                 {
                     if (type.GetInterfaces().Any(i => i == repositoryType))
                     {
+                        _cache.TryAdd(repositoryType, type);
                         return (T)_serviceProvider.GetService(type);
                     }
                 }

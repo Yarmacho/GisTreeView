@@ -38,7 +38,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
             if (nodes.Count > 0 && buildNodesParams.ProfileLayerHandle != -1)
             {
-                new ProfilNodesBuilder(nodes).BuildNodes(buildNodesParams);
+                await new ProfilNodesBuilder(nodes).BuildNodes(buildNodesParams);
             }
 
             return nodes.Values;

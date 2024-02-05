@@ -7,6 +7,8 @@ namespace DynamicForms.Attributes
     {
         public string Label { get; }
 
+        public bool Enabled { get; set; } = true;
+
         public DisplayAttribute(string label)
         {
             Label = label;

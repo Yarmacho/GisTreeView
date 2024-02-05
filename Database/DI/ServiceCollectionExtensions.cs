@@ -18,9 +18,20 @@ namespace Database.DI
                 opt.UseSqlite(configuration.GetValue<string>("ConnectionString"));
                 SQLitePCL.Batteries.Init();
             }, ServiceLifetime.Transient)
-                .AddTransient<IExperimentsRepository, ExperimentsRepository>()
+                .AddAsBoth<IExperimentsRepository, ExperimentsRepository>()
                 .AddSingleton<IRepositoriesProvider, RepositoriesProvider>()
                 .AddTransient<IDbManager, DbManager>();
+        }
+
+        private static IServiceCollection AddAsBoth<TService, TImplementation>(this IServiceCollection services,
+            ServiceLifetime lifetime = ServiceLifetime.Transient)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            services.Add(new ServiceDescriptor(typeof(TService), typeof(TImplementation), lifetime));
+            services.Add(new ServiceDescriptor(typeof(TImplementation), typeof(TImplementation), lifetime));
+
+            return services;
         }
     }
 }
