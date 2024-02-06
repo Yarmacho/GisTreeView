@@ -39,9 +39,42 @@ namespace DynamicForms.Factories
             map.Size = new System.Drawing.Size(600, 400);
             map.Enabled = true;
             map.Name = "map";
-            map.Location = new System.Drawing.Point(form.Width - 10, 5);
+            map.Location = new System.Drawing.Point(form.Width - 10, 30);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(form.GetType());
             map.OcxState = ((AxHost.State)(resources.GetObject("axMap1.OcxState")));
+
+            var panBtn = new Button();
+            panBtn.Text = "Pan";
+            panBtn.Name = "panBtn";
+            panBtn.Location = new System.Drawing.Point(form.Width - 10, 5);
+            panBtn.Size = new System.Drawing.Size(80, 25);
+            panBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmPan;
+
+            var addShapeBtn = new Button();
+            addShapeBtn.Text = "Add shape";
+            addShapeBtn.Name = "addShape";
+            addShapeBtn.Location = new System.Drawing.Point(form.Width + 80, 5);
+            addShapeBtn.Size = new System.Drawing.Size(80, 25);
+            addShapeBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmAddShape;
+
+            var zoomInBtn = new Button();
+            zoomInBtn.Text = "Zoom in";
+            zoomInBtn.Name = "ZoomIn";
+            zoomInBtn.Location = new System.Drawing.Point(form.Width + 170, 5);
+            zoomInBtn.Size = new System.Drawing.Size(80, 25);
+            zoomInBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmZoomIn;
+
+            var zoomOutBtn = new Button();
+            zoomOutBtn.Text = "Zoom in";
+            zoomOutBtn.Name = "ZoomIn";
+            zoomOutBtn.Location = new System.Drawing.Point(form.Width + 260, 5);
+            zoomOutBtn.Size = new System.Drawing.Size(80, 25);
+            zoomOutBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmZoomOut;
+
+            form.Controls.Add(addShapeBtn);
+            form.Controls.Add(panBtn);
+            form.Controls.Add(zoomInBtn);
+            form.Controls.Add(zoomOutBtn);
 
             var directory = Path.Combine("mapPath", "Temp");
             if (!Directory.Exists(directory))
@@ -58,7 +91,8 @@ namespace DynamicForms.Factories
                 MapInitializer.Init(mapPath, map);
                 if (shapeFileClone.CreateNew(tempFileName, shapefile.ShapefileType))
                 {
-                    map.AddLayer(shapeFileClone, true);
+                    var layer = map.AddLayer(shapeFileClone, true);
+                    map.MoveLayerTop(layer);
                 }
             };
 
@@ -109,15 +143,6 @@ namespace DynamicForms.Factories
                 }
             };
 
-            var menuItems = new MenuItem[]
-            {
-                new MenuItem("Pan", (s, e) => map.CursorMode = MapWinGIS.tkCursorMode.cmPan),
-                new MenuItem("Add shape", (s, e) => map.CursorMode = MapWinGIS.tkCursorMode.cmAddShape),
-                new MenuItem("Zoom in", (s, e) => map.CursorMode = MapWinGIS.tkCursorMode.cmZoomIn),
-                new MenuItem("Zoom out", (s, e) => map.CursorMode = MapWinGIS.tkCursorMode.cmZoomOut),
-            };
-
-            form.ContextMenu = new ContextMenu(menuItems);
             form.Controls.Add(map);
 
             if (form.Height < 500)
