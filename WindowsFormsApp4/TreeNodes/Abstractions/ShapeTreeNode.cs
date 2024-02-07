@@ -38,11 +38,6 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             throw new System.NotImplementedException();
         }
 
-        protected override ValueTask OnAppendingNode(object entity)
-        {
-            return new ValueTask();
-        }
-
         protected override void ConfigureChildNodeEntity(object childEntity)
         {
         }

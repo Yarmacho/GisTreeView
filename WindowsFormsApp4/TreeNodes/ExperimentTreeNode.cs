@@ -28,14 +28,9 @@ namespace WindowsFormsApp4.TreeNodes
         {
             var menu = base.BuildContextMenu();
 
-            menu.MenuItems.Add(new MenuItem("Add Gas", async (s, e) => await AppendChild<Gas, GasTreeNode>()));
+            menu.MenuItems.Add(0, new MenuItem("Add Gas", async (s, e) => await AppendChild<Gas, GasTreeNode>()));
 
             return menu;
-        }
-
-        protected override ValueTask OnAppendingNode(object entity)
-        {
-            return new ValueTask();
         }
 
         protected override void ConfigureChildNodeEntity(object childEntity)

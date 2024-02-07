@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Tools;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
@@ -28,22 +30,25 @@ namespace WindowsFormsApp4.TreeNodes
             Nodes.Add(node);
         }
 
-        protected override async ValueTask OnAppendingNode(object entity)
+        protected override void ConfigureChildNodeEntity(object childEntity)
         {
-            if (!(entity is Gas gas))
+            if (childEntity is Scene scene)
             {
-                return;
+                var idFieldIndex = Shapefile.FieldIndexByName["Id"];
+                if (idFieldIndex != -1)
+                {
+                    scene.GasId = TypeTools.Convert<int>(Shapefile.CellValue[idFieldIndex, ShapeIndex]);
+                }
             }
+        }
 
-            var nameFieldIndex = Shapefile.FieldIndexByName["Ent_num"];
-            var experimentIdFieldIndex = Shapefile.FieldIndexByName["ExperimentId"];
+        protected override ContextMenu BuildContextMenu()
+        {
+            var menu = base.BuildContextMenu();
 
-            Shapefile.StartEditingShapes();
+            menu.MenuItems.Add(0, new MenuItem("Add scene", async (s, e) => await AppendChild<Scene, SceneTreeNode>()));
 
-            Shapefile.EditCellValue(nameFieldIndex, ShapeIndex, gas.Name);
-            Shapefile.EditCellValue(experimentIdFieldIndex, ShapeIndex, gas.ExperimentId);
-
-            Shapefile.StopEditingShapes();
+            return menu;
         }
     }
 }

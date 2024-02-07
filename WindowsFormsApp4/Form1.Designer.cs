@@ -55,10 +55,10 @@ namespace WindowsFormsApp4
             this.addExperimentBtn.UseVisualStyleBackColor = true;
             this.addExperimentBtn.Click += new System.EventHandler(this.addExperimentBtn_Click);
             // 
-            // mapTreeView1
+            // treeView1
             // 
             this.treeView1.Location = new System.Drawing.Point(13, 55);
-            this.treeView1.Name = "mapTreeView1";
+            this.treeView1.Name = "treeView1";
             this.treeView1.Size = new System.Drawing.Size(186, 383);
             this.treeView1.TabIndex = 3;
             // 
@@ -75,6 +75,7 @@ namespace WindowsFormsApp4
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         #endregion

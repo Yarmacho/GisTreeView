@@ -4,6 +4,7 @@ using Interfaces.Database.Abstractions;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Tools;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
@@ -33,7 +34,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         public override async ValueTask Update()
         {
-            var form = FormFactory.CreateForm(Entity, DynamicForms.Attributes.EditMode.Edit);
+            var form = FormFactory.CreateForm(Entity, EditMode.Edit);
             if (form.Activate() == System.Windows.Forms.DialogResult.OK)
             {
                 var newEntity = form.GetEntity<TEntity>();

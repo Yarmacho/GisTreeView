@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DynamicForms.Attributes
+namespace Tools
 {
     [Flags]
     public enum EditMode

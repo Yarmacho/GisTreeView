@@ -20,6 +20,7 @@ namespace Database.DI
             }, ServiceLifetime.Transient)
                 .AddAsBoth<IExperimentsRepository, ExperimentsRepository>()
                 .AddAsBoth<IGasRepository, GasRepository>()
+                .AddAsBoth<ISceneRepository, ScenesRepository>()
                 .AddSingleton<IRepositoriesProvider, RepositoriesProvider>()
                 .AddTransient<IDbManager, DbManager>();
         }

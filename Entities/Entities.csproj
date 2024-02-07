@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Entities</RootNamespace>
     <AssemblyName>Entities</AssemblyName>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -53,6 +53,7 @@
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\Experiment.cs" />
     <Compile Include="Entities\Gas.cs" />
+    <Compile Include="Entities\Scene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -75,9 +76,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DynamicForms\DynamicForms.csproj">
-      <Project>{A6439AD8-FB0E-4298-B48D-AD7A895514D9}</Project>
-      <Name>DynamicForms</Name>
+    <ProjectReference Include="..\Tools\Tools.csproj">
+      <Project>{C9F344AD-9207-4205-91AC-05D48B041877}</Project>
+      <Name>Tools</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -46,9 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\DisplayAttribute.cs" />
-    <Compile Include="Attributes\EditMode.cs" />
-    <Compile Include="Attributes\IgnorePropertyAttribute.cs" />
     <Compile Include="Factories\FormFactory.cs" />
     <Compile Include="Forms\EntityForm.cs">
       <SubType>Form</SubType>
@@ -62,6 +59,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Entities\Entities.csproj">
+      <Project>{91222ced-eb60-4e3e-9aa9-190e523a4f8d}</Project>
+      <Name>Entities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tools\Tools.csproj">
       <Project>{c9f344ad-9207-4205-91ac-05d48b041877}</Project>
       <Name>Tools</Name>

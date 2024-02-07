@@ -52,6 +52,7 @@
     <Compile Include="Abstractions\IRepository.cs" />
     <Compile Include="Repositories\IExperimentsRepository.cs" />
     <Compile Include="Repositories\IGasRepository.cs" />
+    <Compile Include="Repositories\ISceneRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

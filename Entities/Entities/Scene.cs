@@ -3,11 +3,11 @@ using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Gas : EntityBase<int>
+    public class Scene : EntityBase<int>
     {
         public string Name { get; set; }
 
         [IgnoreProperty(EditMode.Add)]
-        public int ExperimentId { get; set; }
+        public int GasId { get; set; }
     }
 }

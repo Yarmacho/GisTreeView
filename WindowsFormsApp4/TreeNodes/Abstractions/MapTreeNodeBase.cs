@@ -1,4 +1,5 @@
 ﻿using AxMapWinGIS;
+using Tools.Attributes;
 using DynamicForms.Factories;
 using DynamicForms.Forms;
 using Entities;
@@ -14,6 +15,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.ShapeConverters;
+using Tools;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
@@ -40,13 +42,17 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             int entityLayerHandle = -1;
             int shapeIndex = -1;
 
+            var childEntity = new TChildEntity();
+            ConfigureChildNodeEntity(childEntity);
             var isShapeNode = typeof(ShapeTreeNode).IsAssignableFrom(childNodeType);
             if (isShapeNode)
             {
                 var entityType = typeof(TChildEntity);
                 entityLayerHandle = entityType == typeof(Gas)
                     ? TreeView.LayersInfo.GasLayerHandle
-                    : -1;
+                    : entityType == typeof(Scene)
+                        ? TreeView.LayersInfo.SceneLayerHandle
+                        : -1;
                 if (entityLayerHandle == -1)
                 {
                     return;
@@ -58,12 +64,12 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                     return;
                 }
 
-                form = FormFactory.CreateFormWithMap<TChildEntity>(shapeFile, Path.GetDirectoryName(shapeFile.Filename),
-                    DynamicForms.Attributes.EditMode.Add);
+                form = FormFactory.CreateFormWithMap(childEntity, shapeFile, Path.GetDirectoryName(shapeFile.Filename),
+                    EditMode.Add);
             }
             else
             {
-                form = FormFactory.CreateForm<TChildEntity>(DynamicForms.Attributes.EditMode.Add);
+                form = FormFactory.CreateForm(childEntity, EditMode.Add);
             }
 
             if (form.Activate() != DialogResult.OK)
@@ -84,9 +90,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 shapeFile.StopAppendMode();
             }
 
-            var childEntity = form.GetEntity<TChildEntity>();
-            ConfigureChildNodeEntity(childEntity);
-
+            childEntity = form.GetEntity<TChildEntity>();
             var repository = TreeView.RepositoriesProvider.Get<IWriteOnlyRepository<TChildEntity>>();
             childEntity = await repository.AddAsync(childEntity);
             if (!await repository.SaveChanges())
@@ -109,15 +113,12 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                     new object[] { childEntity, TreeView.RepositoriesProvider });
             }
 
-            await childNode.OnAppendingNode(childEntity);
             childNode.SetMap(Map);
             Nodes.Add(childNode);
             Expand();
         }
 
         protected abstract void ConfigureChildNodeEntity(object childEntity);
-
-        protected abstract ValueTask OnAppendingNode(object entity);
 
         protected virtual ContextMenu BuildContextMenu()
         {

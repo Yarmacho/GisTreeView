@@ -1,7 +1,8 @@
 ﻿using AxMapWinGIS;
-using DynamicForms.Attributes;
+using Tools.Attributes;
 using DynamicForms.Forms;
 using MapWinGIS;
+using Entities.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,10 @@ namespace DynamicForms.Factories
     {
         public static IEntityFormWithMap CreateFormWithMap(object entity, Shapefile shapefile, string mapsPath = null, EditMode editMode = EditMode.View)
         {
-            var form = new EntityFormWithMap(entity);
+            var form = new EntityFormWithMap(entity) 
+            {
+                Text = getFormCaption(entity, editMode)
+            };
             configureForm(form, entity, editMode);
             addMap(form, mapsPath, shapefile);
             configureButtons(form, editMode);
@@ -84,15 +88,80 @@ namespace DynamicForms.Factories
 
             var tempFileName = Path.Combine(directory, $"{Guid.NewGuid()}.shp");
             var shapeFileClone = shapefile.Clone();
+            MapInitResult layersInfo = null;
             form.Load += (s, e) =>
             {
-                map.SendMouseDown = true;
+                map.SendMouseDown = !(form.GetEntity<object>() is Scene);
                 map.CursorMode = MapWinGIS.tkCursorMode.cmPan;
-                MapInitializer.Init(mapPath, map);
+                layersInfo = MapInitializer.Init(mapPath, map);
                 if (shapeFileClone.CreateNew(tempFileName, shapefile.ShapefileType))
                 {
                     var layer = map.AddLayer(shapeFileClone, true);
                     map.MoveLayerTop(layer);
+                }
+
+                var scene = form.GetEntity<Scene>();
+                if (scene != null)
+                {
+                    var angle = 45d;
+                    var sideLength = 30000d;
+                    var gasShapefile = map.get_Shapefile(layersInfo.GasLayerHandle);
+                    object result = null;
+                    string error = null;
+                    if (!gasShapefile.Table.Query($"[Id] = {scene.GasId}", ref result, ref error))
+                    {
+                        return;
+                    }
+                    var gasShapeId = (result as int[] ?? Array.Empty<int>()).ElementAtOrDefault(0);
+                    var gasShape = gasShapefile.Shape[gasShapeId];
+                    var origin = gasShape.Point[0];
+
+                    var label = new System.Windows.Forms.Label();
+                    label.Text = "Angle";
+                    label.Top = 435;
+                    label.Left = map.Left;
+                    label.AutoSize = true;
+                    form.Controls.Add(label);
+
+                    var angleTextBox = new MaskedTextBox();
+                    angleTextBox.Mask = "###.##";
+                    angleTextBox.Top = 450;
+                    angleTextBox.Text = angle.ToString();
+                    angleTextBox.Left = map.Left;
+                    angleTextBox.Width = 115;
+                    angleTextBox.TextChanged += (s1, e1) =>
+                    {
+                        angle = TypeTools.Convert<double>(angleTextBox.Text);
+                        buildScene(shapeFileClone, ref form.Shape, origin, angle, sideLength);
+                        map.Redraw();
+                    };
+                    form.Controls.Add(angleTextBox);
+
+                    label = new System.Windows.Forms.Label();
+                    label.Text = "Length";
+                    label.Top = 435;
+                    label.Left = map.Left + 125;
+                    label.AutoSize = true;
+                    form.Controls.Add(label);
+
+                    var lenghtTextBox = new MaskedTextBox();
+                    lenghtTextBox.Mask = "#######.##";
+                    lenghtTextBox.Top = 450;
+                    lenghtTextBox.Text = sideLength.ToString();
+                    lenghtTextBox.Left = map.Left + 125;
+                    lenghtTextBox.Width = 115;
+                    lenghtTextBox.TextChanged += (s1, e1) =>
+                    {
+                        sideLength = TypeTools.Convert<double>(lenghtTextBox.Text);
+                        buildScene(shapeFileClone, ref form.Shape, origin, angle, sideLength);
+                        map.Redraw();
+                    };
+                    form.Controls.Add(lenghtTextBox);
+
+                    form.Height += 30;
+
+                    buildScene(shapeFileClone, ref form.Shape, origin, angle, sideLength);
+                    map.Redraw();
                 }
             };
 
@@ -125,11 +194,11 @@ namespace DynamicForms.Factories
                         shapeFileClone.StopAppendMode();
                     }
 
+
                     var point = new Point();
                     point.x = projX;
                     point.y = projY;
 
-                    shapeFileClone.StartEditingShapes();
                     if (shapeFileClone.ShapefileType == ShpfileType.SHP_POINT && form.Shape.numPoints == 1)
                     {
                         form.Shape.Point[0] = point;
@@ -139,7 +208,8 @@ namespace DynamicForms.Factories
                         var pointIndex = 0;
                         form.Shape.InsertPoint(point, ref pointIndex);
                     }
-                    shapeFileClone.StopEditingShapes();
+
+                    map.Redraw();
                 }
             };
 
@@ -153,15 +223,72 @@ namespace DynamicForms.Factories
             {
                 map.Height = form.Height - 30;
             }
+
             form.Width += 650;
 
             map.EndInit();
             form.ResumeLayout();
         }
 
+        private static void buildScene(Shapefile shapefile, ref Shape shape, Point point, double angle, double sideLength)
+        {
+            if (shapefile.NumShapes != 0)
+            {
+                shapefile.StartEditingShapes();
+                shapefile.EditClear();
+                shapefile.StopEditingShapes();
+            }
+
+            if (angle == 0 || sideLength == 0)
+            {
+                return;
+            }
+
+            shapefile.StartAppendMode();
+            shapefile.StartEditingShapes();
+            shape = new Shape();
+            shape.Create(shapefile.ShapefileType);
+
+            var angleRadians = angle * Math.PI / 180d;
+            var cos = Math.Cos(angleRadians);
+            var sin = Math.Sin(angleRadians);
+
+            var pointA = new Point();
+            pointA.x = point.x + sideLength;
+            pointA.y = point.y + sideLength;
+
+            var pointB = new Point();
+            pointB.x = point.x - sideLength;
+            pointB.y = point.y + sideLength;
+
+            var pointC = new Point();
+            pointC.x = point.x - sideLength;
+            pointC.y = point.y - sideLength;
+            
+            var pointD = new Point();
+            pointD.x = point.x + sideLength;
+            pointD.y = point.y - sideLength;
+
+            var pointIndex = -1;
+            shape.InsertPoint(pointA, ref pointIndex);
+            shape.InsertPoint(pointB, ref pointIndex);
+            shape.InsertPoint(pointC, ref pointIndex);
+            shape.InsertPoint(pointD, ref pointIndex);
+
+            shape.Rotate(point.x, point.y, angle);
+
+            var shapeIndex = 0;
+            shapefile.EditInsertShape(shape, ref shapeIndex);
+            shapefile.StopEditingShapes();
+            shapefile.StopAppendMode();
+        }
+
         public static IEntityForm CreateForm(object entity, EditMode editMode = EditMode.View)
         {
-            var form = new EntityForm(entity);
+            var form = new EntityForm(entity) 
+            {
+                Text = getFormCaption(entity, editMode)
+            };
             configureForm(form, entity, editMode);
             configureButtons(form, editMode);
 
@@ -244,6 +371,11 @@ namespace DynamicForms.Factories
                 form.AcceptButton = btn;
                 form.Controls.Add(btn);
             }
+        }
+
+        private static string getFormCaption(object entity, EditMode editMode)
+        {
+            return $"{entity.GetType().Name}. {editMode}";
         }
     }
 }
