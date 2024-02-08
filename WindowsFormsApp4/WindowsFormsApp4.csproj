@@ -98,6 +98,7 @@
     </Compile>
     <Compile Include="ShapeConverters\IShapeEntityConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToGasConverter.cs" />
+    <Compile Include="ShapeConverters\ShapeToRouteConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToSceneConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToShipConverter.cs" />
     <Compile Include="TreeBuilder\BuildNodesParams.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="TreeNodes\Abstractions\MapTreeNodeBase.cs" />
     <Compile Include="TreeNodes\ExperimentTreeNode.cs" />
     <Compile Include="TreeNodes\ProfilTreeNode.cs" />
+    <Compile Include="TreeNodes\RouteTreeNode.cs" />
     <Compile Include="TreeNodes\ShipTreeNode.cs" />
     <Compile Include="TreeNodes\GasTreeNode.cs" />
     <Compile Include="TreeNodes\Abstractions\ShapeTreeNode.cs" />

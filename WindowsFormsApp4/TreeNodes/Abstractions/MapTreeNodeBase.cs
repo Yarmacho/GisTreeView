@@ -54,7 +54,9 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                         ? TreeView.LayersInfo.SceneLayerHandle
                         : entityType == typeof(Ship)
                             ? TreeView.LayersInfo.ShipLayerHandle
-                            : -1;
+                            : entityType == typeof(Route)
+                                ? TreeView.LayersInfo.RoutesLayerHadnle
+                                : -1;
                 if (entityLayerHandle == -1)
                 {
                     return;

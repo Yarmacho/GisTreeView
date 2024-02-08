@@ -43,6 +43,9 @@ namespace DynamicForms
                                     case "Profil":
                                         result.ProfilLayerHandle = layerHandle;
                                         break;
+                                    case "TraceLine":
+                                        result.RoutesLayerHadnle = layerHandle;
+                                        break;
                                 }
 
                                 break;
@@ -85,5 +88,7 @@ namespace DynamicForms
         public int ShipLayerHandle = -1;
 
         public int ProfilLayerHandle = -1;
+
+        public int RoutesLayerHadnle = -1;
     }
 }

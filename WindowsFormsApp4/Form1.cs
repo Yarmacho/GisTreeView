@@ -33,6 +33,7 @@ namespace WindowsFormsApp4
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            axMap1.CursorMode = tkCursorMode.cmPan;
             var initResult = MapInitializer.Init(_path, axMap1);
             treeView1.LayersInfo = initResult;
 

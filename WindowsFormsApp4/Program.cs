@@ -46,6 +46,7 @@ namespace WindowsFormsApp4
                     services.AddTransient<IShapeEntityConverter<Gas>, ShapeToGasConverter>();
                     services.AddTransient<IShapeEntityConverter<Scene>, ShapeToSceneConverter>();
                     services.AddTransient<IShapeEntityConverter<Ship>, ShapeToShipConverter>();
+                    services.AddTransient<IShapeEntityConverter<Route>, ShapeToRouteConverter>();
                     services.AddDataBase(config);
                 });
         }

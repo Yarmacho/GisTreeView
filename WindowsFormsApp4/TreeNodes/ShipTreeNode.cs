@@ -3,6 +3,7 @@ using MapWinGIS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
@@ -27,6 +28,15 @@ namespace WindowsFormsApp4.TreeNodes
         public void AddNode(ProfilTreeNode node)
         {
             Nodes.Add(node);
+        }
+
+        protected override ContextMenu BuildContextMenu()
+        {
+            var menu = base.BuildContextMenu();
+
+            menu.MenuItems.Add(0, new MenuItem("Add route", async (s, e) => await AppendChild<Route, RouteTreeNode>()));
+
+            return menu;
         }
 
         protected override void ConfigureChildNodeEntity(object childEntity)
