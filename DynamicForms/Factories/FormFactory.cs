@@ -69,8 +69,8 @@ namespace DynamicForms.Factories
             zoomInBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmZoomIn;
 
             var zoomOutBtn = new Button();
-            zoomOutBtn.Text = "Zoom in";
-            zoomOutBtn.Name = "ZoomIn";
+            zoomOutBtn.Text = "Zoom out";
+            zoomOutBtn.Name = "ZoomOut";
             zoomOutBtn.Location = new System.Drawing.Point(form.Width + 260, 5);
             zoomOutBtn.Size = new System.Drawing.Size(80, 25);
             zoomOutBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmZoomOut;
@@ -112,7 +112,7 @@ namespace DynamicForms.Factories
                     {
                         return;
                     }
-                    var gasShapeId = (result as int[] ?? Array.Empty<int>()).ElementAtOrDefault(0);
+                    var gasShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
                     var gasShape = gasShapefile.Shape[gasShapeId];
                     var origin = gasShape.Point[0];
 
@@ -174,6 +174,7 @@ namespace DynamicForms.Factories
                 }
             };
 
+            var ship = form.GetEntity<Ship>();
             map.MouseDownEvent += (s, e) =>
             {
                 if (map.CursorMode == tkCursorMode.cmAddShape)
@@ -194,12 +195,12 @@ namespace DynamicForms.Factories
                         shapeFileClone.StopAppendMode();
                     }
 
-
                     var point = new Point();
                     point.x = projX;
                     point.y = projY;
 
-                    if (shapeFileClone.ShapefileType == ShpfileType.SHP_POINT && form.Shape.numPoints == 1)
+                    var isPoint = shapeFileClone.ShapefileType == ShpfileType.SHP_POINT || shapeFileClone.ShapefileType == ShpfileType.SHP_POINTZ;
+                    if (isPoint && form.Shape.numPoints == 1)
                     {
                         form.Shape.Point[0] = point;
                     }
@@ -207,6 +208,25 @@ namespace DynamicForms.Factories
                     {
                         var pointIndex = 0;
                         form.Shape.InsertPoint(point, ref pointIndex);
+                    }
+
+                    if (ship != null)
+                    {
+                        object result = null;
+                        string error = null;
+                        var sceneShapeFile = map.get_Shapefile(layersInfo.SceneLayerHandle);
+                        if (!sceneShapeFile.Table.Query($"[SceneId] = {ship.SceneId}", ref result, ref error))
+                        {
+                            MessageBox.Show("Scene not found");
+                            return;
+                        }
+                        var sceneShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
+                        var sceneShape = sceneShapeFile.Shape[sceneShapeId];
+
+                        if (!form.Shape.Intersects(sceneShape))
+                        {
+                            form.Shape.Clear();
+                        }
                     }
 
                     map.Redraw();
@@ -248,10 +268,6 @@ namespace DynamicForms.Factories
             shapefile.StartEditingShapes();
             shape = new Shape();
             shape.Create(shapefile.ShapefileType);
-
-            var angleRadians = angle * Math.PI / 180d;
-            var cos = Math.Cos(angleRadians);
-            var sin = Math.Sin(angleRadians);
 
             var pointA = new Point();
             pointA.x = point.x + sideLength;

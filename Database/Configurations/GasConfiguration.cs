@@ -10,7 +10,8 @@ namespace Database.Configurations
         {
             builder.ToTable("Gas");
 
-            builder.Property(r => r.Id).HasColumnName("ID");
+            builder.Property(r => r.Id).HasColumnName("ID")
+                .ValueGeneratedOnAdd();
             builder.Property(r => r.Name).HasColumnName("NAME");
             builder.Property(r => r.ExperimentId).HasColumnName("EXPERIMENTID");
 

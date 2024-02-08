@@ -1,7 +1,9 @@
-﻿using MapWinGIS;
+﻿using Entities.Entities;
+using MapWinGIS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tools;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
@@ -25,6 +27,18 @@ namespace WindowsFormsApp4.TreeNodes
         public void AddNode(ProfilTreeNode node)
         {
             Nodes.Add(node);
+        }
+
+        protected override void ConfigureChildNodeEntity(object childEntity)
+        {
+            if (childEntity is Route route)
+            {
+                var idFieldIndex = Shapefile.FieldIndexByName["ShipId"];
+                if (idFieldIndex != -1)
+                {
+                    route.ShipId = TypeTools.Convert<int>(Shapefile.CellValue[idFieldIndex, ShapeIndex]);
+                }
+            }
         }
     }
 }

@@ -99,6 +99,7 @@
     <Compile Include="ShapeConverters\IShapeEntityConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToGasConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToSceneConverter.cs" />
+    <Compile Include="ShapeConverters\ShapeToShipConverter.cs" />
     <Compile Include="TreeBuilder\BuildNodesParams.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

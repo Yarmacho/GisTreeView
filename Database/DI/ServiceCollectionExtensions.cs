@@ -21,6 +21,9 @@ namespace Database.DI
                 .AddAsBoth<IExperimentsRepository, ExperimentsRepository>()
                 .AddAsBoth<IGasRepository, GasRepository>()
                 .AddAsBoth<ISceneRepository, ScenesRepository>()
+                .AddAsBoth<IShipsRepository, ShipsRepository>()
+                .AddAsBoth<IRoutesRepository, RoutesRepository>()
+                .AddAsBoth<IRoutePointsRepository, RoutePointsRepository>()
                 .AddSingleton<IRepositoriesProvider, RepositoriesProvider>()
                 .AddTransient<IDbManager, DbManager>();
         }

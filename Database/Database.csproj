@@ -50,12 +50,18 @@
     <Compile Include="AppDbContext.cs" />
     <Compile Include="Configurations\ExperimentConfiguration.cs" />
     <Compile Include="Configurations\GasConfiguration.cs" />
+    <Compile Include="Configurations\RouteConfiguration.cs" />
+    <Compile Include="Configurations\RoutePointConfiguration.cs" />
     <Compile Include="Configurations\SceneConfiguration.cs" />
+    <Compile Include="Configurations\ShipConfiguration.cs" />
     <Compile Include="DI\ServiceCollectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ExperimentsRepository.cs" />
     <Compile Include="Repositories\GasRepository.cs" />
+    <Compile Include="Repositories\RoutePointsRepository.cs" />
+    <Compile Include="Repositories\RoutesRepository.cs" />
     <Compile Include="Repositories\ScenesRepository.cs" />
+    <Compile Include="Repositories\ShipsRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

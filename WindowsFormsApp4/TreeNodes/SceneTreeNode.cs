@@ -1,10 +1,10 @@
-﻿using MapWinGIS;
+﻿using Entities.Entities;
+using MapWinGIS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Tools;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
@@ -33,9 +33,21 @@ namespace WindowsFormsApp4.TreeNodes
         protected override ContextMenu BuildContextMenu()
         {
             var menu = base.BuildContextMenu();
-            //menu.MenuItems.Add(new MenuItem("Add sea object", (s, e) => AppendChild<>));
+            menu.MenuItems.Add(0, new MenuItem("Add sea object", async (s, e) => await AppendChild<Ship, ShipTreeNode>()));
 
             return menu;
+        }
+
+        protected override void ConfigureChildNodeEntity(object childEntity)
+        {
+            if (childEntity is Ship ship)
+            {
+                var idFieldIndex = Shapefile.FieldIndexByName["SceneId"];
+                if (idFieldIndex != -1)
+                {
+                    ship.SceneId = TypeTools.Convert<int>(Shapefile.CellValue[idFieldIndex, ShapeIndex]);
+                }
+            }
         }
     }
 }

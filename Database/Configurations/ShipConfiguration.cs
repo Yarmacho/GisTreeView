@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Database.Configurations
 {
-    internal class SceneConfiguration : IEntityTypeConfiguration<Scene>
+    internal class ShipConfiguration : IEntityTypeConfiguration<Ship>
     {
-        public void Configure(EntityTypeBuilder<Scene> builder)
+        public void Configure(EntityTypeBuilder<Ship> builder)
         {
-            builder.ToTable("Scenes");
+            builder.ToTable("Ships");
 
             builder.Property(s => s.Id).HasColumnName("ID")
                 .ValueGeneratedOnAdd();
-            builder.Property(s => s.GasId).HasColumnName("GasId");
-            builder.Property(s => s.Name).HasColumnName("Name");
+            builder.Property(s => s.Name).HasColumnName("NAME");
+            builder.Property(s => s.SceneId).HasColumnName("SCENEID");
 
             builder.HasKey(s => s.Id);
         }

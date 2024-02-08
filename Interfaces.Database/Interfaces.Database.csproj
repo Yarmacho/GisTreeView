@@ -52,7 +52,10 @@
     <Compile Include="Abstractions\IRepository.cs" />
     <Compile Include="Repositories\IExperimentsRepository.cs" />
     <Compile Include="Repositories\IGasRepository.cs" />
+    <Compile Include="Repositories\IRoutePointsRepository.cs" />
+    <Compile Include="Repositories\IRoutesRepository.cs" />
     <Compile Include="Repositories\ISceneRepository.cs" />
+    <Compile Include="Repositories\IShipsRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
