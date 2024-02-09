@@ -29,14 +29,14 @@ namespace Database.Abstractions
             return await DbSet.AnyAsync(e => e.Id.Equals(entity.Id), cancellationToken);
         }
 
-        public async Task<TEntity> GetByIdAsync(TId id, CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity> GetByIdAsync(TId id, CancellationToken cancellationToken = default)
         {
-            return await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
+            return await DbSet.AsNoTracking().SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
         }
 
-        public async Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await DbSet.ToListAsync(cancellationToken);
+            return await DbSet.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)

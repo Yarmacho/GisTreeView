@@ -37,14 +37,16 @@ namespace WindowsFormsApp4
             var initResult = MapInitializer.Init(_path, axMap1);
             treeView1.LayersInfo = initResult;
 
-            var nodes = await new MapObjectsTreeBuilder(_serviceProvider).BuidNodes(new BuildNodesParams()
+            var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
             {
                 Map = axMap1,
                 GasLayerHandle = initResult.GasLayerHandle,
                 ProfileLayerHandle = initResult.ProfilLayerHandle,
                 SceneLayerHandle = initResult.SceneLayerHandle,
                 ShipLayerHandle = initResult.ShipLayerHandle,
-                ShowExperiments = true
+                RoutesLayerHandle = initResult.RoutesLayerHadnle,
+                ShowExperiments = true,
+                ServiceProvider = _serviceProvider
             });
             treeView1.Nodes.AddRange(nodes.ToArray());
             treeView1.AfterSelect += TreeView1_AfterSelect;
@@ -54,14 +56,11 @@ namespace WindowsFormsApp4
 
         private void AxMap1_MouseDownEvent(object sender, AxMapWinGIS._DMapEvents_MouseDownEvent e)
         {
-            if (treeView1.SelectedNode is ShapeTreeNode mapTreeNode)
-            {
-            }
         }
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is ShapeTreeNode treeNode)
+            if (e.Node is IFocusable treeNode)
             {
                 treeNode.Focus();
             }

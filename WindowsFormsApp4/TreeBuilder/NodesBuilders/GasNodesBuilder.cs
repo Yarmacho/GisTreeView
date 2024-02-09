@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Entities.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal class GasNodesBuilder : ShapeNodesBuilder<GasTreeNode>
+    internal class GasNodesBuilder : ShapeNodesBuilder<GasTreeNode, Gas>
     {
         private readonly IReadOnlyDictionary<int, ExperimentTreeNode> _experimentNodes;
 

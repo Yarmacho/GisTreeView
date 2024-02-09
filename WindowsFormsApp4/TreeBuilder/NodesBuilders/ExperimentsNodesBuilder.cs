@@ -1,5 +1,6 @@
 ﻿using Interfaces.Database.Abstractions;
 using Interfaces.Database.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,21 +12,15 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
     internal class ExperimentsNodesBuilder : IMapTreeNodesBuilder
     {
-        private readonly IExperimentsRepository _repository;
-        private readonly IRepositoriesProvider _repositoriesProvider;
-
-        public ExperimentsNodesBuilder(IRepositoriesProvider repositoriesProvider)
-        {
-            _repository = repositoriesProvider.Get<IExperimentsRepository>();
-            _repositoriesProvider = repositoriesProvider;
-        }
-
         public async ValueTask<IEnumerable<MapTreeNodeBase>> BuildNodes(BuildNodesParams buildNodesParams)
         {
+            var repositoriesProvider = buildNodesParams.ServiceProvider.GetRequiredService<IRepositoriesProvider>();
+            var repository = repositoriesProvider.Get<IExperimentsRepository>();
+
             var nodes = new Dictionary<int, ExperimentTreeNode>();
-            foreach (var experiment in await _repository.GetByIdsAsync(buildNodesParams.ExperimentIds))
+            foreach (var experiment in await repository.GetByIdsAsync(buildNodesParams.ExperimentIds))
             {
-                var node = new ExperimentTreeNode(experiment, _repositoriesProvider);
+                var node = new ExperimentTreeNode(experiment, repositoriesProvider);
 
                 nodes[experiment.Id] = node;
             }

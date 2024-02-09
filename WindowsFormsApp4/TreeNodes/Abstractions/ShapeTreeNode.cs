@@ -1,13 +1,21 @@
-﻿using MapWinGIS;
+﻿using AxMapWinGIS;
+using DynamicForms.Factories;
+using Entities;
+using MapWinGIS;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using WindowsFormsApp4.ShapeConverters;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
-    internal abstract class ShapeTreeNode : MapTreeNodeBase
+    internal abstract class ShapeTreeNode<TEntity> : MapTreeNodeBase<TEntity>, INodeWithMap, IFocusable
+        where TEntity : EntityBase, new()
     {
         protected readonly Shapefile Shapefile;
         protected readonly int ShapeIndex;
         protected readonly int LayerHandle;
+
+        AxMap INodeWithMap.Map => Map;
 
         protected ShapeTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
         {
@@ -35,12 +43,23 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         public override ValueTask Update()
         {
-            throw new System.NotImplementedException();
+            var converter = TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TEntity>>();
+
+            var entity = converter.FromShapeFile(Shapefile, ShapeIndex);
+
+            var form = FormFactory.CreateFormWithMap(entity, Shapefile, Tools.EditMode.Edit);
+            if (form.Activate() != System.Windows.Forms.DialogResult.OK)
+            {
+                return new ValueTask();
+            }
+
+            entity = form.GetEntity<TEntity>();
+            converter.WriteToShapeFile(Shapefile, ShapeIndex, entity);
+            OnUpdate(entity);
+
+            return new ValueTask();
         }
 
-        protected override void ConfigureChildNodeEntity(object childEntity)
-        {
-        }
 
         public void Focus()
         {

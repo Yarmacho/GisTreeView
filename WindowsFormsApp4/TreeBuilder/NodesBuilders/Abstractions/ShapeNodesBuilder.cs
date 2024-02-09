@@ -1,4 +1,5 @@
-﻿using MapWinGIS;
+﻿using Entities;
+using MapWinGIS;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,8 +8,9 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal abstract class ShapeNodesBuilder<TNode> : IMapTreeNodesBuilder
-        where TNode : ShapeTreeNode
+    internal abstract class ShapeNodesBuilder<TNode, TEntity> : IMapTreeNodesBuilder
+        where TNode : ShapeTreeNode<TEntity>
+        where TEntity : EntityBase, new()
     {
         public abstract ValueTask<IEnumerable<TNode>> BuildNodes(BuildNodesParams buildNodesParams);
 

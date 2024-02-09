@@ -14,26 +14,26 @@ namespace DynamicForms.Factories
 {
     public static class FormFactory
     {
-        public static IEntityFormWithMap CreateFormWithMap(object entity, Shapefile shapefile, string mapsPath = null, EditMode editMode = EditMode.View)
+        public static IEntityFormWithMap CreateFormWithMap(object entity, Shapefile shapefile, EditMode editMode = EditMode.View)
         {
             var form = new EntityFormWithMap(entity) 
             {
                 Text = getFormCaption(entity, editMode)
             };
             configureForm(form, entity, editMode);
-            addMap(form, mapsPath, shapefile);
+            addMap(form, shapefile);
             configureButtons(form, editMode);
 
             return form;
         }
 
-        public static IEntityFormWithMap CreateFormWithMap<T>(Shapefile shapefile, string mapsPath = null, EditMode editMode = EditMode.View)
+        public static IEntityFormWithMap CreateFormWithMap<T>(Shapefile shapefile, EditMode editMode = EditMode.View)
             where T : new()
         {
-            return CreateFormWithMap(new T(), shapefile, mapsPath, editMode);
+            return CreateFormWithMap(new T(), shapefile, editMode);
         }
 
-        private static void addMap(EntityFormWithMap form, string mapPath, Shapefile shapefile)
+        private static void addMap(EntityFormWithMap form, Shapefile shapefile)
         {
             var map = new AxMap();
 
@@ -93,7 +93,7 @@ namespace DynamicForms.Factories
             {
                 map.SendMouseDown = !(form.GetEntity<object>() is Scene);
                 map.CursorMode = MapWinGIS.tkCursorMode.cmPan;
-                layersInfo = MapInitializer.Init(mapPath, map);
+                layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
                 if (shapeFileClone.CreateNew(tempFileName, shapefile.ShapefileType))
                 {
                     var layer = map.AddLayer(shapeFileClone, true);

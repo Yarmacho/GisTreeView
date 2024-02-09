@@ -1,4 +1,5 @@
 ﻿using AxMapWinGIS;
+using System;
 using System.Collections.Generic;
 
 namespace WindowsFormsApp4
@@ -15,8 +16,12 @@ namespace WindowsFormsApp4
 
         public int ProfileLayerHandle { get; set; } = -1;
 
+        public int RoutesLayerHandle { get; set; } = -1;
+
         public bool ShowExperiments { get; set; } = true;
 
         public IEnumerable<int> ExperimentIds { get; set; }
+
+        public IServiceProvider ServiceProvider { get; set; }
     }
 }

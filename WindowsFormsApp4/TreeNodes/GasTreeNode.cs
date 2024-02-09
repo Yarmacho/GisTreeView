@@ -10,7 +10,7 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class GasTreeNode : ShapeTreeNode
+    internal class GasTreeNode : ShapeTreeNode<Gas>
     {
         public GasTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle) : base(shapefile, shapeIndex, layerHandle)
         {
@@ -49,6 +49,12 @@ namespace WindowsFormsApp4.TreeNodes
             menu.MenuItems.Add(0, new MenuItem("Add scene", async (s, e) => await AppendChild<Scene, SceneTreeNode>()));
 
             return menu;
+        }
+
+        protected override void OnUpdate(Gas entity)
+        {
+            Name = entity.Name;
+            Text = entity.Name;
         }
     }
 }

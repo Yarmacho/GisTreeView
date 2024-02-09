@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Entities.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal class ProfilNodesBuilder : ShapeNodesBuilder<ProfilTreeNode>
+    internal class ProfilNodesBuilder : ShapeNodesBuilder<ProfilTreeNode, Profil>
     {
         private readonly IReadOnlyDictionary<int, ShipTreeNode> _shipNodes;
 

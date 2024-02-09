@@ -1,14 +1,12 @@
-﻿using MapWinGIS;
+﻿using Entities;
+using Entities.Entities;
+using MapWinGIS;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class ProfilTreeNode : ShapeTreeNode
+    internal class ProfilTreeNode : ShapeTreeNode<Profil>
     {
         public ProfilTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle) 
             : base(shapefile, shapeIndex, layerHandle)
@@ -20,6 +18,16 @@ namespace WindowsFormsApp4.TreeNodes
             }
             Name = $"Profil {Shapefile.CellValue[nameFieldIndex, shapeIndex]?.ToString()}";
             Text = $"Profil {Shapefile.CellValue[nameFieldIndex, shapeIndex]?.ToString()}";
+        }
+
+        protected override void ConfigureChildNodeEntity(object childEntity)
+        {
+        }
+
+        protected override void OnUpdate(Profil entity)
+        {
+            Name = $"Profil {entity.Name}";
+            Text = $"Profil {entity.Name}";
         }
     }
 }

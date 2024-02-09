@@ -1,21 +1,27 @@
-﻿using MapWinGIS;
+﻿using Entities.Entities;
+using MapWinGIS;
 using System;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class RouteTreeNode : ShapeTreeNode
+    internal class RouteTreeNode : ShapeTreeNode<Route>
     {
-        public RouteTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
+        public RouteTreeNode(Route route, Shapefile shapefile, int shapeIndex, int layerHandle)
             : base(shapefile, shapeIndex, layerHandle)
         {
-            var idFieldIndex = Shapefile.FieldIndexByName["Id"];
-            if (idFieldIndex == -1)
-            {
-                throw new ArgumentException("Incorrent shapefile provided!");
-            }
-            Name = $"Trace {Shapefile.CellValue[idFieldIndex, shapeIndex]}";
-            Text = $"Trace {Shapefile.CellValue[idFieldIndex, shapeIndex]}";
+            Name = route.Name;
+            Text = route.Name;
+        }
+
+        protected override void ConfigureChildNodeEntity(object childEntity)
+        {
+        }
+
+        protected override void OnUpdate(Route entity)
+        {
+            Name = entity.Name;
+            Text = entity.Name;
         }
     }
 }

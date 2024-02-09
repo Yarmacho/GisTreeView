@@ -116,12 +116,16 @@
     <Compile Include="TreeBuilder\NodesBuilders\GasNodesBuilder.cs" />
     <Compile Include="TreeBuilder\NodesBuilders\Abstractions\ShapeNodesBuilder.cs" />
     <Compile Include="TreeBuilder\NodesBuilders\ProfilNodesBuilder.cs" />
+    <Compile Include="TreeBuilder\NodesBuilders\RouteNodesBuilder.cs" />
     <Compile Include="TreeBuilder\NodesBuilders\SceneNodesBuider.cs" />
     <Compile Include="TreeBuilder\NodesBuilders\ShipNodesBuilder.cs" />
     <Compile Include="TreeNodes\Abstractions\EntityTreeNode.cs" />
+    <Compile Include="TreeNodes\Abstractions\IFocusable.cs" />
+    <Compile Include="TreeNodes\Abstractions\INodeWithMap.cs" />
     <Compile Include="TreeNodes\Abstractions\MapTreeNodeBase.cs" />
     <Compile Include="TreeNodes\ExperimentTreeNode.cs" />
     <Compile Include="TreeNodes\ProfilTreeNode.cs" />
+    <Compile Include="TreeNodes\RoutePointTreeNode.cs" />
     <Compile Include="TreeNodes\RouteTreeNode.cs" />
     <Compile Include="TreeNodes\ShipTreeNode.cs" />
     <Compile Include="TreeNodes\GasTreeNode.cs" />

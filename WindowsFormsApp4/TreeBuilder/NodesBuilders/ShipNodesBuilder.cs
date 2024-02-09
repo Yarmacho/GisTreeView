@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Entities.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
-    internal class ShipNodesBuilder : ShapeNodesBuilder<ShipTreeNode>
+    internal class ShipNodesBuilder : ShapeNodesBuilder<ShipTreeNode, Ship>
     {
         private readonly IReadOnlyDictionary<int, SceneTreeNode> _sceneNodes;
 
@@ -36,9 +37,16 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 }
             }
 
-            if (nodes.Count > 0 && buildNodesParams.ProfileLayerHandle != -1)
+            if (nodes.Count > 0)
             {
-                await new ProfilNodesBuilder(nodes).BuildNodes(buildNodesParams);
+                if (buildNodesParams.ProfileLayerHandle != -1)
+                {
+                    await new ProfilNodesBuilder(nodes).BuildNodes(buildNodesParams);
+                }
+                if (buildNodesParams.RoutesLayerHandle != -1)
+                {
+                    await new RouteNodesBuilder(nodes).BuildNodes(buildNodesParams);
+                }
             }
 
             return nodes.Values;

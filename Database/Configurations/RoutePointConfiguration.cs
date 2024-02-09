@@ -15,7 +15,7 @@ namespace Database.Configurations
             builder.Property(p => p.RouteId);
             builder.Property(p => p.Id);
 
-            builder.HasKey(p => p.Id);
+            builder.HasKey(p => new { p.RouteId, p.Id });
         }
     }
 }

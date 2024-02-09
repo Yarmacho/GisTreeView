@@ -9,7 +9,7 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class SceneTreeNode : ShapeTreeNode
+    internal class SceneTreeNode : ShapeTreeNode<Scene>
     {
         public SceneTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
             : base(shapefile, shapeIndex, layerHandle)
@@ -48,6 +48,12 @@ namespace WindowsFormsApp4.TreeNodes
                     ship.SceneId = TypeTools.Convert<int>(Shapefile.CellValue[idFieldIndex, ShapeIndex]);
                 }
             }
+        }
+
+        protected override void OnUpdate(Scene entity)
+        {
+            Name = entity.Name;
+            Text = entity.Name;
         }
     }
 }

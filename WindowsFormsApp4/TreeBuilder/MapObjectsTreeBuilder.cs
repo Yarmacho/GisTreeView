@@ -12,13 +12,6 @@ namespace WindowsFormsApp4
 {
     internal class MapObjectsTreeBuilder
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public MapObjectsTreeBuilder(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
         public async ValueTask<IEnumerable<MapTreeNodeBase>> BuidNodes(BuildNodesParams buildNodesParams)
         {
             if (buildNodesParams.Map == null || buildNodesParams.GasLayerHandle == -1)
@@ -39,7 +32,7 @@ namespace WindowsFormsApp4
         {
             if (buildNodesParams.ShowExperiments)
             {
-                return new ExperimentsNodesBuilder(_serviceProvider.GetRequiredService<IRepositoriesProvider>());
+                return new ExperimentsNodesBuilder();
             }
             else if (buildNodesParams.GasLayerHandle != -1)
             {
@@ -52,6 +45,10 @@ namespace WindowsFormsApp4
             else if (buildNodesParams.ShipLayerHandle != -1)
             {
                 return new ShipNodesBuilder(new Dictionary<int, SceneTreeNode>());
+            }
+            else if (buildNodesParams.RoutesLayerHandle != -1)
+            {
+                return new RouteNodesBuilder(new Dictionary<int, ShipTreeNode>());
             }
             else if (buildNodesParams.ProfileLayerHandle != -1)
             {

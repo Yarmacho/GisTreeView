@@ -9,7 +9,7 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    class ShipTreeNode : ShapeTreeNode
+    class ShipTreeNode : ShapeTreeNode<Ship>
     {
         public ShipTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
             : base(shapefile, shapeIndex, layerHandle)
@@ -49,6 +49,12 @@ namespace WindowsFormsApp4.TreeNodes
                     route.ShipId = TypeTools.Convert<int>(Shapefile.CellValue[idFieldIndex, ShapeIndex]);
                 }
             }
+        }
+
+        protected override void OnUpdate(Ship entity)
+        {
+            Name = entity.Name;
+            Text = entity.Name;
         }
     }
 }

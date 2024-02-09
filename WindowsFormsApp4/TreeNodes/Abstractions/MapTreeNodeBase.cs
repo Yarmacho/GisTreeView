@@ -1,5 +1,4 @@
 ﻿using AxMapWinGIS;
-using Tools.Attributes;
 using DynamicForms.Factories;
 using DynamicForms.Forms;
 using Entities;
@@ -11,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.ShapeConverters;
@@ -19,7 +17,7 @@ using Tools;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
-    internal abstract class MapTreeNodeBase : TreeNode
+    internal abstract class MapTreeNodeBase : TreeNode 
     {
         public MapTreeNodeBase()
         {
@@ -30,10 +28,27 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         protected new MapTreeView TreeView => base.TreeView as MapTreeView;
 
+        protected abstract void ConfigureChildNodeEntity(object childEntity);
+
+        protected abstract ContextMenu BuildContextMenu();
+
+        public void SetMap(AxMap map)
+        {
+            Map = map;
+            foreach (var node in Nodes.OfType<INodeWithMap>())
+            {
+                node.SetMap(map);
+            }
+        }
+    }
+    internal abstract class MapTreeNodeBase<TEntity> : MapTreeNodeBase
+        where TEntity : EntityBase, new()
+    {
+        protected abstract void OnUpdate(TEntity entity);
         public abstract ValueTask Delete();
         public abstract ValueTask Update();
         public virtual async ValueTask AppendChild<TChildEntity, TChildNode>()
-            where TChildNode : MapTreeNodeBase
+            where TChildNode : MapTreeNodeBase<TChildEntity>
             where TChildEntity : EntityBase, new()
         {
             var childNodeType = typeof(TChildNode);
@@ -44,7 +59,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
             var childEntity = new TChildEntity();
             ConfigureChildNodeEntity(childEntity);
-            var isShapeNode = typeof(ShapeTreeNode).IsAssignableFrom(childNodeType);
+            var isShapeNode = typeof(ShapeTreeNode<TChildEntity>).IsAssignableFrom(childNodeType);
             if (isShapeNode)
             {
                 var entityType = typeof(TChildEntity);
@@ -68,7 +83,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                     return;
                 }
 
-                form = FormFactory.CreateFormWithMap(childEntity, shapeFile, Path.GetDirectoryName(shapeFile.Filename),
+                form = FormFactory.CreateFormWithMap(childEntity, shapeFile,
                     EditMode.Add);
             }
             else
@@ -122,9 +137,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             Expand();
         }
 
-        protected abstract void ConfigureChildNodeEntity(object childEntity);
-
-        protected virtual ContextMenu BuildContextMenu()
+        protected override ContextMenu BuildContextMenu()
         {
             var items = new List<MenuItem>
             {
@@ -133,15 +146,6 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             };
 
             return new ContextMenu(items.ToArray());
-        }
-
-        public void SetMap(AxMap map)
-        {
-            Map = map;
-            foreach (var node in Nodes.OfType<ShapeTreeNode>())
-            {
-                node.SetMap(map);
-            }
         }
     }
 }

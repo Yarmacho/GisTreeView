@@ -1,15 +1,13 @@
 ﻿using DynamicForms.Factories;
 using Entities;
 using Interfaces.Database.Abstractions;
-using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Tools;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
-    internal abstract class EntityTreeNode<TEntity> : MapTreeNodeBase
-        where TEntity : EntityBase
+    internal abstract class EntityTreeNode<TEntity> : MapTreeNodeBase<TEntity>
+        where TEntity : EntityBase, new()
     {
         protected readonly TEntity Entity;
         private readonly IRepositoriesProvider _repositoriesProvider;
@@ -48,7 +46,5 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 }
             }
         }
-
-        protected abstract void OnUpdate(TEntity entity);
     }
 }
