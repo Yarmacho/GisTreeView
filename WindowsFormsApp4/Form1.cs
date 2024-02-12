@@ -33,6 +33,10 @@ namespace WindowsFormsApp4
         {
             axMap1.CursorMode = tkCursorMode.cmPan;
             var initResult = MapInitializer.Init(_path, axMap1);
+            if (initResult.SceneLayerHandle != -1)
+            {
+                axMap1.set_ShapeLayerFillTransparency(initResult.SceneLayerHandle, 0.3f);
+            }
             treeView1.LayersInfo = initResult;
 
             var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()

@@ -1,5 +1,7 @@
 ﻿using AxMapWinGIS;
 using MapWinGIS;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DynamicForms
@@ -28,25 +30,7 @@ namespace DynamicForms
                                     layerHandle = map.AddLayer(shapeFile, true);
                                     shapeFile.Save();
                                 }
-
-                                switch (Path.GetFileNameWithoutExtension(file))
-                                {
-                                    case "Gas":
-                                        result.GasLayerHandle = layerHandle;
-                                        break;
-                                    case "Scene":
-                                        result.SceneLayerHandle = layerHandle;
-                                        break;
-                                    case "Ship":
-                                        result.ShipLayerHandle = layerHandle;
-                                        break;
-                                    case "Profil":
-                                        result.ProfilLayerHandle = layerHandle;
-                                        break;
-                                    case "TraceLine":
-                                        result.RoutesLayerHadnle = layerHandle;
-                                        break;
-                                }
+                                result[Path.GetFileNameWithoutExtension(file)] = layerHandle;
 
                                 break;
                             case ".tif":
@@ -79,16 +63,21 @@ namespace DynamicForms
         }
     }
 
-    public class MapInitResult
+    public class MapInitResult : Dictionary<string, int>
     {
-        public int GasLayerHandle = -1;
+        public MapInitResult() : base(StringComparer.InvariantCultureIgnoreCase)
+        {
+        }
 
-        public int SceneLayerHandle = -1;
+        public int GasLayerHandle => TryGetValue("Gas", out var layer) ? layer : -1;
 
-        public int ShipLayerHandle = -1;
+        public int SceneLayerHandle => TryGetValue("Scene", out var layer) ? layer : -1;
 
-        public int ProfilLayerHandle = -1;
+        public int ShipLayerHandle => TryGetValue("Ship", out var layer) ? layer : -1;
 
-        public int RoutesLayerHadnle = -1;
+        public int ProfilLayerHandle => TryGetValue("Profil", out var layer) ? layer : -1;
+
+        public int RoutesLayerHadnle => TryGetValue("TraceLine", out var layer) ? layer : -1;
+        public int CoastLayerHadnle => TryGetValue("BaseChine", out var layer) ? layer : -1;
     }
 }

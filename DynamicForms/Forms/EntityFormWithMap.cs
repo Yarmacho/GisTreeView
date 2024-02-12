@@ -20,6 +20,7 @@ namespace DynamicForms.Forms
         private MaskedTextBox length;
         internal Shape Shape;
         private Shapefile _shapefile;
+        private string _shapefileFileName;
 
         internal object Entity { get; }
         public EntityFormWithMap(object entity)
@@ -36,10 +37,12 @@ namespace DynamicForms.Forms
                 }
 
                 Map.Dispose();
-                var directory = Path.GetDirectoryName(_shapefile.Filename);
-                if (Directory.Exists(directory))
+                if (Directory.Exists(Path.GetDirectoryName(_shapefileFileName)))
                 {
-                    Directory.Delete(directory, true);
+                    foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(_shapefileFileName), $"{Path.GetFileNameWithoutExtension(_shapefileFileName)}.*"))
+                    {
+                        File.Delete(file);
+                    }
                 }
             };
 
@@ -59,15 +62,15 @@ namespace DynamicForms.Forms
         internal void CreateNewShapefile(Shapefile shapefile)
         {
             var guid = Guid.NewGuid();
-            var directory = Path.Combine(Path.GetDirectoryName(shapefile.Filename), "Temp", guid.ToString());
+            var directory = Path.Combine(Path.GetDirectoryName(shapefile.Filename), "Temp");
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
 
             _shapefile = shapefile.Clone();
-            var tempFileName = Path.Combine(directory, $"{guid}.shp");
-            if (_shapefile.CreateNew(tempFileName, shapefile.ShapefileType))
+            _shapefileFileName = Path.Combine(directory, $"{guid}.shp");
+            if (_shapefile.CreateNew(_shapefileFileName, shapefile.ShapefileType))
             {
                 var layer = Map.AddLayer(_shapefile, true);
                 Map.MoveLayerTop(layer);

@@ -40,10 +40,10 @@ namespace DynamicForms.Factories
             form.Load += (s, e) =>
             {
                 layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
+                map.set_ShapeLayerFillTransparency(layersInfo.SceneLayerHandle, 0.3f);
 
                 form.CreateNewShapefile(shapefile);
-                form.SendMouseDownEvent = form.Entity is Scene;
-
+                form.SendMouseDownEvent = !(form.Entity is Scene);
 
                 object result = null;
                 string error = null;
@@ -79,6 +79,26 @@ namespace DynamicForms.Factories
                         {
                             buildScene(shapefileCloned, ref form.Shape, origin, angle, length);
                             map.Redraw();
+                        };
+
+                        var coastShapefile = map.get_Shapefile(layersInfo.CoastLayerHadnle);
+                        string coastQuery = "[OBJECTID]=1";
+                        Shape coast = null;
+                        if (coastShapefile.Table.Query(coastQuery, ref result, ref error))
+                        {
+                            int coastShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
+                            coast = coastShapefile.Shape[coastShapeId];
+                        }
+
+                        form.ValidShape += (point, shape) =>
+                        {
+                            if (coast != null && !coast.Intersects(shape))
+                            {
+                                MessageBox.Show("Сцена побудована на материку. Побудуйте іншу сцену");
+                                return false;
+                            }
+
+                            return true;
                         };
                         break;
                     default:
