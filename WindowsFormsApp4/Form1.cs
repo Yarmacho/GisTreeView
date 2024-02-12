@@ -1,5 +1,4 @@
 ﻿using DynamicForms;
-using Tools.Attributes;
 using DynamicForms.Factories;
 using Entities;
 using Interfaces.Database.Abstractions;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
 using WindowsFormsApp4.TreeNodes.Abstractions;
@@ -63,6 +61,10 @@ namespace WindowsFormsApp4
             if (e.Node is IFocusable treeNode)
             {
                 treeNode.Focus();
+            }
+            if (e.Node is INodeWithDescription nodeWithDescription)
+            {
+                entityDesc.Text = nodeWithDescription.GetDescription();
             }
         }
 

@@ -17,7 +17,7 @@ using Tools;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
-    internal abstract class MapTreeNodeBase : TreeNode 
+    internal abstract class MapTreeNodeBase : TreeNode, INodeWithDescription
     {
         public MapTreeNodeBase()
         {
@@ -40,6 +40,8 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 node.SetMap(map);
             }
         }
+
+        public abstract string GetDescription();
     }
     internal abstract class MapTreeNodeBase<TEntity> : MapTreeNodeBase
         where TEntity : EntityBase, new()

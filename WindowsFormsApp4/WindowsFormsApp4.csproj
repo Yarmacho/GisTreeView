@@ -121,6 +121,7 @@
     <Compile Include="TreeBuilder\NodesBuilders\ShipNodesBuilder.cs" />
     <Compile Include="TreeNodes\Abstractions\EntityTreeNode.cs" />
     <Compile Include="TreeNodes\Abstractions\IFocusable.cs" />
+    <Compile Include="TreeNodes\Abstractions\INodeWithDescription.cs" />
     <Compile Include="TreeNodes\Abstractions\INodeWithMap.cs" />
     <Compile Include="TreeNodes\Abstractions\MapTreeNodeBase.cs" />
     <Compile Include="TreeNodes\ExperimentTreeNode.cs" />

@@ -33,6 +33,7 @@ namespace WindowsFormsApp4
             this.axMap1 = new AxMapWinGIS.AxMap();
             this.addExperimentBtn = new System.Windows.Forms.Button();
             this.treeView1 = new WindowsFormsApp4.MapTreeView();
+            this.entityDesc = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -62,11 +63,21 @@ namespace WindowsFormsApp4
             this.treeView1.Size = new System.Drawing.Size(186, 383);
             this.treeView1.TabIndex = 3;
             // 
+            // entityDesc
+            // 
+            this.entityDesc.Enabled = false;
+            this.entityDesc.Location = new System.Drawing.Point(806, 26);
+            this.entityDesc.Name = "entityDesc";
+            this.entityDesc.Size = new System.Drawing.Size(267, 412);
+            this.entityDesc.TabIndex = 4;
+            this.entityDesc.Text = "";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1085, 450);
+            this.Controls.Add(this.entityDesc);
             this.Controls.Add(this.treeView1);
             this.Controls.Add(this.addExperimentBtn);
             this.Controls.Add(this.axMap1);
@@ -83,6 +94,7 @@ namespace WindowsFormsApp4
         private AxMapWinGIS.AxMap axMap1;
         private System.Windows.Forms.Button addExperimentBtn;
         private MapTreeView treeView1;
+        private System.Windows.Forms.RichTextBox entityDesc;
     }
 }
 

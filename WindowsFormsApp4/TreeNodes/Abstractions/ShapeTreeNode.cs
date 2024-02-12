@@ -65,6 +65,15 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
         {
             Map.ZoomToShape(LayerHandle, ShapeIndex);
         }
+
+        public override string GetDescription()
+        {
+            var converter = TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TEntity>>();
+
+            var entity = converter.FromShapeFile(Shapefile, ShapeIndex);
+
+            return entity.ToString();
+        }
     }
 }
       

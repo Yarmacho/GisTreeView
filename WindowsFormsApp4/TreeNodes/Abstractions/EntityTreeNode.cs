@@ -9,7 +9,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
     internal abstract class EntityTreeNode<TEntity> : MapTreeNodeBase<TEntity>
         where TEntity : EntityBase, new()
     {
-        protected readonly TEntity Entity;
+        protected TEntity Entity;
         private readonly IRepositoriesProvider _repositoriesProvider;
         protected IWriteOnlyRepository<TEntity> GetRepository() => _repositoriesProvider.Get<IWriteOnlyRepository<TEntity>>();
 
@@ -42,9 +42,15 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
                 if (await repository.SaveChanges())
                 {
+                    Entity = newEntity;
                     OnUpdate(newEntity);
                 }
             }
+        }
+
+        public override string GetDescription()
+        {
+            return Entity.ToString();
         }
     }
 }

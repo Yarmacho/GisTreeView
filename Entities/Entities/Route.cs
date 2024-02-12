@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Tools;
 using Tools.Attributes;
 
@@ -15,5 +16,11 @@ namespace Entities.Entities
 
         [IgnoreProperty(EditMode.View | EditMode.Add | EditMode.Edit | EditMode.Delete)]
         public List<RoutePoint> Points { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("Id: {4}{1}Name: {0}{1}Description: {2}{1}ShipId: {3}", Name, Environment.NewLine,
+                Description, ShipId, Id);
+        }
     }
 }
