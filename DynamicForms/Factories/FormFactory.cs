@@ -35,205 +35,59 @@ namespace DynamicForms.Factories
 
         private static void addMap(EntityFormWithMap form, Shapefile shapefile)
         {
-            var map = new AxMap();
-
-            map.BeginInit();
-            form.SuspendLayout();
-
-            map.Size = new System.Drawing.Size(600, 400);
-            map.Enabled = true;
-            map.Name = "map";
-            map.Location = new System.Drawing.Point(form.Width - 10, 30);
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(form.GetType());
-            map.OcxState = ((AxHost.State)(resources.GetObject("axMap1.OcxState")));
-
-            var panBtn = new Button();
-            panBtn.Text = "Pan";
-            panBtn.Name = "panBtn";
-            panBtn.Location = new System.Drawing.Point(form.Width - 10, 5);
-            panBtn.Size = new System.Drawing.Size(80, 25);
-            panBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmPan;
-
-            var addShapeBtn = new Button();
-            addShapeBtn.Text = "Add shape";
-            addShapeBtn.Name = "addShape";
-            addShapeBtn.Location = new System.Drawing.Point(form.Width + 80, 5);
-            addShapeBtn.Size = new System.Drawing.Size(80, 25);
-            addShapeBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmAddShape;
-
-            var zoomInBtn = new Button();
-            zoomInBtn.Text = "Zoom in";
-            zoomInBtn.Name = "ZoomIn";
-            zoomInBtn.Location = new System.Drawing.Point(form.Width + 170, 5);
-            zoomInBtn.Size = new System.Drawing.Size(80, 25);
-            zoomInBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmZoomIn;
-
-            var zoomOutBtn = new Button();
-            zoomOutBtn.Text = "Zoom out";
-            zoomOutBtn.Name = "ZoomOut";
-            zoomOutBtn.Location = new System.Drawing.Point(form.Width + 260, 5);
-            zoomOutBtn.Size = new System.Drawing.Size(80, 25);
-            zoomOutBtn.Click += (s, e) => map.CursorMode = tkCursorMode.cmZoomOut;
-
-            form.Controls.Add(addShapeBtn);
-            form.Controls.Add(panBtn);
-            form.Controls.Add(zoomInBtn);
-            form.Controls.Add(zoomOutBtn);
-
-            var directory = Path.Combine("mapPath", "Temp");
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            var tempFileName = Path.Combine(directory, $"{Guid.NewGuid()}.shp");
-            var shapeFileClone = shapefile.Clone();
             MapInitResult layersInfo = null;
+            var map = form.Map;
             form.Load += (s, e) =>
             {
-                map.SendMouseDown = !(form.GetEntity<object>() is Scene);
-                map.CursorMode = MapWinGIS.tkCursorMode.cmPan;
                 layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
-                if (shapeFileClone.CreateNew(tempFileName, shapefile.ShapefileType))
+
+                form.CreateNewShapefile(shapefile);
+                form.SendMouseDownEvent = form.Entity is Scene;
+
+
+                object result = null;
+                string error = null;
+                switch (form.Entity)
                 {
-                    var layer = map.AddLayer(shapeFileClone, true);
-                    map.MoveLayerTop(layer);
-                }
-
-                var scene = form.GetEntity<Scene>();
-                if (scene != null)
-                {
-                    var angle = 45d;
-                    var sideLength = 30000d;
-                    var gasShapefile = map.get_Shapefile(layersInfo.GasLayerHandle);
-                    object result = null;
-                    string error = null;
-                    if (!gasShapefile.Table.Query($"[Id] = {scene.GasId}", ref result, ref error))
-                    {
-                        return;
-                    }
-                    var gasShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-                    var gasShape = gasShapefile.Shape[gasShapeId];
-                    var origin = gasShape.Point[0];
-
-                    var label = new System.Windows.Forms.Label();
-                    label.Text = "Angle";
-                    label.Top = 435;
-                    label.Left = map.Left;
-                    label.AutoSize = true;
-                    form.Controls.Add(label);
-
-                    var angleTextBox = new MaskedTextBox();
-                    angleTextBox.Mask = "###.##";
-                    angleTextBox.Top = 450;
-                    angleTextBox.Text = angle.ToString();
-                    angleTextBox.Left = map.Left;
-                    angleTextBox.Width = 115;
-                    angleTextBox.TextChanged += (s1, e1) =>
-                    {
-                        angle = TypeTools.Convert<double>(angleTextBox.Text);
-                        buildScene(shapeFileClone, ref form.Shape, origin, angle, sideLength);
-                        map.Redraw();
-                    };
-                    form.Controls.Add(angleTextBox);
-
-                    label = new System.Windows.Forms.Label();
-                    label.Text = "Length";
-                    label.Top = 435;
-                    label.Left = map.Left + 125;
-                    label.AutoSize = true;
-                    form.Controls.Add(label);
-
-                    var lenghtTextBox = new MaskedTextBox();
-                    lenghtTextBox.Mask = "#######.##";
-                    lenghtTextBox.Top = 450;
-                    lenghtTextBox.Text = sideLength.ToString();
-                    lenghtTextBox.Left = map.Left + 125;
-                    lenghtTextBox.Width = 115;
-                    lenghtTextBox.TextChanged += (s1, e1) =>
-                    {
-                        sideLength = TypeTools.Convert<double>(lenghtTextBox.Text);
-                        buildScene(shapeFileClone, ref form.Shape, origin, angle, sideLength);
-                        map.Redraw();
-                    };
-                    form.Controls.Add(lenghtTextBox);
-
-                    form.Height += 30;
-
-                    buildScene(shapeFileClone, ref form.Shape, origin, angle, sideLength);
-                    map.Redraw();
-                }
-            };
-
-            form.FormClosed += (s, e) =>
-            {
-                map.Dispose();
-                foreach (var file in Directory.GetFiles(directory, $"{Path.GetFileNameWithoutExtension(tempFileName)}.*"))
-                {
-                    File.Delete(file);
-                }
-            };
-
-            var ship = form.GetEntity<Ship>();
-            map.MouseDownEvent += (s, e) =>
-            {
-                if (map.CursorMode == tkCursorMode.cmAddShape)
-                {
-                    var projX = 0d;
-                    var projY = 0d;
-                    map.PixelToProj(e.x, e.y, ref projX, ref projY);
-
-                    if (form.Shape == null)
-                    {
-                        shapeFileClone.StartAppendMode();
-                        var shape = new Shape();
-                        shape.Create(shapeFileClone.ShapefileType);
-                        form.Shape = shape;
-
-                        var shapeIndex = 0;
-                        shapeFileClone.EditInsertShape(form.Shape, ref shapeIndex);
-                        shapeFileClone.StopAppendMode();
-                    }
-
-                    var point = new Point();
-                    point.x = projX;
-                    point.y = projY;
-
-                    var isPoint = shapeFileClone.ShapefileType == ShpfileType.SHP_POINT || shapeFileClone.ShapefileType == ShpfileType.SHP_POINTZ;
-                    if (isPoint && form.Shape.numPoints == 1)
-                    {
-                        form.Shape.Point[0] = point;
-                    }
-                    else
-                    {
-                        var pointIndex = 0;
-                        form.Shape.InsertPoint(point, ref pointIndex);
-                    }
-
-                    if (ship != null)
-                    {
-                        object result = null;
-                        string error = null;
-                        var sceneShapeFile = map.get_Shapefile(layersInfo.SceneLayerHandle);
-                        if (!sceneShapeFile.Table.Query($"[SceneId] = {ship.SceneId}", ref result, ref error))
+                    case Ship ship:
+                        form.ValidShape += (point, shape) =>
                         {
-                            MessageBox.Show("Scene not found");
+                            var sceneShapeFile = map.get_Shapefile(layersInfo.SceneLayerHandle);
+                            if (!sceneShapeFile.Table.Query($"[SceneId] = {ship.SceneId}", ref result, ref error))
+                            {
+                                MessageBox.Show("Scene not found");
+                                return false;
+                            }
+
+                            var sceneShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
+                            var sceneShape = sceneShapeFile.Shape[sceneShapeId];
+
+                            return form.Shape.Intersects(sceneShape);
+                        };
+                        break;
+                    case Scene scene:
+                        var gasShapefile = map.get_Shapefile(layersInfo.GasLayerHandle);
+                        if (!gasShapefile.Table.Query($"[Id] = {scene.GasId}", ref result, ref error))
+                        {
                             return;
                         }
-                        var sceneShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-                        var sceneShape = sceneShapeFile.Shape[sceneShapeId];
+                        var gasShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
+                        var gasShape = gasShapefile.Shape[gasShapeId];
+                        var origin = gasShape.Point[0];
 
-                        if (!form.Shape.Intersects(sceneShape))
+                        form.OnChangeParameters += (shapefileCloned, angle, length) =>
                         {
-                            form.Shape.Clear();
-                        }
-                    }
+                            buildScene(shapefileCloned, ref form.Shape, origin, angle, length);
+                            map.Redraw();
+                        };
+                        break;
+                    default:
+                        form.HideAngleAndLength();
+                        break;
 
-                    map.Redraw();
                 }
             };
 
-            form.Controls.Add(map);
 
             if (form.Height < 500)
             {
@@ -246,7 +100,6 @@ namespace DynamicForms.Factories
 
             form.Width += 650;
 
-            map.EndInit();
             form.ResumeLayout();
         }
 
@@ -259,7 +112,7 @@ namespace DynamicForms.Factories
                 shapefile.StopEditingShapes();
             }
 
-            if (angle == 0 || sideLength == 0)
+            if (angle == 0 && sideLength == 0)
             {
                 return;
             }
@@ -317,7 +170,7 @@ namespace DynamicForms.Factories
             return CreateForm(new T(), editMode);
         }
 
-        private static void configureForm(EntityForm form, object entity, EditMode editMode = EditMode.View)
+        private static void configureForm(Form form, object entity, EditMode editMode = EditMode.View)
         {
             form.SuspendLayout();
             int usedHeight = 0;
