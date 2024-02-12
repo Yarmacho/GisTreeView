@@ -59,6 +59,19 @@ namespace DynamicForms.Forms
             };
         }
 
+        internal void MoveMapControls(int shift)
+        {
+            Map.Left += shift;
+            angle.Left += shift;
+            length.Left += shift;
+            label1.Left += shift;
+            label2.Left += shift;
+            panBtn.Left += shift;
+            addShape.Left += shift;
+            ZoomIn.Left += shift;
+            ZoomOut.Left += shift;
+        }
+
         internal void CreateNewShapefile(Shapefile shapefile)
         {
             var guid = Guid.NewGuid();
@@ -273,7 +286,7 @@ namespace DynamicForms.Forms
 
 
                 var pointIndex = 0;
-                if (ValidShape != null && ValidShape(point, Shape))
+                if (ValidShape != null && !ValidShape(point, Shape))
                 {
                     MessageBox.Show("Invalid shape");
                 }

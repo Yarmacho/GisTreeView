@@ -21,7 +21,7 @@ namespace DynamicForms.Factories
                 Text = getFormCaption(entity, editMode)
             };
             configureForm(form, entity, editMode);
-            addMap(form, shapefile);
+            configureMap(form, shapefile);
             configureButtons(form, editMode);
 
             return form;
@@ -33,7 +33,7 @@ namespace DynamicForms.Factories
             return CreateFormWithMap(new T(), shapefile, editMode);
         }
 
-        private static void addMap(EntityFormWithMap form, Shapefile shapefile)
+        private static void configureMap(EntityFormWithMap form, Shapefile shapefile)
         {
             MapInitResult layersInfo = null;
             var map = form.Map;
@@ -101,6 +101,48 @@ namespace DynamicForms.Factories
                             return true;
                         };
                         break;
+                    case Route route:
+                        var shipShapefile = map.get_Shapefile(layersInfo.ShipLayerHandle);
+                        if (!shipShapefile.Table.Query($"[ShipId] = {route.ShipId}", ref result, ref error))
+                        {
+                            return;
+                        }
+
+                        int shipShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
+                        if (shipShapeId == -1)
+                        {
+                            return;
+                        }
+
+                        var sceneIdFieldIndex = shipShapefile.FieldIndexByName["SceneId"];
+                        var sceneId = TypeTools.Convert<int>(shipShapefile.CellValue[sceneIdFieldIndex, shipShapeId]);
+
+                        var sceneShapefile = map.get_Shapefile(layersInfo.SceneLayerHandle);
+                        if (!sceneShapefile.Table.Query($"[SceneId] = {sceneId}", result, error))
+                        {
+                            return;
+                        }
+
+                        var sceneShapeId1 = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
+                        var sceneShape1 = sceneShapefile.Shape[sceneShapeId1];
+                        if (sceneShape1 == null)
+                        {
+                            return;
+                        }
+
+                        form.ValidShape += (point, _) =>
+                        {
+                            var shape = new Shape();
+                            if (!shape.Create(ShpfileType.SHP_POINT))
+                            {
+                                return false;
+                            }
+                            var pointIndex = 0;
+                            shape.InsertPoint(point, ref pointIndex);
+
+                            return sceneShape1.Intersects(shape);
+                        };
+                        break;
                     default:
                         form.HideAngleAndLength();
                         break;
@@ -118,7 +160,15 @@ namespace DynamicForms.Factories
                 map.Height = form.Height - 30;
             }
 
-            form.Width += 650;
+            var maxControlWidth = form.Controls.OfType<TextBox>()
+                .Where(c => c.Name != "angle" && c.Name != "length").Max(c => c.Left + c.Width);
+
+            if (maxControlWidth > map.Location.X)
+            {
+                form.MoveMapControls(maxControlWidth - map.Location.X + 10);
+            }
+
+            form.Width = map.Location.X + map.Width + 20;
 
             form.ResumeLayout();
         }
