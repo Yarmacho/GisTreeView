@@ -44,9 +44,10 @@ namespace DynamicForms
                                     greedColorScheme.ApplyColors(tkColorSchemeType.ctSchemeGraduated, colorScheme, false);
 
                                     image.CustomColorScheme = greedColorScheme;
-                                    map.AddLayer(image, true);
+                                    layerHandle = map.AddLayer(image, true);
 
                                     map.GeoProjection = image.GeoProjection;
+                                    result[Path.GetFileNameWithoutExtension(file)] = layerHandle;
                                 }
                                 break;
                         }
@@ -77,7 +78,8 @@ namespace DynamicForms
 
         public int ProfilLayerHandle => TryGetValue("Profil", out var layer) ? layer : -1;
 
-        public int RoutesLayerHadnle => TryGetValue("TraceLine", out var layer) ? layer : -1;
-        public int CoastLayerHadnle => TryGetValue("BaseChine", out var layer) ? layer : -1;
+        public int RoutesLayerHandle => TryGetValue("TraceLine", out var layer) ? layer : -1;
+        public int CoastLayerHandle => TryGetValue("BaseChine", out var layer) ? layer : -1;
+        public int BatimetryLayerHandle => TryGetValue("Batimetry", out var layer) ? layer : -1;
     }
 }

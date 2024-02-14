@@ -72,7 +72,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                         : entityType == typeof(Ship)
                             ? TreeView.LayersInfo.ShipLayerHandle
                             : entityType == typeof(Route)
-                                ? TreeView.LayersInfo.RoutesLayerHadnle
+                                ? TreeView.LayersInfo.RoutesLayerHandle
                                 : -1;
                 if (entityLayerHandle == -1)
                 {

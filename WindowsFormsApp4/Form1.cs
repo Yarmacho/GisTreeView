@@ -32,7 +32,29 @@ namespace WindowsFormsApp4
         private async void Form1_Load(object sender, EventArgs e)
         {
             axMap1.CursorMode = tkCursorMode.cmPan;
+            axMap1.SendMouseMove = true;
             var initResult = MapInitializer.Init(_path, axMap1);
+            if (initResult.BatimetryLayerHandle != -1)
+            {
+                var batimetry = axMap1.get_Image(initResult.BatimetryLayerHandle);
+                if (batimetry != null)
+                {
+                    var band = batimetry.Band[1];
+
+                    axMap1.MouseMoveEvent += (s, e1) =>
+                    {
+                        var longtitude = 0d;
+                        var latitude = 0d;
+
+                        axMap1.PixelToProj(e1.x, e1.y, ref longtitude, ref latitude);
+                        batimetry.ProjectionToImage(longtitude, latitude, out int column, out int row);
+
+                        var hasValue = band.Value[column, row, out var depthValue];
+                        depth.AutoSize = true;
+                        depth.Text = hasValue ? $"Depth: {depthValue}" : "Depth: undefined";
+                    };
+                }
+            }
             if (initResult.SceneLayerHandle != -1)
             {
                 axMap1.set_ShapeLayerFillTransparency(initResult.SceneLayerHandle, 0.3f);
@@ -46,7 +68,7 @@ namespace WindowsFormsApp4
                 ProfileLayerHandle = initResult.ProfilLayerHandle,
                 SceneLayerHandle = initResult.SceneLayerHandle,
                 ShipLayerHandle = initResult.ShipLayerHandle,
-                RoutesLayerHandle = initResult.RoutesLayerHadnle,
+                RoutesLayerHandle = initResult.RoutesLayerHandle,
                 ShowExperiments = true,
                 ServiceProvider = _serviceProvider
             });

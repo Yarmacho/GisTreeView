@@ -20,6 +20,7 @@ namespace DynamicForms.Forms
         private MaskedTextBox length;
         internal Shape Shape;
         private Shapefile _shapefile;
+        private System.Windows.Forms.Label depth;
         private string _shapefileFileName;
 
         internal object Entity { get; }
@@ -28,6 +29,7 @@ namespace DynamicForms.Forms
             Entity = entity;
             InitializeComponent();
             Map.CursorMode = tkCursorMode.cmPan;
+            Map.SendMouseMove = true;
 
             FormClosed += (s, e) =>
             {
@@ -116,6 +118,7 @@ namespace DynamicForms.Forms
             this.label2 = new System.Windows.Forms.Label();
             this.angle = new System.Windows.Forms.MaskedTextBox();
             this.length = new System.Windows.Forms.MaskedTextBox();
+            this.depth = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Map)).BeginInit();
             this.SuspendLayout();
             // 
@@ -128,6 +131,7 @@ namespace DynamicForms.Forms
             this.Map.Size = new System.Drawing.Size(651, 366);
             this.Map.TabIndex = 0;
             this.Map.MouseDownEvent += new AxMapWinGIS._DMapEvents_MouseDownEventHandler(this.Map_MouseDownEvent);
+            this.Map.MouseMoveEvent += new AxMapWinGIS._DMapEvents_MouseMoveEventHandler(this.Map_MouseMoveEvent);
             // 
             // panBtn
             // 
@@ -203,9 +207,19 @@ namespace DynamicForms.Forms
             this.length.Size = new System.Drawing.Size(100, 20);
             this.length.TabIndex = 8;
             // 
+            // depth
+            // 
+            this.depth.AutoSize = true;
+            this.depth.Location = new System.Drawing.Point(737, 16);
+            this.depth.Name = "depth";
+            this.depth.Size = new System.Drawing.Size(42, 13);
+            this.depth.TabIndex = 9;
+            this.depth.Text = "Depth: ";
+            // 
             // EntityFormWithMap
             // 
             this.ClientSize = new System.Drawing.Size(830, 466);
+            this.Controls.Add(this.depth);
             this.Controls.Add(this.length);
             this.Controls.Add(this.angle);
             this.Controls.Add(this.label2);
@@ -231,6 +245,7 @@ namespace DynamicForms.Forms
         internal event Action<Point> OnMapMouseDown;
         internal event Func<Point, Shape, bool> ValidShape;
         internal event Action<Shapefile, double, double> OnChangeParameters;
+        internal event Action<double, double> OnMouseMoveOnMap;
 
         internal void HideAngleAndLength()
         {
@@ -305,6 +320,11 @@ namespace DynamicForms.Forms
 
                 Map.Redraw();
             }
+        }
+
+        private void Map_MouseMoveEvent(object sender, _DMapEvents_MouseMoveEvent e)
+        {
+            OnMouseMoveOnMap?.Invoke(e.x, e.y);
         }
     }
 }

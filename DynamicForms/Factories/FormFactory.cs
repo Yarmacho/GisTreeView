@@ -42,6 +42,30 @@ namespace DynamicForms.Factories
                 layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
                 map.set_ShapeLayerFillTransparency(layersInfo.SceneLayerHandle, 0.3f);
 
+                if (layersInfo.BatimetryLayerHandle != -1)
+                {
+                    var depthLabel = form.Controls.OfType<System.Windows.Forms.Label>()
+                        .FirstOrDefault(l => l?.Name == "depth");
+                    var batimetry = map.get_Image(layersInfo.BatimetryLayerHandle);
+                    if (batimetry != null && depthLabel != null)
+                    {
+                        var band = batimetry.Band[1];
+
+                        form.OnMouseMoveOnMap += (x, y) =>
+                        {
+                            var longtitude = 0d;
+                            var latitude = 0d;
+
+                            map.PixelToProj(x, y, ref longtitude, ref latitude);
+                            batimetry.ProjectionToImage(longtitude, latitude, out int column, out int row);
+
+                            var hasValue = band.Value[column, row, out var depth];
+                            depthLabel.AutoSize = true;
+                            depthLabel.Text = hasValue ? $"Depth: {depth}" : string.Empty;
+                        };
+                    }
+                }
+
                 form.CreateNewShapefile(shapefile);
                 form.SendMouseDownEvent = !(form.Entity is Scene);
 
@@ -81,7 +105,7 @@ namespace DynamicForms.Factories
                             map.Redraw();
                         };
 
-                        var coastShapefile = map.get_Shapefile(layersInfo.CoastLayerHadnle);
+                        var coastShapefile = map.get_Shapefile(layersInfo.CoastLayerHandle);
                         string coastQuery = "[OBJECTID]=1";
                         Shape coast = null;
                         if (coastShapefile.Table.Query(coastQuery, ref result, ref error))

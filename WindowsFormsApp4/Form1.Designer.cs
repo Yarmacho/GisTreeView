@@ -34,16 +34,17 @@ namespace WindowsFormsApp4
             this.addExperimentBtn = new System.Windows.Forms.Button();
             this.treeView1 = new WindowsFormsApp4.MapTreeView();
             this.entityDesc = new System.Windows.Forms.RichTextBox();
+            this.depth = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
             // axMap1
             // 
             this.axMap1.Enabled = true;
-            this.axMap1.Location = new System.Drawing.Point(205, 26);
+            this.axMap1.Location = new System.Drawing.Point(205, 55);
             this.axMap1.Name = "axMap1";
             this.axMap1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap1.OcxState")));
-            this.axMap1.Size = new System.Drawing.Size(583, 412);
+            this.axMap1.Size = new System.Drawing.Size(583, 383);
             this.axMap1.TabIndex = 0;
             // 
             // addExperimentBtn
@@ -66,17 +67,27 @@ namespace WindowsFormsApp4
             // entityDesc
             // 
             this.entityDesc.Enabled = false;
-            this.entityDesc.Location = new System.Drawing.Point(806, 26);
+            this.entityDesc.Location = new System.Drawing.Point(806, 55);
             this.entityDesc.Name = "entityDesc";
-            this.entityDesc.Size = new System.Drawing.Size(267, 412);
+            this.entityDesc.Size = new System.Drawing.Size(267, 383);
             this.entityDesc.TabIndex = 4;
             this.entityDesc.Text = "";
+            // 
+            // depth
+            // 
+            this.depth.AutoSize = true;
+            this.depth.Location = new System.Drawing.Point(696, 26);
+            this.depth.Name = "depth";
+            this.depth.Size = new System.Drawing.Size(39, 13);
+            this.depth.TabIndex = 5;
+            this.depth.Text = "Depth:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1085, 450);
+            this.Controls.Add(this.depth);
             this.Controls.Add(this.entityDesc);
             this.Controls.Add(this.treeView1);
             this.Controls.Add(this.addExperimentBtn);
@@ -86,6 +97,7 @@ namespace WindowsFormsApp4
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -95,6 +107,7 @@ namespace WindowsFormsApp4
         private System.Windows.Forms.Button addExperimentBtn;
         private MapTreeView treeView1;
         private System.Windows.Forms.RichTextBox entityDesc;
+        private System.Windows.Forms.Label depth;
     }
 }
 
