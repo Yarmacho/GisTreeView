@@ -277,12 +277,18 @@ namespace DynamicForms.Forms
 
         private void Map_MouseDownEvent(object sender, _DMapEvents_MouseDownEvent e)
         {
+            var projX = 0d;
+            var projY = 0d;
+            Map.PixelToProj(e.x, e.y, ref projX, ref projY);
+
+            var point = new Point();
+            point.x = projX;
+            point.y = projY;
+
+            OnMapMouseDown?.Invoke(point);
+
             if (Map.CursorMode == tkCursorMode.cmAddShape)
             {
-                var projX = 0d;
-                var projY = 0d;
-                Map.PixelToProj(e.x, e.y, ref projX, ref projY);
-
                 if (Shape == null)
                 {
                     _shapefile.StartAppendMode();
@@ -294,11 +300,6 @@ namespace DynamicForms.Forms
                     _shapefile.EditInsertShape(Shape, ref shapeIndex);
                     _shapefile.StopAppendMode();
                 }
-
-                var point = new Point();
-                point.x = projX;
-                point.y = projY;
-
 
                 var pointIndex = 0;
                 if (ValidShape != null && !ValidShape(point, Shape))

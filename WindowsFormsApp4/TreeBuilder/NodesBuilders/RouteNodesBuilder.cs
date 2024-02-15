@@ -4,6 +4,7 @@ using Interfaces.Database.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
 
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
@@ -34,13 +35,19 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                     continue;
                 }
 
-                var node = new RouteTreeNode(route, shapefile, i, buildNodesParams.RoutesLayerHandle);
+                var node = new RouteTreeNode(shapefile, i, buildNodesParams.RoutesLayerHandle);
+                node.SetRoute(route);
 
                 nodes[route.Id] = node;
 
                 if (_shipNodes.TryGetValue(route.ShipId, out var shipNode))
                 {
                     shipNode.Nodes.Add(node);
+
+                    foreach (var point in route.Points)
+                    {
+                        node.Nodes.Add(new TreeNode($"{point.X} : {point.Y}"));
+                    }
                 }
             }
 

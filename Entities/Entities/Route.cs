@@ -15,7 +15,7 @@ namespace Entities.Entities
         public int ShipId { get; set; }
 
         [IgnoreProperty(EditMode.View | EditMode.Add | EditMode.Edit | EditMode.Delete)]
-        public List<RoutePoint> Points { get; set; }
+        public List<RoutePoint> Points { get; set; } = new List<RoutePoint>();
 
         public override string ToString()
         {

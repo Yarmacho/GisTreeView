@@ -47,6 +47,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\FormFactory.cs" />
+    <Compile Include="Forms\DictionaryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DictionaryForm.Designer.cs">
+      <DependentUpon>DictionaryForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\EntityForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,12 +69,19 @@
       <Project>{91222ced-eb60-4e3e-9aa9-190e523a4f8d}</Project>
       <Name>Entities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Interfaces.Database\Interfaces.Database.csproj">
+      <Project>{2c99c054-5d26-4ca8-8d66-2d8cafefcfb9}</Project>
+      <Name>Interfaces.Database</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tools\Tools.csproj">
       <Project>{c9f344ad-9207-4205-91ac-05d48b041877}</Project>
       <Name>Tools</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\DictionaryForm.resx">
+      <DependentUpon>DictionaryForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\EntityForm.resx">
       <DependentUpon>EntityForm.cs</DependentUpon>
     </EmbeddedResource>

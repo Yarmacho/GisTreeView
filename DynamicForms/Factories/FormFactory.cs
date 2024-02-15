@@ -166,6 +166,17 @@ namespace DynamicForms.Factories
 
                             return sceneShape1.Intersects(shape);
                         };
+
+                        form.OnMapMouseDown += (point) =>
+                        {
+                            route.Points.Add(new RoutePoint() 
+                            {
+                                RouteId = route.Id,
+                                Id = route.Points.Count,
+                                X = point.x,
+                                Y = point.y
+                            });
+                        };
                         break;
                     default:
                         form.HideAngleAndLength();

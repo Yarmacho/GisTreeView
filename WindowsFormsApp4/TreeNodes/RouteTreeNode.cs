@@ -7,8 +7,12 @@ namespace WindowsFormsApp4.TreeNodes
 {
     internal class RouteTreeNode : ShapeTreeNode<Route>
     {
-        public RouteTreeNode(Route route, Shapefile shapefile, int shapeIndex, int layerHandle)
+        public RouteTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
             : base(shapefile, shapeIndex, layerHandle)
+        {
+        }
+
+        internal void SetRoute(Route route)
         {
             Name = route.Name;
             Text = route.Name;

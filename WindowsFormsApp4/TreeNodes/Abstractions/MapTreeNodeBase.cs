@@ -137,6 +137,19 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             childNode.SetMap(Map);
             Nodes.Add(childNode);
             Expand();
+
+            if (childNode is RouteTreeNode routeTreeNode && childEntity is Route route)
+            {
+                routeTreeNode.SetRoute(route);
+                if (route.Points.Count > 0)
+                {
+                    foreach (var point in route.Points)
+                    {
+                        childNode.Nodes.Add(new TreeNode($"{point.X} : {point.Y}"));
+                    }
+                    childNode.Expand();
+                }
+            }
         }
 
         protected override ContextMenu BuildContextMenu()
