@@ -25,6 +25,8 @@ namespace WindowsFormsApp4
             ServiceProvider = host.Services;
             //ServiceProvider.GetRequiredService<IDbManager>()
             //    .ReCreateAsync().GetAwaiter().GetResult();
+            //ServiceProvider.GetRequiredService<IShapesManager>()
+            //    .DeleteAllShapes(Configuration.GetValue<string>("MapsPath"));
 
             Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }
@@ -33,7 +35,7 @@ namespace WindowsFormsApp4
         public static IConfiguration Configuration { get; private set; }
         static IHostBuilder CreateHostBuilder()
         {
-            IConfiguration config = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables()
                 .Build();
@@ -42,12 +44,12 @@ namespace WindowsFormsApp4
                 .ConfigureServices((context, services) => 
                 {
                     services.AddTransient<Form1>();
-                    services.AddSingleton(config);
+                    services.AddSingleton(Configuration);
                     services.AddTransient<IShapeEntityConverter<Gas>, ShapeToGasConverter>();
                     services.AddTransient<IShapeEntityConverter<Scene>, ShapeToSceneConverter>();
                     services.AddTransient<IShapeEntityConverter<Ship>, ShapeToShipConverter>();
                     services.AddTransient<IShapeEntityConverter<Route>, ShapeToRouteConverter>();
-                    services.AddDataBase(config);
+                    services.AddDataBase(Configuration);
                 });
         }
     }

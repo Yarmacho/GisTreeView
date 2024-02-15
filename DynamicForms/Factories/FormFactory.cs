@@ -1,5 +1,4 @@
-﻿using AxMapWinGIS;
-using Tools.Attributes;
+﻿using Tools.Attributes;
 using DynamicForms.Forms;
 using MapWinGIS;
 using Entities.Entities;
@@ -73,6 +72,17 @@ namespace DynamicForms.Factories
                 string error = null;
                 switch (form.Entity)
                 {
+                    case Gas gas:
+                        form.AfterShapeValid += (shape) =>
+                        {
+                            if (shape.numPoints == 1)
+                            {
+                                var point = shape.Point[0];
+                                gas.X = point.x;
+                                gas.Y = point.y;
+                            }
+                        };
+                        break;
                     case Ship ship:
                         form.ValidShape += (point, shape) =>
                         {
@@ -87,6 +97,16 @@ namespace DynamicForms.Factories
                             var sceneShape = sceneShapeFile.Shape[sceneShapeId];
 
                             return form.Shape.Intersects(sceneShape);
+                        };
+
+                        form.AfterShapeValid += (shape) =>
+                        {
+                            if (shape.numPoints == 1)
+                            {
+                                var point = shape.Point[0];
+                                ship.X = point.x;
+                                ship.Y = point.y;
+                            }
                         };
                         break;
                     case Scene scene:
@@ -122,7 +142,18 @@ namespace DynamicForms.Factories
                                 return false;
                             }
 
-                            return true;
+                            return shape.numPoints != 4;
+                        };
+
+                        var angleTextBox = form.Controls.OfType<TextBox>()
+                            .FirstOrDefault(c => c.Name == "angle");
+                        var lengthTextBox = form.Controls.OfType<TextBox>()
+                            .FirstOrDefault(c => c.Name == "length");
+                        form.AfterShapeValid += (shape) =>
+                        {
+                            scene.Area = shape.Area;
+                            scene.Angle = TypeTools.Convert<double>(angleTextBox.Text);
+                            scene.Side = TypeTools.Convert<double>(lengthTextBox.Text);
                         };
                         break;
                     case Route route:
@@ -178,10 +209,11 @@ namespace DynamicForms.Factories
                             });
                         };
                         break;
-                    default:
-                        form.HideAngleAndLength();
-                        break;
+                }
 
+                if (!(form.Entity is Scene))
+                {
+                    form.HideAngleAndLength();
                 }
             };
 

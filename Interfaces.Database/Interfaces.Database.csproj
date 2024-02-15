@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Abstractions\IDbManager.cs" />
     <Compile Include="Abstractions\IRepositoriesProvider.cs" />
+    <Compile Include="Abstractions\IShapesManager.cs" />
     <Compile Include="Abstractions\IUnitOfWork.cs" />
     <Compile Include="Abstractions\IWriteOnlyRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

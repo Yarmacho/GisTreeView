@@ -14,6 +14,10 @@ namespace Tools.Attributes
             Label = label;
         }
 
+        public DisplayAttribute()
+        {
+        }
+
         //public Type ControlType { get; set; }
     }
 }

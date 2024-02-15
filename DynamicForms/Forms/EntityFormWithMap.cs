@@ -244,6 +244,7 @@ namespace DynamicForms.Forms
 
         internal event Action<Point> OnMapMouseDown;
         internal event Func<Point, Shape, bool> ValidShape;
+        internal event Action<Shape> AfterShapeValid;
         internal event Action<Shapefile, double, double> OnChangeParameters;
         internal event Action<double, double> OnMouseMoveOnMap;
 
@@ -317,6 +318,8 @@ namespace DynamicForms.Forms
                     {
                         Shape.InsertPoint(point, ref pointIndex);
                     }
+
+                    AfterShapeValid?.Invoke(Shape);
                 }
 
                 Map.Redraw();

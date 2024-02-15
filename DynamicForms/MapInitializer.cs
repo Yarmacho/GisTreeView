@@ -47,6 +47,7 @@ namespace DynamicForms
                                     layerHandle = map.AddLayer(image, true);
 
                                     map.GeoProjection = image.GeoProjection;
+                                    map.ZoomToLayer(layerHandle);
                                     result[Path.GetFileNameWithoutExtension(file)] = layerHandle;
                                 }
                                 break;

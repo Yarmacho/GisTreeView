@@ -14,6 +14,9 @@ namespace Database.Configurations
                 .ValueGeneratedOnAdd();
             builder.Property(s => s.GasId).HasColumnName("GasId");
             builder.Property(s => s.Name).HasColumnName("Name");
+            builder.Property(s => s.Side);
+            builder.Property(s => s.Area);
+            builder.Property(s => s.Angle);
 
             builder.HasKey(s => s.Id);
         }

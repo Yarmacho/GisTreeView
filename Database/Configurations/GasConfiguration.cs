@@ -14,6 +14,8 @@ namespace Database.Configurations
                 .ValueGeneratedOnAdd();
             builder.Property(r => r.Name).HasColumnName("NAME");
             builder.Property(r => r.ExperimentId).HasColumnName("EXPERIMENTID");
+            builder.Property(r => r.X);
+            builder.Property(r => r.Y);
 
             builder.HasKey(r => r.Id);
         }
