@@ -36,7 +36,12 @@ namespace WindowsFormsApp4
             this.entityDesc = new System.Windows.Forms.RichTextBox();
             this.depth = new System.Windows.Forms.Label();
             this.refresh = new System.Windows.Forms.Button();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.ObjectsTree = new System.Windows.Forms.TabPage();
+            this.layersManager = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.ObjectsTree.SuspendLayout();
             this.SuspendLayout();
             // 
             // axMap1
@@ -60,9 +65,9 @@ namespace WindowsFormsApp4
             // 
             // treeView1
             // 
-            this.treeView1.Location = new System.Drawing.Point(13, 55);
+            this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(186, 383);
+            this.treeView1.Size = new System.Drawing.Size(189, 357);
             this.treeView1.TabIndex = 3;
             // 
             // entityDesc
@@ -93,21 +98,54 @@ namespace WindowsFormsApp4
             this.refresh.UseVisualStyleBackColor = true;
             this.refresh.Click += new System.EventHandler(this.refresh_Click);
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.ObjectsTree);
+            this.tabControl1.Controls.Add(this.layersManager);
+            this.tabControl1.Location = new System.Drawing.Point(-1, 55);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(200, 383);
+            this.tabControl1.TabIndex = 7;
+            // 
+            // ObjectsTree
+            // 
+            this.ObjectsTree.Controls.Add(this.treeView1);
+            this.ObjectsTree.Location = new System.Drawing.Point(4, 22);
+            this.ObjectsTree.Name = "ObjectsTree";
+            this.ObjectsTree.Padding = new System.Windows.Forms.Padding(3);
+            this.ObjectsTree.Size = new System.Drawing.Size(192, 357);
+            this.ObjectsTree.TabIndex = 0;
+            this.ObjectsTree.Text = "Objects tree";
+            this.ObjectsTree.UseVisualStyleBackColor = true;
+            // 
+            // layersManager
+            // 
+            this.layersManager.Location = new System.Drawing.Point(4, 22);
+            this.layersManager.Name = "layersManager";
+            this.layersManager.Padding = new System.Windows.Forms.Padding(3);
+            this.layersManager.Size = new System.Drawing.Size(192, 357);
+            this.layersManager.TabIndex = 1;
+            this.layersManager.Text = "Layers manager";
+            this.layersManager.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1085, 450);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.refresh);
             this.Controls.Add(this.depth);
             this.Controls.Add(this.entityDesc);
-            this.Controls.Add(this.treeView1);
             this.Controls.Add(this.addExperimentBtn);
             this.Controls.Add(this.axMap1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.ObjectsTree.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -121,6 +159,9 @@ namespace WindowsFormsApp4
         private System.Windows.Forms.RichTextBox entityDesc;
         private System.Windows.Forms.Label depth;
         private System.Windows.Forms.Button refresh;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage ObjectsTree;
+        private System.Windows.Forms.TabPage layersManager;
     }
 }
 

@@ -22,6 +22,7 @@ namespace WindowsFormsApp4
 
         public Form1(IServiceProvider serviceProvider, IConfiguration configuration)
         {
+            Text = "Experiments manager";
             _serviceProvider = serviceProvider;
             _path = configuration.GetValue<string>("MapsPath");
             InitializeComponent();
@@ -75,6 +76,23 @@ namespace WindowsFormsApp4
             });
             treeView1.Nodes.AddRange(nodes.ToArray());
             treeView1.AfterSelect += TreeView1_AfterSelect;
+
+            var layerCheckBoxTop = 0;
+            foreach (var layer in initResult)
+            {
+                var checkBox = new CheckBox()
+                {
+                    Text = layer.Key,
+                    Checked = true
+                };
+                checkBox.Top = layerCheckBoxTop;
+                layerCheckBoxTop += 20;
+                checkBox.CheckedChanged += (s, e1) =>
+                {
+                    axMap1.set_LayerVisible(initResult[checkBox.Text], checkBox.Checked);
+                };
+                layersManager.Controls.Add(checkBox);
+            }
         }
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
