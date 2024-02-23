@@ -63,6 +63,7 @@ namespace DynamicForms.Forms
                     TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(length.Text));
             };
 
+            addShape.Enabled = customEntity.Checked;
             customEntity.CheckedChanged += (s, e) =>
             {
                 foreach (var text in Controls.OfType<TextBox>())
@@ -74,6 +75,15 @@ namespace DynamicForms.Forms
                     }
 
                     text.Enabled = customEntity.Checked;
+                }
+
+                addShape.Enabled = customEntity.Checked;
+                if (!customEntity.Checked)
+                {
+                    Shape = null;
+                    _shapefile.StartEditingShapes();
+                    _shapefile.EditClear();
+                    _shapefile.StopEditingShapes();
                 }
             };
         }
