@@ -46,7 +46,17 @@ namespace WindowsFormsApp4.TreeNodes
         {
             var menu = base.BuildContextMenu();
 
-            menu.MenuItems.Add(0, new MenuItem("Add scene", async (s, e) => await AppendChild<Scene, SceneTreeNode>()));
+            var addBtn = new MenuItem("Add scene", async (s, e) =>
+            {
+                if (Nodes.Count > 0)
+                {
+                    MessageBox.Show("Only one scene can be created for a GAS");
+                    return;
+                }
+                await AppendChild<Scene, SceneTreeNode>();
+            });
+
+            menu.MenuItems.Add(0, addBtn);
 
             return menu;
         }
