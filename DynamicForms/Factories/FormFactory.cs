@@ -161,11 +161,13 @@ namespace DynamicForms.Factories
                             if (!band.Value[column, row, out var depth])
                             {
                                 MessageBox.Show("Depth undefined");
+                                return false;
                             }
 
                             if (depth >= 0)
                             {
                                 MessageBox.Show("Depth must be neggative");
+                                return false;
                             }
 
                             return true;

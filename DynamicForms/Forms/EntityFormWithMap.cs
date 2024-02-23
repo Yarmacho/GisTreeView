@@ -337,7 +337,19 @@ namespace DynamicForms.Forms
                     CreateShape();
                 }
 
-                if (ValidShape != null && !ValidShape(point, Shape))
+                var validFuncs = ValidShape?.GetInvocationList().OfType<Func<Point, Shape, bool>>()
+                    ?? Enumerable.Empty<Func<Point, Shape, bool>>();
+                var isValid = true;
+                foreach (var func in validFuncs)
+                {
+                    isValid &= func.Invoke(point, Shape);
+                    if (!isValid)
+                    {
+                        break;
+                    }
+                }
+                    
+                if (!isValid)
                 {
                     MessageBox.Show("Invalid shape");
                 }
