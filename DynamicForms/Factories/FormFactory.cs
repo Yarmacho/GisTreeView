@@ -154,6 +154,22 @@ namespace DynamicForms.Factories
                             depthLabel.AutoSize = true;
                             depthLabel.Text = hasValue ? $"Depth: {depth}" : string.Empty;
                         };
+
+                        form.ValidShape += (point, _) =>
+                        {
+                            batimetry.ProjectionToImage(point.x, point.y, out int column, out int row);
+                            if (!band.Value[column, row, out var depth])
+                            {
+                                MessageBox.Show("Depth undefined");
+                            }
+
+                            if (depth >= 0)
+                            {
+                                MessageBox.Show("Depth must be neggative");
+                            }
+
+                            return true;
+                        };
                     }
                 }
 
