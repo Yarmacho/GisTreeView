@@ -5,6 +5,7 @@ using Interfaces.Database.Repositories;
 using Interfaces.Database.Abstractions;
 using Database.Abstractions;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace Database.DI
 {
@@ -34,8 +35,15 @@ namespace Database.DI
             where TService : class
             where TImplementation : class, TService
         {
-            services.Add(new ServiceDescriptor(typeof(TService), typeof(TImplementation), lifetime));
-            services.Add(new ServiceDescriptor(typeof(TImplementation), typeof(TImplementation), lifetime));
+            var serviceType = typeof(TService);
+            var implementationType = typeof(TImplementation);
+
+            services.Add(new ServiceDescriptor(serviceType, implementationType, lifetime));
+            services.Add(new ServiceDescriptor(implementationType, implementationType, lifetime));
+            foreach (var genericInterface in serviceType.GetInterfaces().Where(i => i.IsGenericType))
+            {
+                services.Add(new ServiceDescriptor(genericInterface, implementationType, lifetime));
+            }
 
             return services;
         }

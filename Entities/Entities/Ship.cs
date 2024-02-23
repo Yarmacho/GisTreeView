@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Tools;
 using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Ship : EntityBase<int>
+    public class Ship : DictionaryEntity<int>
     {
         public string Name { get; set; }
 
@@ -19,8 +20,18 @@ namespace Entities.Entities
 
         public override string ToString()
         {
-            return string.Format("Id: {3}{1}Name: {0}{1}GasId: {2}{1}", Name, Environment.NewLine,
+            return string.Format("Id: {3}{1}Name: {0}{1}SceneId: {2}{1}", Name, Environment.NewLine,
                 SceneId, Id);
+        }
+
+        public override IEnumerable<string> AsColumns()
+        {
+            return new string[] { "Id", "Name", "SceneId", "X", "Y" };
+        }
+
+        public override object[] AsDataRow()
+        {
+            return new object[] { Id, Name, SceneId, X, Y };
         }
     }
 }

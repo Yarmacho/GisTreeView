@@ -112,12 +112,10 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             }
 
             childEntity = form.GetEntity<TChildEntity>();
+            ConfigureChildNodeEntity(childEntity);
             var repository = TreeView.RepositoriesProvider.Get<IWriteOnlyRepository<TChildEntity>>();
             childEntity = await repository.AddAsync(childEntity);
-            if (!await repository.SaveChanges())
-            {
-                return;
-            }
+            await repository.SaveChanges();
 
             MapTreeNodeBase childNode = null;
             if (isShapeNode)

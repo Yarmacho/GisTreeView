@@ -1,12 +1,11 @@
 ﻿using Database.DI;
-using Entities.Entities;
-using Interfaces.Database.Abstractions;
+using DynamicForms.DependencyInjection;
+using DynamicForms.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Windows.Forms;
-using WindowsFormsApp4.ShapeConverters;
 
 namespace WindowsFormsApp4
 {
@@ -23,6 +22,7 @@ namespace WindowsFormsApp4
 
             var host = CreateHostBuilder().Build();
             ServiceProvider = host.Services;
+            FormFactory.ServiceProvider = ServiceProvider;
             //ServiceProvider.GetRequiredService<IDbManager>()
             //    .ReCreateAsync().GetAwaiter().GetResult();
             //ServiceProvider.GetRequiredService<IShapesManager>()
@@ -45,10 +45,7 @@ namespace WindowsFormsApp4
                 {
                     services.AddTransient<Form1>();
                     services.AddSingleton(Configuration);
-                    services.AddTransient<IShapeEntityConverter<Gas>, ShapeToGasConverter>();
-                    services.AddTransient<IShapeEntityConverter<Scene>, ShapeToSceneConverter>();
-                    services.AddTransient<IShapeEntityConverter<Ship>, ShapeToShipConverter>();
-                    services.AddTransient<IShapeEntityConverter<Route>, ShapeToRouteConverter>();
+                    services.AddShapeConverters();
                     services.AddDataBase(Configuration);
                 });
         }

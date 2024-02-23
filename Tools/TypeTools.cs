@@ -70,5 +70,26 @@ namespace Tools
 
             return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
         }
+
+        public static bool IsDerivedFrom<T>(object value)
+        {
+            return IsDerivedFrom(value, typeof(T));
+        }
+
+        public static bool IsDerivedFrom(object value, Type type)
+        {
+            var valueType = value.GetType();
+            while (valueType != null)
+            {
+                if (valueType == type)
+                {
+                    return true;
+                }
+
+                valueType = valueType.BaseType;
+            }
+
+            return valueType != null;
+        }
     }
 }

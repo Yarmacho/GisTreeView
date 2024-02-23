@@ -43,7 +43,7 @@ namespace Database.Abstractions
         {
             if (await ExistsAsync(entity, cancellationToken))
             {
-                return null;
+                return entity;
             }
 
             var entry = await DbSet.AddAsync(entity, cancellationToken);

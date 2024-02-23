@@ -8,22 +8,114 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Tools;
+using Entities;
+using Expression = System.Linq.Expressions.Expression;
+using Interfaces.Database.Repositories;
+using WindowsFormsApp4.ShapeConverters;
 
 namespace DynamicForms.Factories
 {
     public static class FormFactory
     {
+        public static IServiceProvider ServiceProvider { get; set; }
+
         public static IEntityFormWithMap CreateFormWithMap(object entity, Shapefile shapefile, EditMode editMode = EditMode.View)
         {
             var form = new EntityFormWithMap(entity) 
             {
                 Text = getFormCaption(entity, editMode)
             };
-            configureForm(form, entity, editMode);
+
+            var entityIdProperty = entity.GetType().GetProperty("Id");
+            var isDictionaryEntity = entityIdProperty != null && TypeTools.IsDerivedFrom(entity, typeof(DictionaryEntity<>)
+                    .MakeGenericType(entityIdProperty.PropertyType));
+
+            configureForm(form, entity, editMode, isDictionaryEntity);
             configureMap(form, shapefile);
             configureButtons(form, editMode);
 
+            if (isDictionaryEntity)
+            {
+                foreach (var text in form.Controls.OfType<TextBox>())
+                {
+                    text.Enabled = false;
+                }
+
+                form.OnSelectFromDictionary += () =>
+                {
+                    var selectedRow = callDictionaryForm(entity, shapefile);
+                    if (selectedRow == null)
+                    {
+                        return;
+                    }
+
+                    var point = new Point();
+                    foreach (var property in selectedRow.GetType().GetProperties())
+                    {
+                        var control = form.Controls.OfType<TextBox>()
+                            .FirstOrDefault(c => c.Name == property.Name);
+                        if (control == null)
+                        {
+                            continue;
+                        }
+
+                        control.Text = property.GetValue(selectedRow)?.ToString();
+
+                        if (property.Name.Equals("x", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            point.x = TypeTools.Convert<double>(property.GetValue(selectedRow));
+                        }
+                        else if (property.Name.Equals("y", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            point.y = TypeTools.Convert<double>(property.GetValue(selectedRow));
+                        }
+                    }
+
+                    var shape = form.Shape ?? form.CreateShape();
+                    form.InsertPoint(point);
+                    form.Entity = selectedRow;
+                };
+            }
+            else
+            {
+                form.Controls.RemoveByKey("customEntity");
+                form.Controls.RemoveByKey("selectFromDict");
+            }
+
             return form;
+        }
+
+        private static object callDictionaryForm(object entity, Shapefile shapefile)
+        {
+            var dictForm = new DictionaryForm();
+
+            var entityType = entity.GetType();
+            var idType = entity.GetType().GetProperty("Id").PropertyType;
+
+            var serviceProviderGetMethod = typeof(IServiceProvider).GetMethod("GetService");
+            var serviceProvider = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
+            var repositoryType = typeof(IRepository<,>).MakeGenericType(entityType, idType);
+            var repository = Expression.Convert(Expression.Call(serviceProvider, serviceProviderGetMethod,
+                Expression.Constant(repositoryType)), repositoryType);
+            var converterType = typeof(IShapeEntityConverter<>).MakeGenericType(entityType);
+            var converter = Expression.Convert(Expression.Call(serviceProvider, serviceProviderGetMethod,
+                Expression.Constant(converterType)), converterType);
+            var form = Expression.Constant(dictForm);
+            var shfile = Expression.Convert(Expression.Constant(shapefile), typeof(Shapefile));
+
+            var initMethod = typeof(DictionaryForm).GetMethod("Init").MakeGenericMethod(entityType, idType);
+
+            var body = Expression.Call(form, initMethod, repository, shfile, converter);
+
+            Expression.Lambda<Action<IServiceProvider>>(body, serviceProvider)
+                .Compile()?.Invoke(ServiceProvider);
+
+            if (dictForm.ShowDialog() != DialogResult.OK)
+            {
+                return null;
+            }
+
+            return dictForm.GetSelectedRecord();
         }
 
         public static IEntityFormWithMap CreateFormWithMap<T>(Shapefile shapefile, EditMode editMode = EditMode.View)
@@ -39,7 +131,7 @@ namespace DynamicForms.Factories
             form.Load += (s, e) =>
             {
                 layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
-                map.set_ShapeLayerFillTransparency(layersInfo.SceneLayerHandle, 0.3f);
+                map.set_ShapeLayerFillTransparency(layersInfo.SceneLayerHandle, 0.2f);
 
                 if (layersInfo.BatimetryLayerHandle != -1)
                 {
@@ -84,7 +176,7 @@ namespace DynamicForms.Factories
                         };
                         break;
                     case Ship ship:
-                        form.ValidShape += (point, shape) =>
+                        form.ValidShape += (point, _) =>
                         {
                             var sceneShapeFile = map.get_Shapefile(layersInfo.SceneLayerHandle);
                             if (!sceneShapeFile.Table.Query($"[SceneId] = {ship.SceneId}", ref result, ref error))
@@ -96,7 +188,15 @@ namespace DynamicForms.Factories
                             var sceneShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
                             var sceneShape = sceneShapeFile.Shape[sceneShapeId];
 
-                            return form.Shape.Intersects(sceneShape);
+                            var shape = new Shape();
+                            if (!shape.Create(ShpfileType.SHP_POINT))
+                            {
+                                return false;
+                            }
+                            var pointIndex = 0;
+                            shape.InsertPoint(point, ref pointIndex);
+
+                            return shape.Intersects(sceneShape);
                         };
 
                         form.AfterShapeValid += (shape) =>
@@ -185,6 +285,7 @@ namespace DynamicForms.Factories
                             return;
                         }
 
+                        map.ZoomToShape(layersInfo.SceneLayerHandle, sceneShapeId1);
                         form.ValidShape += (point, _) =>
                         {
                             var shape = new Shape();
@@ -195,17 +296,17 @@ namespace DynamicForms.Factories
                             var pointIndex = 0;
                             shape.InsertPoint(point, ref pointIndex);
 
-                            return sceneShape1.Intersects(shape);
+                            return shape.Intersects(sceneShape1);
                         };
 
-                        form.OnMapMouseDown += (point) =>
+                        form.AfterShapeValid += (shape) =>
                         {
                             route.Points.Add(new RoutePoint() 
                             {
                                 RouteId = route.Id,
                                 Id = route.Points.Count,
-                                X = point.x,
-                                Y = point.y
+                                X = shape.Point[0].x,
+                                Y = shape.Point[0].y
                             });
                         };
                         break;
@@ -295,7 +396,7 @@ namespace DynamicForms.Factories
             {
                 Text = getFormCaption(entity, editMode)
             };
-            configureForm(form, entity, editMode);
+            configureForm(form, entity, editMode, false);
             configureButtons(form, editMode);
 
             return form;
@@ -307,10 +408,10 @@ namespace DynamicForms.Factories
             return CreateForm(new T(), editMode);
         }
 
-        private static void configureForm(Form form, object entity, EditMode editMode = EditMode.View)
+        private static void configureForm(Form form, object entity, EditMode editMode, bool isDictionaryEntity)
         {
             form.SuspendLayout();
-            int usedHeight = 0;
+            int usedHeight = form is EntityFormWithMap && isDictionaryEntity ? 90 : 0;
 
             var controls = new List<Control>();
             var maxLabelWidth = 0;
@@ -337,6 +438,7 @@ namespace DynamicForms.Factories
                 TextBox textBox = new TextBox();
                 textBox.Text = property.GetValue(entity)?.ToString();
                 textBox.Top = usedHeight + 5;
+                textBox.Name = property.Name;
                 textBox.Width = 115;
                 textBox.Enabled = (displayAttribute?.Enabled ?? true) && editMode != EditMode.View && editMode != EditMode.Delete;
                 textBox.TextChanged += (s, e) =>

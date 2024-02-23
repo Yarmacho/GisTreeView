@@ -2,6 +2,7 @@
 using MapWinGIS;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Tools;
 
@@ -21,9 +22,11 @@ namespace DynamicForms.Forms
         internal Shape Shape;
         private Shapefile _shapefile;
         private System.Windows.Forms.Label depth;
+        private Button selectFromDict;
+        private CheckBox customEntity;
         private string _shapefileFileName;
 
-        internal object Entity { get; }
+        internal object Entity { get; set; }
         public EntityFormWithMap(object entity)
         {
             Entity = entity;
@@ -58,6 +61,20 @@ namespace DynamicForms.Forms
             {
                 OnChangeParameters?.Invoke(_shapefile, 
                     TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(length.Text));
+            };
+
+            customEntity.CheckedChanged += (s, e) =>
+            {
+                foreach (var text in Controls.OfType<TextBox>())
+                {
+                    if (text.Name.Equals("x", StringComparison.InvariantCultureIgnoreCase) ||
+                        text.Name.Equals("y", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    text.Enabled = customEntity.Checked;
+                }
             };
         }
 
@@ -119,6 +136,8 @@ namespace DynamicForms.Forms
             this.angle = new System.Windows.Forms.MaskedTextBox();
             this.length = new System.Windows.Forms.MaskedTextBox();
             this.depth = new System.Windows.Forms.Label();
+            this.selectFromDict = new System.Windows.Forms.Button();
+            this.customEntity = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.Map)).BeginInit();
             this.SuspendLayout();
             // 
@@ -216,9 +235,31 @@ namespace DynamicForms.Forms
             this.depth.TabIndex = 9;
             this.depth.Text = "Depth: ";
             // 
+            // selectFromDict
+            // 
+            this.selectFromDict.Location = new System.Drawing.Point(12, 35);
+            this.selectFromDict.Name = "selectFromDict";
+            this.selectFromDict.Size = new System.Drawing.Size(122, 23);
+            this.selectFromDict.TabIndex = 10;
+            this.selectFromDict.Text = "Select from dictionary";
+            this.selectFromDict.UseVisualStyleBackColor = true;
+            this.selectFromDict.Click += new System.EventHandler(this.selectFromDict_Click);
+            // 
+            // customEntity
+            // 
+            this.customEntity.AutoSize = true;
+            this.customEntity.Location = new System.Drawing.Point(13, 65);
+            this.customEntity.Name = "customEntity";
+            this.customEntity.Size = new System.Drawing.Size(89, 17);
+            this.customEntity.TabIndex = 11;
+            this.customEntity.Text = "Custom entity";
+            this.customEntity.UseVisualStyleBackColor = true;
+            // 
             // EntityFormWithMap
             // 
             this.ClientSize = new System.Drawing.Size(830, 466);
+            this.Controls.Add(this.customEntity);
+            this.Controls.Add(this.selectFromDict);
             this.Controls.Add(this.depth);
             this.Controls.Add(this.length);
             this.Controls.Add(this.angle);
@@ -247,6 +288,7 @@ namespace DynamicForms.Forms
         internal event Action<Shape> AfterShapeValid;
         internal event Action<Shapefile, double, double> OnChangeParameters;
         internal event Action<double, double> OnMouseMoveOnMap;
+        internal event Action OnSelectFromDictionary;
 
         internal void HideAngleAndLength()
         {
@@ -292,32 +334,16 @@ namespace DynamicForms.Forms
             {
                 if (Shape == null)
                 {
-                    _shapefile.StartAppendMode();
-                    var shape = new Shape();
-                    shape.Create(_shapefile.ShapefileType);
-                    Shape = shape;
-
-                    var shapeIndex = 0;
-                    _shapefile.EditInsertShape(Shape, ref shapeIndex);
-                    _shapefile.StopAppendMode();
+                    CreateShape();
                 }
 
-                var pointIndex = 0;
                 if (ValidShape != null && !ValidShape(point, Shape))
                 {
                     MessageBox.Show("Invalid shape");
                 }
                 else
                 {
-                    var isPoint = _shapefile.ShapefileType == ShpfileType.SHP_POINT || _shapefile.ShapefileType == ShpfileType.SHP_POINTZ;
-                    if (isPoint && Shape.numPoints == 1)
-                    {
-                        Shape.Point[0] = point;
-                    }
-                    else
-                    {
-                        Shape.InsertPoint(point, ref pointIndex);
-                    }
+                    InsertPoint(point);
 
                     AfterShapeValid?.Invoke(Shape);
                 }
@@ -329,6 +355,39 @@ namespace DynamicForms.Forms
         private void Map_MouseMoveEvent(object sender, _DMapEvents_MouseMoveEvent e)
         {
             OnMouseMoveOnMap?.Invoke(e.x, e.y);
+        }
+
+        private void selectFromDict_Click(object sender, EventArgs e)
+        {
+            OnSelectFromDictionary?.Invoke();
+        }
+
+        internal Shape CreateShape()
+        {
+            _shapefile.StartAppendMode();
+            var shape = new Shape();
+            shape.Create(_shapefile.ShapefileType);
+            Shape = shape;
+
+            var shapeIndex = 0;
+            _shapefile.EditInsertShape(Shape, ref shapeIndex);
+            _shapefile.StopAppendMode();
+
+            return Shape;
+        }
+
+        internal void InsertPoint(Point point)
+        {
+            var pointIndex = 0;
+            var isPoint = _shapefile.ShapefileType == ShpfileType.SHP_POINT || _shapefile.ShapefileType == ShpfileType.SHP_POINTZ;
+            if (isPoint && Shape.numPoints == 1)
+            {
+                Shape.Point[0] = point;
+            }
+            else
+            {
+                Shape.InsertPoint(point, ref pointIndex);
+            }
         }
     }
 }

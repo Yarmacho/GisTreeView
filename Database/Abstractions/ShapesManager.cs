@@ -27,7 +27,10 @@ namespace Database.Abstractions
                 }
 
                 shapefile.StartEditingShapes();
-                shapefile.EditClear();
+                for (var i = 0; i < shapefile.NumShapes; i++)
+                {
+                    shapefile.EditDeleteShape(0);
+                }
                 shapefile.StopEditingShapes();
             }
         }

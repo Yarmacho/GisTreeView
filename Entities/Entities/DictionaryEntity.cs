@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Entities
 {
     public abstract class DictionaryEntity<TId> : EntityBase<TId>
     {
-        public abstract object[] AsArray();
+        public abstract IEnumerable<string> AsColumns();
+        public abstract object[] AsDataRow();
     }
 }

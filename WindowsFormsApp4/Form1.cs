@@ -60,6 +60,7 @@ namespace WindowsFormsApp4
                 axMap1.set_ShapeLayerFillTransparency(initResult.SceneLayerHandle, 0.3f);
             }
             treeView1.LayersInfo = initResult;
+            var gasShp = axMap1.get_Shapefile(initResult.GasLayerHandle);
 
             var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
             {
@@ -74,12 +75,6 @@ namespace WindowsFormsApp4
             });
             treeView1.Nodes.AddRange(nodes.ToArray());
             treeView1.AfterSelect += TreeView1_AfterSelect;
-
-            axMap1.MouseDownEvent += AxMap1_MouseDownEvent;
-        }
-
-        private void AxMap1_MouseDownEvent(object sender, AxMapWinGIS._DMapEvents_MouseDownEvent e)
-        {
         }
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
@@ -115,6 +110,24 @@ namespace WindowsFormsApp4
                     treeView1.Nodes.Add(node);
                 }
             }
+        }
+
+        private async void refresh_Click(object sender, EventArgs e)
+        {
+            treeView1.Nodes.Clear();
+
+            var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
+            {
+                Map = axMap1,
+                GasLayerHandle = treeView1.LayersInfo.GasLayerHandle,
+                ProfileLayerHandle = treeView1.LayersInfo.ProfilLayerHandle,
+                SceneLayerHandle = treeView1.LayersInfo.SceneLayerHandle,
+                ShipLayerHandle = treeView1.LayersInfo.ShipLayerHandle,
+                RoutesLayerHandle = treeView1.LayersInfo.RoutesLayerHandle,
+                ShowExperiments = true,
+                ServiceProvider = _serviceProvider
+            });
+            treeView1.Nodes.AddRange(nodes.ToArray());
         }
     }
 }

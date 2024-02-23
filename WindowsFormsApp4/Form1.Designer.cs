@@ -35,6 +35,7 @@ namespace WindowsFormsApp4
             this.treeView1 = new WindowsFormsApp4.MapTreeView();
             this.entityDesc = new System.Windows.Forms.RichTextBox();
             this.depth = new System.Windows.Forms.Label();
+            this.refresh = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -82,11 +83,22 @@ namespace WindowsFormsApp4
             this.depth.TabIndex = 5;
             this.depth.Text = "Depth:";
             // 
+            // refresh
+            // 
+            this.refresh.Location = new System.Drawing.Point(107, 26);
+            this.refresh.Name = "refresh";
+            this.refresh.Size = new System.Drawing.Size(88, 23);
+            this.refresh.TabIndex = 6;
+            this.refresh.Text = "Refresh";
+            this.refresh.UseVisualStyleBackColor = true;
+            this.refresh.Click += new System.EventHandler(this.refresh_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1085, 450);
+            this.Controls.Add(this.refresh);
             this.Controls.Add(this.depth);
             this.Controls.Add(this.entityDesc);
             this.Controls.Add(this.treeView1);
@@ -108,6 +120,7 @@ namespace WindowsFormsApp4
         private MapTreeView treeView1;
         private System.Windows.Forms.RichTextBox entityDesc;
         private System.Windows.Forms.Label depth;
+        private System.Windows.Forms.Button refresh;
     }
 }
 
