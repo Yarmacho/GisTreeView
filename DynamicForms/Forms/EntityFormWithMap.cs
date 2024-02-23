@@ -115,7 +115,7 @@ namespace DynamicForms.Forms
         }
         public Shape GetShape()
         {
-            return Shape.Clone();
+            return Shape?.Clone();
         }
         DialogResult IEntityForm.Activate()
         {

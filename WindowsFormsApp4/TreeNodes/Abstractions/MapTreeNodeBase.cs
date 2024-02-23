@@ -101,8 +101,9 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             if (form is IEntityFormWithMap formWithMap)
             {
                 var shape = formWithMap.GetShape();
-                if (!shape.IsValid)
+                if (shape == null || !shape.IsValid)
                 {
+                    MessageBox.Show("Shape invalid");
                     return;
                 }
 

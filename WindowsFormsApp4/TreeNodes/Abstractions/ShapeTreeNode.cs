@@ -4,6 +4,7 @@ using Entities;
 using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using WindowsFormsApp4.ShapeConverters;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
@@ -28,6 +29,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
         {
             if (Nodes.Count != 0)
             {
+                MessageBox.Show("Node has child nodes!");
                 return new ValueTask(Task.CompletedTask);
             }
 

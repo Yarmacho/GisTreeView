@@ -2,6 +2,7 @@
 using Entities;
 using Interfaces.Database.Abstractions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Tools;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
@@ -21,6 +22,12 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         public override async ValueTask Delete()
         {
+            if (Nodes.Count != 0)
+            {
+                MessageBox.Show("Node has child nodes!");
+                return;
+            }
+
             var repository = GetRepository();
 
             var deletedEntity = await repository.DeleteAsync(Entity);
