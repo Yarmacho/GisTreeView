@@ -26,8 +26,6 @@ namespace WindowsFormsApp4
             FormFactory.ServiceProvider = ServiceProvider;
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
-            //ServiceProvider.GetRequiredService<IShapesManager>()
-            //    .DeleteAllShapes(Configuration.GetValue<string>("MapsPath"));
 
             Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }

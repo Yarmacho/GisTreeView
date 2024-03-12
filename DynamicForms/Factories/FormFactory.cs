@@ -30,13 +30,13 @@ namespace DynamicForms.Factories
             var isDictionaryEntity = entityIdProperty != null && TypeTools.IsDerivedFrom(entity, typeof(DictionaryEntity<>)
                     .MakeGenericType(entityIdProperty.PropertyType));
 
-            configureForm(form, entity, editMode, isDictionaryEntity);
+            configureForm(form, entity, editMode);
             configureMap(form, shapefile);
             configureButtons(form, editMode);
 
             if (isDictionaryEntity)
             {
-                foreach (var text in form.Controls.OfType<TextBox>())
+                foreach (var text in form.PropertiesTab.Controls.OfType<TextBox>())
                 {
                     text.Enabled = false;
                 }
@@ -52,7 +52,7 @@ namespace DynamicForms.Factories
                     var point = new Point();
                     foreach (var property in selectedRow.GetType().GetProperties())
                     {
-                        var control = form.Controls.OfType<TextBox>()
+                        var control = form.PropertiesTab.Controls.OfType<TextBox>()
                             .FirstOrDefault(c => c.Name == property.Name);
                         if (control == null)
                         {
@@ -78,6 +78,8 @@ namespace DynamicForms.Factories
             }
             else
             {
+                form.TabControl.Location = new System.Drawing.Point(form.TabControl.Location.X, form.Map.Location.Y);
+
                 form.Controls.RemoveByKey("customEntity");
                 form.Controls.RemoveByKey("selectFromDict");
             }
@@ -132,6 +134,23 @@ namespace DynamicForms.Factories
             {
                 layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
                 map.set_ShapeLayerFillTransparency(layersInfo.SceneLayerHandle, 0.2f);
+
+                var layerCheckBoxTop = 0;
+                foreach (var layer in layersInfo)
+                {
+                    var checkBox = new CheckBox()
+                    {
+                        Text = layer.Key,
+                        Checked = true
+                    };
+                    checkBox.Top = layerCheckBoxTop;
+                    layerCheckBoxTop += 20;
+                    checkBox.CheckedChanged += (s1, e1) =>
+                    {
+                        map.set_LayerVisible(layersInfo[checkBox.Text], checkBox.Checked);
+                    };
+                    form.LayersTab.Controls.Add(checkBox);
+                }
 
                 if (layersInfo.BatimetryLayerHandle != -1)
                 {
@@ -254,11 +273,11 @@ namespace DynamicForms.Factories
 
                         form.ValidShape += (point, shape) =>
                         {
-                            if (coast != null && !coast.Intersects(shape))
-                            {
-                                MessageBox.Show("Сцена побудована на материку. Побудуйте іншу сцену");
-                                return false;
-                            }
+                            //if (coast != null && !coast.Intersects(shape))
+                            //{
+                            //    MessageBox.Show("Сцена побудована на материку. Побудуйте іншу сцену");
+                            //    return false;
+                            //}
 
                             return shape.numPoints != 4;
                         };
@@ -347,7 +366,10 @@ namespace DynamicForms.Factories
             }
 
             var maxControlWidth = form.Controls.OfType<TextBox>()
-                .Where(c => c.Name != "angle" && c.Name != "length").Max(c => c.Left + c.Width);
+                .Where(c => c.Name != "angle" && c.Name != "length")
+                .Select(c => c.Left + c.Width)
+                .DefaultIfEmpty(map.Location.X)
+                .Max();
 
             if (maxControlWidth > map.Location.X)
             {
@@ -414,7 +436,7 @@ namespace DynamicForms.Factories
             {
                 Text = getFormCaption(entity, editMode)
             };
-            configureForm(form, entity, editMode, false);
+            configureForm(form, entity, editMode);
             configureButtons(form, editMode);
 
             return form;
@@ -426,10 +448,12 @@ namespace DynamicForms.Factories
             return CreateForm(new T(), editMode);
         }
 
-        private static void configureForm(Form form, object entity, EditMode editMode, bool isDictionaryEntity)
+        private static void configureForm(Form form, object entity, EditMode editMode)
         {
             form.SuspendLayout();
-            int usedHeight = form is EntityFormWithMap && isDictionaryEntity ? 90 : 0;
+            int usedHeight = 5;
+
+            var formControls = form is EntityFormWithMap formWithMap ? formWithMap.PropertiesTab.Controls : form.Controls;
 
             var controls = new List<Control>();
             var maxLabelWidth = 0;
@@ -449,7 +473,7 @@ namespace DynamicForms.Factories
                 label.Top = usedHeight + 7;
                 label.Left = 5;
                 label.AutoSize = true;
-                form.Controls.Add(label);
+                formControls.Add(label);
 
                 maxLabelWidth = Math.Max(maxLabelWidth, label.Width);
 
@@ -465,7 +489,7 @@ namespace DynamicForms.Factories
                 };
                 controls.Add(textBox);
 
-                form.Controls.Add(textBox);
+                formControls.Add(textBox);
 
                 usedHeight += textBox.Height + 10;
             }

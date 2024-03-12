@@ -17,13 +17,16 @@ namespace DynamicForms.Forms
         private Button ZoomOut;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private MaskedTextBox angle;
-        private MaskedTextBox length;
         internal Shape Shape;
         private Shapefile _shapefile;
         private System.Windows.Forms.Label depth;
         private Button selectFromDict;
         private CheckBox customEntity;
+        internal TabControl TabControl;
+        internal TabPage PropertiesTab;
+        internal TabPage LayersTab;
+        private TextBox length;
+        private TextBox angle;
         private string _shapefileFileName;
 
         internal object Entity { get; set; }
@@ -51,22 +54,64 @@ namespace DynamicForms.Forms
                 }
             };
 
+            var prevLength = 0d;
+            var prevAngle = 0d;
+
+            angle.GotFocus += (s, e) =>
+            {
+                prevAngle = TypeTools.Convert<double>(angle.Text);
+            };
+
             angle.TextChanged += (s, e) =>
             {
                 OnChangeParameters?.Invoke(_shapefile,
                     TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(length.Text));
+
+                var shape = _shapefile.NumShapes == 0 ? null : _shapefile.Shape[0];
+                if (shape == null)
+                {
+                    return;
+                }
+
+                if (!callValidation(shape.Center, shape))
+                {
+                    OnChangeParameters?.Invoke(_shapefile, prevAngle, prevLength);
+                }
+                else
+                {
+                    AfterShapeValid?.Invoke(shape);
+                }
+            };
+
+            length.GotFocus += (s, e) =>
+            {
+                prevLength = TypeTools.Convert<double>(length.Text);
             };
 
             length.TextChanged += (s, e) =>
             {
                 OnChangeParameters?.Invoke(_shapefile, 
                     TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(length.Text));
+
+                var shape = _shapefile.NumShapes == 0 ? null : _shapefile.Shape[0];
+                if (shape == null)
+                {
+                    return;
+                }
+                if (!callValidation(shape.Center, shape))
+                {
+                    OnChangeParameters?.Invoke(_shapefile, prevAngle, prevLength);
+                }
+                else
+                {
+                    AfterShapeValid?.Invoke(shape);
+                }
             };
 
-            addShape.Enabled = customEntity.Checked;
+            addShape.Enabled = customEntity.Checked || !customEntity.Visible;
             customEntity.CheckedChanged += (s, e) =>
             {
-                foreach (var text in Controls.OfType<TextBox>())
+                foreach (var text in PropertiesTab.Controls.OfType<TextBox>())
                 {
                     if (text.Name.Equals("x", StringComparison.InvariantCultureIgnoreCase) ||
                         text.Name.Equals("y", StringComparison.InvariantCultureIgnoreCase))
@@ -143,28 +188,32 @@ namespace DynamicForms.Forms
             this.ZoomOut = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.angle = new System.Windows.Forms.MaskedTextBox();
-            this.length = new System.Windows.Forms.MaskedTextBox();
             this.depth = new System.Windows.Forms.Label();
             this.selectFromDict = new System.Windows.Forms.Button();
             this.customEntity = new System.Windows.Forms.CheckBox();
+            this.TabControl = new System.Windows.Forms.TabControl();
+            this.PropertiesTab = new System.Windows.Forms.TabPage();
+            this.LayersTab = new System.Windows.Forms.TabPage();
+            this.length = new System.Windows.Forms.TextBox();
+            this.angle = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.Map)).BeginInit();
+            this.TabControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // Map
             // 
             this.Map.Enabled = true;
-            this.Map.Location = new System.Drawing.Point(167, 35);
+            this.Map.Location = new System.Drawing.Point(202, 35);
             this.Map.Name = "Map";
             this.Map.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("Map.OcxState")));
-            this.Map.Size = new System.Drawing.Size(651, 366);
+            this.Map.Size = new System.Drawing.Size(680, 366);
             this.Map.TabIndex = 0;
             this.Map.MouseDownEvent += new AxMapWinGIS._DMapEvents_MouseDownEventHandler(this.Map_MouseDownEvent);
             this.Map.MouseMoveEvent += new AxMapWinGIS._DMapEvents_MouseMoveEventHandler(this.Map_MouseMoveEvent);
             // 
             // panBtn
             // 
-            this.panBtn.Location = new System.Drawing.Point(167, 6);
+            this.panBtn.Location = new System.Drawing.Point(202, 6);
             this.panBtn.Name = "panBtn";
             this.panBtn.Size = new System.Drawing.Size(75, 23);
             this.panBtn.TabIndex = 1;
@@ -174,7 +223,7 @@ namespace DynamicForms.Forms
             // 
             // addShape
             // 
-            this.addShape.Location = new System.Drawing.Point(248, 8);
+            this.addShape.Location = new System.Drawing.Point(283, 8);
             this.addShape.Name = "addShape";
             this.addShape.Size = new System.Drawing.Size(75, 21);
             this.addShape.TabIndex = 2;
@@ -184,7 +233,7 @@ namespace DynamicForms.Forms
             // 
             // ZoomIn
             // 
-            this.ZoomIn.Location = new System.Drawing.Point(329, 6);
+            this.ZoomIn.Location = new System.Drawing.Point(364, 6);
             this.ZoomIn.Name = "ZoomIn";
             this.ZoomIn.Size = new System.Drawing.Size(75, 23);
             this.ZoomIn.TabIndex = 3;
@@ -194,7 +243,7 @@ namespace DynamicForms.Forms
             // 
             // ZoomOut
             // 
-            this.ZoomOut.Location = new System.Drawing.Point(410, 6);
+            this.ZoomOut.Location = new System.Drawing.Point(445, 6);
             this.ZoomOut.Name = "ZoomOut";
             this.ZoomOut.Size = new System.Drawing.Size(75, 23);
             this.ZoomOut.TabIndex = 4;
@@ -205,7 +254,7 @@ namespace DynamicForms.Forms
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(164, 404);
+            this.label1.Location = new System.Drawing.Point(204, 405);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(34, 13);
             this.label1.TabIndex = 5;
@@ -214,32 +263,16 @@ namespace DynamicForms.Forms
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(270, 404);
+            this.label2.Location = new System.Drawing.Point(310, 405);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(40, 13);
             this.label2.TabIndex = 6;
             this.label2.Text = "Length";
             // 
-            // angle
-            // 
-            this.angle.Location = new System.Drawing.Point(167, 421);
-            this.angle.Mask = "###.##";
-            this.angle.Name = "angle";
-            this.angle.Size = new System.Drawing.Size(100, 20);
-            this.angle.TabIndex = 7;
-            // 
-            // length
-            // 
-            this.length.Location = new System.Drawing.Point(273, 421);
-            this.length.Mask = "########.##";
-            this.length.Name = "length";
-            this.length.Size = new System.Drawing.Size(100, 20);
-            this.length.TabIndex = 8;
-            // 
             // depth
             // 
             this.depth.AutoSize = true;
-            this.depth.Location = new System.Drawing.Point(737, 16);
+            this.depth.Location = new System.Drawing.Point(768, 12);
             this.depth.Name = "depth";
             this.depth.Size = new System.Drawing.Size(42, 13);
             this.depth.TabIndex = 9;
@@ -265,14 +298,61 @@ namespace DynamicForms.Forms
             this.customEntity.Text = "Custom entity";
             this.customEntity.UseVisualStyleBackColor = true;
             // 
+            // TabControl
+            // 
+            this.TabControl.Controls.Add(this.PropertiesTab);
+            this.TabControl.Controls.Add(this.LayersTab);
+            this.TabControl.Location = new System.Drawing.Point(13, 89);
+            this.TabControl.Name = "TabControl";
+            this.TabControl.SelectedIndex = 0;
+            this.TabControl.Size = new System.Drawing.Size(183, 312);
+            this.TabControl.TabIndex = 12;
+            // 
+            // PropertiesTab
+            // 
+            this.PropertiesTab.Location = new System.Drawing.Point(4, 22);
+            this.PropertiesTab.Name = "PropertiesTab";
+            this.PropertiesTab.Padding = new System.Windows.Forms.Padding(3);
+            this.PropertiesTab.Size = new System.Drawing.Size(175, 286);
+            this.PropertiesTab.TabIndex = 0;
+            this.PropertiesTab.Text = "Properties";
+            this.PropertiesTab.UseVisualStyleBackColor = true;
+            this.PropertiesTab.Click += new System.EventHandler(this.PropertiesTab_Click);
+            // 
+            // LayersTab
+            // 
+            this.LayersTab.Location = new System.Drawing.Point(4, 22);
+            this.LayersTab.Name = "LayersTab";
+            this.LayersTab.Padding = new System.Windows.Forms.Padding(3);
+            this.LayersTab.Size = new System.Drawing.Size(175, 286);
+            this.LayersTab.TabIndex = 1;
+            this.LayersTab.Text = "Layers manager";
+            this.LayersTab.UseVisualStyleBackColor = true;
+            // 
+            // length
+            // 
+            this.length.Location = new System.Drawing.Point(313, 421);
+            this.length.Name = "length";
+            this.length.Size = new System.Drawing.Size(100, 20);
+            this.length.TabIndex = 13;
+            // 
+            // angle
+            // 
+            this.angle.Location = new System.Drawing.Point(202, 421);
+            this.angle.Name = "angle";
+            this.angle.Size = new System.Drawing.Size(100, 20);
+            this.angle.TabIndex = 14;
+            this.angle.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            // 
             // EntityFormWithMap
             // 
-            this.ClientSize = new System.Drawing.Size(830, 466);
+            this.ClientSize = new System.Drawing.Size(894, 466);
+            this.Controls.Add(this.angle);
+            this.Controls.Add(this.length);
+            this.Controls.Add(this.TabControl);
             this.Controls.Add(this.customEntity);
             this.Controls.Add(this.selectFromDict);
             this.Controls.Add(this.depth);
-            this.Controls.Add(this.length);
-            this.Controls.Add(this.angle);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ZoomOut);
@@ -282,6 +362,7 @@ namespace DynamicForms.Forms
             this.Controls.Add(this.Map);
             this.Name = "EntityFormWithMap";
             ((System.ComponentModel.ISupportInitialize)(this.Map)).EndInit();
+            this.TabControl.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -346,20 +427,8 @@ namespace DynamicForms.Forms
                 {
                     CreateShape();
                 }
-
-                var validFuncs = ValidShape?.GetInvocationList().OfType<Func<Point, Shape, bool>>()
-                    ?? Enumerable.Empty<Func<Point, Shape, bool>>();
-                var isValid = true;
-                foreach (var func in validFuncs)
-                {
-                    isValid &= func.Invoke(point, Shape);
-                    if (!isValid)
-                    {
-                        break;
-                    }
-                }
                     
-                if (!isValid)
+                if (!callValidation(point, Shape))
                 {
                     MessageBox.Show("Invalid shape");
                 }
@@ -372,6 +441,21 @@ namespace DynamicForms.Forms
 
                 Map.Redraw();
             }
+        }
+
+        private bool callValidation(Point point, Shape shape)
+        {
+            var validFuncs = ValidShape?.GetInvocationList().OfType<Func<Point, Shape, bool>>()
+                ?? Enumerable.Empty<Func<Point, Shape, bool>>();
+            foreach (var func in validFuncs)
+            {
+                if (!func.Invoke(point, shape))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void Map_MouseMoveEvent(object sender, _DMapEvents_MouseMoveEvent e)
@@ -410,6 +494,16 @@ namespace DynamicForms.Forms
             {
                 Shape.InsertPoint(point, ref pointIndex);
             }
+        }
+
+        private void PropertiesTab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
