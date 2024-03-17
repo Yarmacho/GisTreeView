@@ -17,7 +17,9 @@ namespace GeoDatabase.ORM.DependencyInjection
         {
             return serviceCollection.AddScoped<GeoDbContext>(serviceProvider 
                 => new GeoDbContext(shapeFilesDirectory, serviceProvider))
-                .AddSingleton<IShapesQueryProvider, ShapesQueryProvider>();
+                .AddSingleton<IShapesQueryProvider, ShapesQueryProvider>()
+                .AddScoped<ChangeTracker>()
+                .AddSingleton<Database.Database>(sp => new Database.Database(shapeFilesDirectory, sp));
         }
 
         public static IServiceCollection AddMappings(this IServiceCollection serviceCollection, Assembly assembly,

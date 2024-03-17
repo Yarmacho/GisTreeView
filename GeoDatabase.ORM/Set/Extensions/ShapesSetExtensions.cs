@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Tools.Extensions;
 
@@ -10,6 +11,12 @@ namespace GeoDatabase.ORM.Set.Extensions
             where T : new()
         {
             return queryable.Provider.CreateQuery<T>(queryable.Expression.AndAlso(predicate));
+        }
+
+        public static T FirstOrDefault<T>(this IShapesQueryable<T> queryable, Expression<Func<T, bool>> predicate)
+            where T : new()
+        {
+            return queryable.Where(predicate).FirstOrDefault();
         }
     }
 }

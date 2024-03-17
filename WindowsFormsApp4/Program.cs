@@ -34,14 +34,21 @@ namespace WindowsFormsApp4
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
 
-            //Application.Run(ServiceProvider.GetRequiredService<Form1>());
             var context = ServiceProvider.GetRequiredService<GeoDbContext>();
-            //var list = context.Set<Gas>().Where(g => g.Id < 9).ToList();
-            IEnumerable<int> ids = new List<int>() { 9, 10 };
-            var list2 = context.Set<Gas>().Where(g => ids.Contains(g.Id))
-                .ToList();
+            var set = context.Set<Gas>().Add(new Gas()
+            {
+                Name = "Test save",
+                ExperimentId = 3
+            });
+            var success = context.SaveChanges();
 
-            return;
+
+            var list = context.Set<Gas>().ToList();
+            //IEnumerable<int> ids = new List<int>() { 9, 10 };
+            //var list2 = context.Set<Gas>().Where(g => ids.Contains(g.Id))
+            //    .ToList();
+
+            Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }
 
         public static IServiceProvider ServiceProvider { get; private set; }

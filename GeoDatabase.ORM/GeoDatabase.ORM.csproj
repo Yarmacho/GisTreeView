@@ -47,7 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTracker.cs" />
+    <Compile Include="Database\Database.cs" />
     <Compile Include="DependencyInjection\ServiceCollectionExtensions.cs" />
+    <Compile Include="EntityEntry.cs" />
+    <Compile Include="EntityState.cs" />
     <Compile Include="GeoDbContext.cs" />
     <Compile Include="Mapper\IShapesMapper.cs" />
     <Compile Include="Mapper\Mappings\Builder\IMappingBuilder.cs" />
@@ -68,6 +72,7 @@
     <Compile Include="QueryBuilder\ShapesQueryProvider.cs" />
     <Compile Include="Set\Extensions\ShapesSetExtensions.cs" />
     <Compile Include="Set\IShapesQueryable.cs" />
+    <Compile Include="Set\IShapesSet.cs" />
     <Compile Include="Set\ShapesQueryable.cs" />
     <Compile Include="Set\ShapesSet.cs" />
   </ItemGroup>

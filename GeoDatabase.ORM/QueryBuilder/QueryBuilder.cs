@@ -22,6 +22,10 @@ namespace GeoDatabase.ORM.QueryBuilder
 
         internal string Compile<T>(Expression<Func<T, bool>> expression)
         {
+            if (expression == null)
+            {
+                return "1 = 1";
+            }
             var whereVisitor = new WhereVisitor<T>(_config);
             var res = (ConstantExpression)whereVisitor.Visit(expression.Body);
 

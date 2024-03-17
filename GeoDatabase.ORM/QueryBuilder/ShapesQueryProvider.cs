@@ -10,11 +10,14 @@ namespace GeoDatabase.ORM.QueryBuilder
     {
         private readonly MappingConfigs _configs;
         private readonly IShapesMapper _shapesMapper;
+        private readonly ChangeTracker _changeTracker;
 
-        public ShapesQueryProvider(MappingConfigs configs, IShapesMapper shapesMapper)
+        public ShapesQueryProvider(MappingConfigs configs, IShapesMapper shapesMapper,
+            ChangeTracker changeTracker)
         {
             _configs = configs;
             _shapesMapper = shapesMapper;
+            _changeTracker = changeTracker;
         }
 
         public IShapesQueryable<TElement> CreateQuery<TElement>(Expression<Func<TElement, bool>> expression) where TElement : new()
@@ -52,7 +55,11 @@ namespace GeoDatabase.ORM.QueryBuilder
 
             foreach (var id in ids)
             {
-                yield return _shapesMapper.Map<TResult>(id);
+                var entity = _shapesMapper.Map<TResult>(id);
+
+                _changeTracker.AddAttached(entity, id);
+                
+                yield return entity;
             }
         }
     }
