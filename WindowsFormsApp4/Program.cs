@@ -1,11 +1,18 @@
 ﻿using Database.DI;
 using DynamicForms.DependencyInjection;
 using DynamicForms.Factories;
+using Entities.Entities;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.DependencyInjection;
+using GeoDatabase.ORM.Mapper;
+using GeoDatabase.ORM.Set.Extensions;
 using Interfaces.Database.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp4
@@ -27,7 +34,14 @@ namespace WindowsFormsApp4
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
 
-            Application.Run(ServiceProvider.GetRequiredService<Form1>());
+            //Application.Run(ServiceProvider.GetRequiredService<Form1>());
+            var context = ServiceProvider.GetRequiredService<GeoDbContext>();
+            //var list = context.Set<Gas>().Where(g => g.Id < 9).ToList();
+            IEnumerable<int> ids = new List<int>() { 9, 10 };
+            var list2 = context.Set<Gas>().Where(g => ids.Contains(g.Id))
+                .ToList();
+
+            return;
         }
 
         public static IServiceProvider ServiceProvider { get; private set; }
@@ -46,6 +60,8 @@ namespace WindowsFormsApp4
                     services.AddSingleton(Configuration);
                     services.AddShapeConverters();
                     services.AddDataBase(Configuration);
+                    services.AddGeoDataBase(Configuration.GetValue<string>("MapsPath"));
+                    services.AddMappings(typeof(Program).Assembly, Configuration.GetValue<string>("MapsPath"));
                 });
         }
     }

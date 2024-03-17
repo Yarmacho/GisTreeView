@@ -93,6 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mappings\GasMappings.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -196,6 +197,10 @@
     <ProjectReference Include="..\Entities\Entities.csproj">
       <Project>{91222ced-eb60-4e3e-9aa9-190e523a4f8d}</Project>
       <Name>Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GeoDatabase.ORM\GeoDatabase.ORM.csproj">
+      <Project>{ed49ef6e-3f40-4bb5-a287-7bf36e5a93ce}</Project>
+      <Name>GeoDatabase.ORM</Name>
     </ProjectReference>
     <ProjectReference Include="..\Interfaces.Database\Interfaces.Database.csproj">
       <Project>{2c99c054-5d26-4ca8-8d66-2d8cafefcfb9}</Project>
