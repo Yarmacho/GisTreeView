@@ -42,7 +42,7 @@ namespace GeoDatabase.ORM
 
             foreach (var entry in _changeTracker.GetAllEntries())
             {
-                _database.LoadEntity(entry.Entity, entry.EntityType, entry.ShapeIndex, entry.Shape);
+                _database.LoadEntity(entry);
             }
 
             _changeTracker.ClearChanges();

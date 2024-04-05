@@ -37,7 +37,7 @@ namespace GeoDatabase.ORM
                 yield return value;
             }
 
-            foreach (var value in _entries.Values)
+            foreach (var value in _entries.Values.OrderByDescending(e => e.ShapeIndex))
             {
                 yield return value;
             }
@@ -80,7 +80,7 @@ namespace GeoDatabase.ORM
 
         public EntityEntry<T> AddRemoved<T>(T entity)
         {
-            return Add <T>(entity, getShapeIndex(entity), EntityState.Removed);
+            return Add<T>(entity, getShapeIndex(entity), EntityState.Removed);
         }
 
         public EntityEntry<T> AddAdded<T>(T entity, Shape shape = null)

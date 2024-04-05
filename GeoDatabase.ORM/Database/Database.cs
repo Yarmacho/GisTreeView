@@ -126,20 +126,27 @@ namespace GeoDatabase.ORM.Database
                             : throw new ArgumentException("Invalid property type");
         }
 
-        public bool LoadEntity<T>(T entity, int shapeIndex, Shape shape = null)
+        public bool LoadEntity<T>(EntityEntry<T> entry)
         {
-            return LoadEntity(entity, typeof(T), shapeIndex, shape);
+            return LoadEntity(entry);
         }
 
-        public bool LoadEntity(object entity, Type type, int shapeIndex, Shape shape = null)
+        public bool LoadEntity(EntityEntry entry)
         {
             var mappings = ServiceProvider.GetRequiredService<MappingConfigs>();
-            var config = mappings.GetConfig(type);
+            var config = mappings.GetConfig(entry.EntityType);
 
             config.Shapefile.StartEditingShapes();
-            var saver = _savers.GetOrAdd(type, _ => getSaver(config, type, shapeIndex, shape));
+            if (entry.State == EntityState.Removed)
+            {
+                config.Shapefile.EditDeleteShape(entry.ShapeIndex);
+            }
+            else
+            {
+                var saver = _savers.GetOrAdd(entry.EntityType, _ => getSaver(config, entry.EntityType, entry.ShapeIndex, entry.Shape));
+                saver.Invoke(entry.Entity);
+            }
 
-            saver.Invoke(entity);
             return config.Shapefile.StopEditingShapes();
         }
 
