@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.ShapeConverters;
 using Tools;
+using GeoDatabase.ORM.Mapper;
+using GeoDatabase.ORM;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
@@ -49,43 +51,22 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
         protected abstract void OnUpdate(TEntity entity);
         public abstract ValueTask Delete();
         public abstract ValueTask Update();
-        public virtual async ValueTask AppendChild<TChildEntity, TChildNode>()
+        public async ValueTask AppendChild<TChildEntity, TChildNode>()
             where TChildNode : MapTreeNodeBase<TChildEntity>
             where TChildEntity : EntityBase, new()
         {
             var childNodeType = typeof(TChildNode);
-            IEntityForm form = null;
-            Shapefile shapeFile = null;
-            int entityLayerHandle = -1;
-            int shapeIndex = -1;
-
             var childEntity = new TChildEntity();
             ConfigureChildNodeEntity(childEntity);
-            var isShapeNode = typeof(ShapeTreeNode<TChildEntity>).IsAssignableFrom(childNodeType);
+            IEntityForm form = null;
+
+
+            var isShapeNode = isShapeNodeType(childNodeType);
             if (isShapeNode)
             {
-                var entityType = typeof(TChildEntity);
-                entityLayerHandle = entityType == typeof(Gas)
-                    ? TreeView.LayersInfo.GasLayerHandle
-                    : entityType == typeof(Scene)
-                        ? TreeView.LayersInfo.SceneLayerHandle
-                        : entityType == typeof(Ship)
-                            ? TreeView.LayersInfo.ShipLayerHandle
-                            : entityType == typeof(Route)
-                                ? TreeView.LayersInfo.RoutesLayerHandle
-                                : -1;
-                if (entityLayerHandle == -1)
-                {
-                    return;
-                }
-
-                shapeFile = Map.get_Shapefile(entityLayerHandle);
-                if (shapeFile == null)
-                {
-                    return;
-                }
-
-                form = FormFactory.CreateFormWithMap(childEntity, shapeFile,
+                var config =
+                    TreeView.ServiceProvider.GetRequiredService<IMappingConfigProvider>().GetConfig<TChildEntity>();
+                form = FormFactory.CreateFormWithMap(childEntity, config.Shapefile,
                     EditMode.Add);
             }
             else
@@ -98,6 +79,13 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 return;
             }
 
+            childEntity = form.GetEntity<TChildEntity>();
+            ConfigureChildNodeEntity(childEntity);
+            var repository = TreeView.RepositoriesProvider.Get<IWriteOnlyRepository<TChildEntity>>();
+            childEntity = await repository.AddAsync(childEntity);
+            await repository.SaveChanges();
+
+            var shapeIndex = -1;
             if (form is IEntityFormWithMap formWithMap)
             {
                 var shape = formWithMap.GetShape();
@@ -107,29 +95,31 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                     return;
                 }
 
-                shapeFile.StartAppendMode();
-                shapeIndex = shapeFile.EditAddShape(shape);
-                shapeFile.StopAppendMode();
-            }
+                var dbContext = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+                var entry = dbContext.Set<TChildEntity>().Add(childEntity);
+                entry.Shape = formWithMap.GetShape();
 
-            childEntity = form.GetEntity<TChildEntity>();
-            ConfigureChildNodeEntity(childEntity);
-            var repository = TreeView.RepositoriesProvider.Get<IWriteOnlyRepository<TChildEntity>>();
-            childEntity = await repository.AddAsync(childEntity);
-            await repository.SaveChanges();
+                dbContext.SaveChanges();
+
+
+                shapeIndex = entry.ShapeIndex;
+            }
 
             MapTreeNodeBase childNode = null;
             if (isShapeNode)
             {
-                TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TChildEntity>>()
-                    .WriteToShapeFile(shapeFile, shapeIndex, childEntity);
+                var layerHandle = TreeView.LayersInfo.GetLayerHandle(typeof(TChildEntity));
+                var configsProvider = TreeView.ServiceProvider.GetRequiredService<IMappingConfigProvider>();
+                Map.RemoveLayer(layerHandle);
+                layerHandle = Map.AddLayer(configsProvider.GetConfig<TChildEntity>().Shapefile, true);
+                TreeView.LayersInfo.SetLayerHandle(typeof(TChildEntity), layerHandle);
 
-                childNode = (MapTreeNodeBase)Activator.CreateInstance(childNodeType,
-                    new object[] { shapeFile, shapeIndex, entityLayerHandle });
+                childNode = (MapTreeNodeBase)Activator.CreateInstance(typeof(TChildNode),
+                    new object[] { childEntity, shapeIndex, layerHandle });
             }
             else
             {
-                childNode = (MapTreeNodeBase)Activator.CreateInstance(childNodeType,
+                childNode = (MapTreeNodeBase)Activator.CreateInstance(typeof(TChildNode),
                     new object[] { childEntity, TreeView.RepositoriesProvider });
             }
 
@@ -140,15 +130,23 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             if (childNode is RouteTreeNode routeTreeNode && childEntity is Route route)
             {
                 routeTreeNode.SetRoute(route);
-                if (route.Points.Count > 0)
-                {
-                    foreach (var point in route.Points)
-                    {
-                        childNode.Nodes.Add(new TreeNode($"{point.X} : {point.Y}"));
-                    }
-                    childNode.Expand();
-                }
             }
+        }
+
+        private bool isShapeNodeType(Type type)
+        {
+            var nodeType = type;
+            while (nodeType != null)
+            {
+                if (nodeType.IsGenericType && nodeType.GetGenericTypeDefinition() == typeof(ShapeTreeNode<>))
+                {
+                    return true;
+                }
+
+                nodeType = nodeType.BaseType;
+            }
+
+            return false;
         }
 
         protected override ContextMenu BuildContextMenu()

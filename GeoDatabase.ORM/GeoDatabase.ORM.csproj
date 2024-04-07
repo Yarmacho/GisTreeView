@@ -53,6 +53,7 @@
     <Compile Include="EntityEntry.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="GeoDbContext.cs" />
+    <Compile Include="Mapper\IMappingConfigProvider.cs" />
     <Compile Include="Mapper\IShapesMapper.cs" />
     <Compile Include="Mapper\Mappings\Builder\IMappingBuilder.cs" />
     <Compile Include="Mapper\Mappings\Builder\MappingBuilder.cs" />

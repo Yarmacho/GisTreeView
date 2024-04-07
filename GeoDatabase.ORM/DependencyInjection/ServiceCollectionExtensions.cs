@@ -2,12 +2,7 @@
 using GeoDatabase.ORM.Mapper.Mappings;
 using GeoDatabase.ORM.QueryBuilder;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GeoDatabase.ORM.DependencyInjection
 {
@@ -38,6 +33,7 @@ namespace GeoDatabase.ORM.DependencyInjection
 
             return serviceCollection
                 .AddScoped<MappingConfigs>(sp => new MappingsInitializer(sp).Init(shapeFilesDirectory))
+                .AddScoped<IMappingConfigProvider>(sp => sp.GetRequiredService<MappingConfigs>())
                 .AddScoped<IShapesMapper, ShapesMapper>();
         }
     }

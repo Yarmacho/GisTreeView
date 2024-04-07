@@ -1,8 +1,10 @@
 ﻿using Entities.Entities;
+using GeoDatabase.ORM;
 using Interfaces.Database.Abstractions;
 using Interfaces.Database.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
@@ -25,17 +27,17 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
             var routesDict = await repository.GetRoutesDictionary();
 
-            var shapefile = buildNodesParams.Map.get_Shapefile(buildNodesParams.RoutesLayerHandle);
+            var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
             var nodes = new Dictionary<int, RouteTreeNode>();
-            for (var i = 0; i < shapefile.NumShapes; i++)
+            foreach (var routeShape in dbContext.Set<Route>().ToList())
             {
-                var id = GetProperty<int>(shapefile, i, "Id");
-                if (!routesDict.TryGetValue(id, out var route))
+                if (!routesDict.TryGetValue(routeShape.Id, out var route))
                 {
                     continue;
                 }
 
-                var node = new RouteTreeNode(shapefile, i, buildNodesParams.RoutesLayerHandle);
+                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(routeShape);
+                var node = new RouteTreeNode(routeShape, shapeIndex, buildNodesParams.RoutesLayerHandle);
                 node.SetRoute(route);
 
                 nodes[route.Id] = node;
@@ -43,11 +45,6 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 if (_shipNodes.TryGetValue(route.ShipId, out var shipNode))
                 {
                     shipNode.Nodes.Add(node);
-
-                    foreach (var point in route.Points)
-                    {
-                        node.Nodes.Add(new TreeNode($"{point.X} : {point.Y}"));
-                    }
                 }
             }
 

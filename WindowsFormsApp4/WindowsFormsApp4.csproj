@@ -94,6 +94,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Mappings\GasMappings.cs" />
+    <Compile Include="Mappings\RouteMappings.cs" />
+    <Compile Include="Mappings\SceneMappings.cs" />
+    <Compile Include="Mappings\ShipMappings.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
     </Compile>

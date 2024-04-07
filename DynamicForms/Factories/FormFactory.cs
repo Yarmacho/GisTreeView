@@ -282,15 +282,11 @@ namespace DynamicForms.Factories
                             return shape.numPoints != 4;
                         };
 
-                        var angleTextBox = form.Controls.OfType<TextBox>()
-                            .FirstOrDefault(c => c.Name == "angle");
-                        var lengthTextBox = form.Controls.OfType<TextBox>()
-                            .FirstOrDefault(c => c.Name == "length");
                         form.AfterShapeValid += (shape) =>
                         {
                             scene.Area = shape.Area;
-                            scene.Angle = TypeTools.Convert<double>(angleTextBox.Text);
-                            scene.Side = TypeTools.Convert<double>(lengthTextBox.Text);
+                            scene.Angle = TypeTools.Convert<double>(form.Angle.Text);
+                            scene.Side = TypeTools.Convert<double>(form.Length.Text);
                         };
                         break;
                     case Route route:
@@ -366,7 +362,7 @@ namespace DynamicForms.Factories
             }
 
             var maxControlWidth = form.Controls.OfType<TextBox>()
-                .Where(c => c.Name != "angle" && c.Name != "length")
+                .Where(c => c.Name != form.Length.Name && c.Name != form.Angle.Name)
                 .Select(c => c.Left + c.Width)
                 .DefaultIfEmpty(map.Location.X)
                 .Max();

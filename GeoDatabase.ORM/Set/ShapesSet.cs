@@ -11,15 +11,13 @@ namespace GeoDatabase.ORM.Set
     internal class ShapesSet<T> : IShapesSet<T>
         where T : new()
     {
-        private GeoDbContext _dbContext;
         private ShapesQueryable<T> _shapesQueryable;
         private ChangeTracker _changeTracker;
 
         public ShapesSet(GeoDbContext dbContext, ChangeTracker changeTracker)
         {
-            _dbContext = dbContext;
             ElementType = typeof(T);
-            Provider = _dbContext.ServiceProvider.GetRequiredService<IShapesQueryProvider>();
+            Provider = dbContext.ServiceProvider.GetRequiredService<IShapesQueryProvider>();
             _changeTracker = changeTracker;
         }
 

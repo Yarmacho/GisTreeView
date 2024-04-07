@@ -1,5 +1,8 @@
 ﻿using Entities.Entities;
+using GeoDatabase.ORM;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
@@ -17,20 +20,14 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
         {
             var nodes = new Dictionary<int, SceneTreeNode>();
 
-            var shapefile = buildNodesParams.Map.get_Shapefile(buildNodesParams.SceneLayerHandle);
-            for (int i = 0; i < shapefile.NumShapes; i++)
+            var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
+            foreach (var scene in dbContext.Set<Scene>().ToList())
             {
-                var id = GetProperty<int>(shapefile, i, "SceneId");
-                if (id == -1)
-                {
-                    continue;
-                }
+                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(scene);
+                var node = new SceneTreeNode(scene, shapeIndex, buildNodesParams.SceneLayerHandle);
+                nodes[scene.Id] = node;
 
-                var node = new SceneTreeNode(shapefile, i, buildNodesParams.SceneLayerHandle);
-                nodes[id] = node;
-
-                var gasId = GetProperty<int>(shapefile, i, "GasId");
-                if (gasId != 0 && _gasNodes.TryGetValue(gasId, out var gasNode))
+                if (_gasNodes.TryGetValue(scene.GasId, out var gasNode))
                 {
                     gasNode.AddNode(node);
                 }

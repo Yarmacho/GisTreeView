@@ -29,7 +29,7 @@ namespace GeoDatabase.ORM.Mapper.Mappings.Builder
         public IMappingBuilder<T> ToShapeFile(string path)
         {
             var fileName = path.EndsWith(".shp") ? path : $"{path}.shp";
-            var filePath = Path.Combine(_shapeFilesDirectory, path);
+            var filePath = Path.Combine(_shapeFilesDirectory, fileName);
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException(filePath);

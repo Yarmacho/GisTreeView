@@ -26,7 +26,7 @@ namespace GeoDatabase.ORM.QueryBuilder
             {
                 return "1 = 1";
             }
-            var whereVisitor = new WhereVisitor<T>(_config);
+            var whereVisitor = new WhereVisitor<T>(_config, expression.Parameters.First());
             var res = (ConstantExpression)whereVisitor.Visit(expression.Body);
 
             return (string)res.Value;
@@ -36,7 +36,8 @@ namespace GeoDatabase.ORM.QueryBuilder
     internal class WhereVisitor<T> : ExpressionVisitor
     {
         private readonly MappingConfig _config;
-
+        private readonly ParameterExpression _parameter;
+        
         private static readonly MethodInfo _stringIsNullOrEmptyMethod =
             typeof(string).GetMethod("IsNullOrEmpty", BindingFlags.Public | BindingFlags.Static);
 
@@ -46,9 +47,10 @@ namespace GeoDatabase.ORM.QueryBuilder
         private static readonly Dictionary<Type, MethodInfo> _listContainsMethod = new Dictionary<Type, MethodInfo>();
         private static readonly Dictionary<Type, MethodInfo> _hashSetContainsMethod = new Dictionary<Type, MethodInfo>();
 
-        public WhereVisitor(MappingConfig config)
+        public WhereVisitor(MappingConfig config, ParameterExpression parameter)
         {
             _config = config;
+            _parameter = parameter;
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -58,7 +60,6 @@ namespace GeoDatabase.ORM.QueryBuilder
             var left = convertExpression(node.Left);
             var right = convertExpression(node.Right);
 
-            //Result = $"{left} {binaryOperator} {right}";
             return Expression.Constant($"({left} {binaryOperator} {right})");
         }
 
@@ -172,13 +173,25 @@ namespace GeoDatabase.ORM.QueryBuilder
                 case ConstantExpression constantExpression:
                     return convertConstantValue(constantExpression.Value);
                 case MemberExpression memberExpression:
-                    
-                    if (isEntityType(memberExpression.Member.DeclaringType) &&
+                    if (memberExpression.Expression is ParameterExpression parameter && parameter == _parameter &&
                         _config.ColumnNames.TryGetValue(memberExpression.Member.Name, out var columnName))
                     {
                         return $"[{columnName}]";
                     }
-                    return convertExpression(memberExpression.Expression);
+                    var convertedExpression = convertExpression(memberExpression.Expression);
+
+                    if (memberExpression.Member is PropertyInfo propertyInfo)
+                    {
+                        return propertyInfo.GetValue(convertedExpression);
+                    }
+                    else if (memberExpression.Member is FieldInfo fieldInfo)
+                    {
+                        return fieldInfo.GetValue(convertedExpression);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
                 case UnaryExpression unaryExpression:
                     return ((ConstantExpression)VisitUnary(unaryExpression)).Value;
                 case BinaryExpression binaryExpression:
@@ -190,24 +203,13 @@ namespace GeoDatabase.ORM.QueryBuilder
             }
         }
 
-        private static bool isEntityType(Type type)
-        {
-            var t = typeof(T);
-            while (t != type && t != null)
-            {
-                t = t.BaseType;
-            }
-
-            return t != null;
-        }
-
-        private static string convertConstantValue(object value)
+        private static object convertConstantValue(object value)
         {
             return value is string str
                 ? str.StartsWith("[") && str.EndsWith("]") ? str : $"\"{value}\""
                 : value is bool boolValue
                     ? boolValue.ToString().ToUpperInvariant()
-                    : value.ToString();
+                    : value;
         }
 
         private static string getBinaryOperator(ExpressionType type)

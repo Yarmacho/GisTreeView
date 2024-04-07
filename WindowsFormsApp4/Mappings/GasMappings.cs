@@ -1,11 +1,6 @@
 ﻿using Entities.Entities;
 using GeoDatabase.ORM.Mapper.Mappings;
 using GeoDatabase.ORM.Mapper.Mappings.Builder;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsFormsApp4.Mappings
 {

@@ -5,7 +5,7 @@ namespace GeoDatabase.ORM.Mapper.Mappings
 {
     internal abstract class MappingConfig
     {
-        internal Shapefile Shapefile;
+        public Shapefile Shapefile { get; internal set; }
         internal string ShapefileName;
 
         internal Dictionary<string, string> ColumnNames = new Dictionary<string, string>();
@@ -16,7 +16,7 @@ namespace GeoDatabase.ORM.Mapper.Mappings
         internal Dictionary<string, int> ColumnLengths = new Dictionary<string, int>();
     }
 
-    internal class MappingConfig<T> : MappingConfig
+    internal class MappingConfig<T> : MappingConfig, IMappingConfig<T>
     {
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GeoDatabase.ORM
 {
-    internal class ChangeTracker
+    public class ChangeTracker
     {
         private Dictionary<int, EntityEntry> _entries = new Dictionary<int, EntityEntry>();
         private List<EntityEntry> _addEntries = new List<EntityEntry>();
@@ -30,6 +30,11 @@ namespace GeoDatabase.ORM
                 .Select(e => e.Value).ToList();
         }
 
+        public int GetShapeIndex(object entity)
+        {
+            return _entries.Values.FirstOrDefault(e => e.Entity.Equals(entity))?.ShapeIndex ?? -1;
+        }
+
         public IEnumerable<EntityEntry> GetAllEntries()
         {
             foreach (var value in _addEntries)
@@ -43,12 +48,12 @@ namespace GeoDatabase.ORM
             }
         }
 
-        public void Add(EntityEntry entry)
+        internal void Add(EntityEntry entry)
         {
             _entries.Add(entry.ShapeIndex, entry);
         }
 
-        public EntityEntry<T> Add<T>(T entity, int shapeIndex, EntityState state, Shape shape = null)
+        internal EntityEntry<T> Add<T>(T entity, int shapeIndex, EntityState state, Shape shape = null)
         {
             var entry = new EntityEntry<T>(entity, shapeIndex)
             {
@@ -68,27 +73,27 @@ namespace GeoDatabase.ORM
             return entry;
         }
 
-        public EntityEntry<T> AddAttached<T>(T entity)
+        internal EntityEntry<T> AddAttached<T>(T entity)
         {
             return Add<T>(entity, getShapeIndex(entity), EntityState.Attached);
         }
 
-        public EntityEntry<T> AddAttached<T>(T entity, int shapeIndex)
+        internal EntityEntry<T> AddAttached<T>(T entity, int shapeIndex)
         {
             return Add<T>(entity, shapeIndex, EntityState.Attached);
         }
 
-        public EntityEntry<T> AddRemoved<T>(T entity)
+        internal EntityEntry<T> AddRemoved<T>(T entity)
         {
             return Add<T>(entity, getShapeIndex(entity), EntityState.Removed);
         }
 
-        public EntityEntry<T> AddAdded<T>(T entity, Shape shape = null)
+        internal EntityEntry<T> AddAdded<T>(T entity, Shape shape = null)
         {
             return Add<T>(entity, -1, EntityState.Added, shape);
         }
 
-        public EntityEntry<T> AddUpdated<T>(T entity)
+        internal EntityEntry<T> AddUpdated<T>(T entity)
         {
             return Add<T>(entity, getShapeIndex(entity), EntityState.Updated);
         }
@@ -103,7 +108,7 @@ namespace GeoDatabase.ORM
             return entityEntry[0].Key;
         }
 
-        public void ClearChanges()
+        internal void ClearChanges()
         {
             _addEntries = new List<EntityEntry>();
             _entries = new Dictionary<int, EntityEntry>();

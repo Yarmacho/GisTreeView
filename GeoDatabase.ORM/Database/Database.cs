@@ -20,8 +20,8 @@ namespace GeoDatabase.ORM.Database
         internal readonly IServiceProvider ServiceProvider;
         private readonly ILogger<Database> _logger;
 
-        private static readonly ConcurrentDictionary<Type, Action<object>> _savers
-            = new ConcurrentDictionary<Type, Action<object>>();
+        private static readonly ConcurrentDictionary<Type, Func<object, int>> _savers
+            = new ConcurrentDictionary<Type, Func<object, int>>();
 
         private static readonly MethodInfo _invokeMemberMethod
             = typeof(Type).GetMethod("InvokeMember", BindingFlags.Instance | BindingFlags.Public, null, new Type[] { typeof(string), typeof(BindingFlags), typeof(Binder), typeof(object), typeof(object[]) }, null);
@@ -144,13 +144,13 @@ namespace GeoDatabase.ORM.Database
             else
             {
                 var saver = _savers.GetOrAdd(entry.EntityType, _ => getSaver(config, entry.EntityType, entry.ShapeIndex, entry.Shape));
-                saver.Invoke(entry.Entity);
+                entry.ShapeIndex = saver.Invoke(entry.Entity);
             }
 
             return config.Shapefile.StopEditingShapes();
         }
 
-        private Action<object> getSaver(MappingConfig config, Type type, int shapeIndex, Shape shape = null)
+        private Func<object, int> getSaver(MappingConfig config, Type type, int shapeIndex, Shape shape = null)
         {
             var param = Expression.Parameter(typeof(object));
 
@@ -189,8 +189,9 @@ namespace GeoDatabase.ORM.Database
                 expressions.Add(callEditCell);
             }
 
+            expressions.Add(shapeIndexVariable);
             var body = Expression.Block(new ParameterExpression[] { shapeIndexVariable }, expressions);
-            return Expression.Lambda<Action<object>>(body, param).Compile();
+            return Expression.Lambda<Func<object, int>>(body, param).Compile();
         }
     }
 }

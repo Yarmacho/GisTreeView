@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace GeoDatabase.ORM.Mapper
 {
-    internal class MappingConfigs : IEnumerable<MappingConfig>
+    internal class MappingConfigs : IEnumerable<MappingConfig>, IMappingConfigProvider
     {
         private static readonly ConcurrentDictionary<Type, MappingConfig> _configs
             = new ConcurrentDictionary<Type, MappingConfig>();
@@ -43,6 +43,11 @@ namespace GeoDatabase.ORM.Mapper
         public IEnumerator<MappingConfig> GetEnumerator()
         {
             return _configs.Values.GetEnumerator();
+        }
+
+        IMappingConfig<T> IMappingConfigProvider.GetConfig<T>()
+        {
+            return GetConfig<T>();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

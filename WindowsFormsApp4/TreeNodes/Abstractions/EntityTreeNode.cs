@@ -1,6 +1,8 @@
 ﻿using DynamicForms.Factories;
 using Entities;
+using Entities.Entities;
 using Interfaces.Database.Abstractions;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
@@ -57,7 +59,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         public override string GetDescription()
         {
-            return Entity.ToString();
+            return Entity?.ToString();
         }
     }
 }

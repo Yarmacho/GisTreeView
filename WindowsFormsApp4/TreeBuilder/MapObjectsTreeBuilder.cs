@@ -50,10 +50,10 @@ namespace WindowsFormsApp4
             {
                 return new RouteNodesBuilder(new Dictionary<int, ShipTreeNode>());
             }
-            else if (buildNodesParams.ProfileLayerHandle != -1)
-            {
-                return new ProfilNodesBuilder(new Dictionary<int, ShipTreeNode>());
-            }
+            //else if (buildNodesParams.ProfileLayerHandle != -1)
+            //{
+            //    return new ProfilNodesBuilder(new Dictionary<int, ShipTreeNode>());
+            //}
             else
             {
                 throw new ArgumentException(nameof(buildNodesParams));

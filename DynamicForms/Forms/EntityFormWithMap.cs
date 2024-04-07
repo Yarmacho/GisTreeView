@@ -25,8 +25,8 @@ namespace DynamicForms.Forms
         internal TabControl TabControl;
         internal TabPage PropertiesTab;
         internal TabPage LayersTab;
-        private TextBox length;
-        private TextBox angle;
+        internal TextBox Length;
+        internal TextBox Angle;
         private string _shapefileFileName;
 
         internal object Entity { get; set; }
@@ -57,15 +57,15 @@ namespace DynamicForms.Forms
             var prevLength = 0d;
             var prevAngle = 0d;
 
-            angle.GotFocus += (s, e) =>
+            Angle.GotFocus += (s, e) =>
             {
-                prevAngle = TypeTools.Convert<double>(angle.Text);
+                prevAngle = TypeTools.Convert<double>(Angle.Text);
             };
 
-            angle.TextChanged += (s, e) =>
+            Angle.TextChanged += (s, e) =>
             {
                 OnChangeParameters?.Invoke(_shapefile,
-                    TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(length.Text));
+                    TypeTools.Convert<double>(Angle.Text), TypeTools.Convert<double>(Length.Text));
 
                 var shape = _shapefile.NumShapes == 0 ? null : _shapefile.Shape[0];
                 if (shape == null)
@@ -83,15 +83,15 @@ namespace DynamicForms.Forms
                 }
             };
 
-            length.GotFocus += (s, e) =>
+            Length.GotFocus += (s, e) =>
             {
-                prevLength = TypeTools.Convert<double>(length.Text);
+                prevLength = TypeTools.Convert<double>(Length.Text);
             };
 
-            length.TextChanged += (s, e) =>
+            Length.TextChanged += (s, e) =>
             {
                 OnChangeParameters?.Invoke(_shapefile, 
-                    TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(length.Text));
+                    TypeTools.Convert<double>(Angle.Text), TypeTools.Convert<double>(Length.Text));
 
                 var shape = _shapefile.NumShapes == 0 ? null : _shapefile.Shape[0];
                 if (shape == null)
@@ -108,7 +108,7 @@ namespace DynamicForms.Forms
                 }
             };
 
-            addShape.Enabled = customEntity.Checked || !customEntity.Visible;
+            addShape.Enabled = customEntity.Checked || !Controls.ContainsKey(nameof(customEntity));
             customEntity.CheckedChanged += (s, e) =>
             {
                 foreach (var text in PropertiesTab.Controls.OfType<TextBox>())
@@ -136,8 +136,8 @@ namespace DynamicForms.Forms
         internal void MoveMapControls(int shift)
         {
             Map.Left += shift;
-            angle.Left += shift;
-            length.Left += shift;
+            Angle.Left += shift;
+            Length.Left += shift;
             label1.Left += shift;
             label2.Left += shift;
             panBtn.Left += shift;
@@ -194,8 +194,8 @@ namespace DynamicForms.Forms
             this.TabControl = new System.Windows.Forms.TabControl();
             this.PropertiesTab = new System.Windows.Forms.TabPage();
             this.LayersTab = new System.Windows.Forms.TabPage();
-            this.length = new System.Windows.Forms.TextBox();
-            this.angle = new System.Windows.Forms.TextBox();
+            this.Length = new System.Windows.Forms.TextBox();
+            this.Angle = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.Map)).BeginInit();
             this.TabControl.SuspendLayout();
             this.SuspendLayout();
@@ -331,24 +331,24 @@ namespace DynamicForms.Forms
             // 
             // length
             // 
-            this.length.Location = new System.Drawing.Point(313, 421);
-            this.length.Name = "length";
-            this.length.Size = new System.Drawing.Size(100, 20);
-            this.length.TabIndex = 13;
+            this.Length.Location = new System.Drawing.Point(313, 421);
+            this.Length.Name = "length";
+            this.Length.Size = new System.Drawing.Size(100, 20);
+            this.Length.TabIndex = 13;
             // 
             // angle
             // 
-            this.angle.Location = new System.Drawing.Point(202, 421);
-            this.angle.Name = "angle";
-            this.angle.Size = new System.Drawing.Size(100, 20);
-            this.angle.TabIndex = 14;
-            this.angle.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            this.Angle.Location = new System.Drawing.Point(202, 421);
+            this.Angle.Name = "angle";
+            this.Angle.Size = new System.Drawing.Size(100, 20);
+            this.Angle.TabIndex = 14;
+            this.Angle.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // EntityFormWithMap
             // 
             this.ClientSize = new System.Drawing.Size(894, 466);
-            this.Controls.Add(this.angle);
-            this.Controls.Add(this.length);
+            this.Controls.Add(this.Angle);
+            this.Controls.Add(this.Length);
             this.Controls.Add(this.TabControl);
             this.Controls.Add(this.customEntity);
             this.Controls.Add(this.selectFromDict);
@@ -385,8 +385,8 @@ namespace DynamicForms.Forms
         {
             label1.Visible = false;
             label2.Visible = false;
-            angle.Visible = false;
-            length.Visible = false;
+            Angle.Visible = false;
+            Length.Visible = false;
         }
 
         private void ZoomOut_Click(object sender, System.EventArgs e)

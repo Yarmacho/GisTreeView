@@ -34,20 +34,6 @@ namespace WindowsFormsApp4
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
 
-            var context = ServiceProvider.GetRequiredService<GeoDbContext>();
-            var set = context.Set<Gas>().Add(new Gas()
-            {
-                Name = "Test save",
-                ExperimentId = 3
-            });
-            var success = context.SaveChanges();
-
-
-            var list = context.Set<Gas>().ToList();
-            //IEnumerable<int> ids = new List<int>() { 9, 10 };
-            //var list2 = context.Set<Gas>().Where(g => ids.Contains(g.Id))
-            //    .ToList();
-
             Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 
 namespace GeoDatabase.ORM
 {
@@ -10,7 +11,7 @@ namespace GeoDatabase.ORM
         private readonly string _shapeFilesDirectory;
         internal readonly IServiceProvider ServiceProvider;
         private readonly ILogger<GeoDbContext> _logger;
-        private readonly ChangeTracker _changeTracker;
+        public readonly ChangeTracker ChangeTracker;
         private readonly Database.Database _database;
 
         public GeoDbContext(string shapeFilesDirectory, IServiceProvider serviceProvider)
@@ -18,13 +19,13 @@ namespace GeoDatabase.ORM
             _shapeFilesDirectory = shapeFilesDirectory;
             ServiceProvider = serviceProvider;
             _logger = serviceProvider.GetRequiredService<ILogger<GeoDbContext>>();
-            _changeTracker = serviceProvider.GetRequiredService<ChangeTracker>();
+            ChangeTracker = serviceProvider.GetRequiredService<ChangeTracker>();
             _database = ServiceProvider.GetRequiredService<Database.Database>();
         }
 
         public IShapesSet<T> Set<T>() where T : new()
         {
-            return new ShapesSet<T>(this, _changeTracker);
+            return new ShapesSet<T>(this, ChangeTracker);
         }
 
         public bool EnsureShapefilesStructure()
@@ -34,18 +35,18 @@ namespace GeoDatabase.ORM
 
         public bool SaveChanges()
         {
-            if (!_changeTracker.HasChanges)
+            if (!ChangeTracker.HasChanges)
             {
                 _logger.LogInformation("No changes");
                 return true;
             }
 
-            foreach (var entry in _changeTracker.GetAllEntries())
+            foreach (var entry in ChangeTracker.GetAllEntries().Where(e => e.State != EntityState.Attached))
             {
                 _database.LoadEntity(entry);
             }
 
-            _changeTracker.ClearChanges();
+            ChangeTracker.ClearChanges();
             return true;
         }
     }

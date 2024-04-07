@@ -5,7 +5,7 @@ namespace GeoDatabase.ORM
 {
     public abstract class EntityEntry
     {
-        public int ShapeIndex { get; }
+        public int ShapeIndex { get; internal set; }
         public EntityState State { get; set; }
         public Shape Shape { get; set; }
         public object Entity { get; }
