@@ -101,11 +101,10 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
                 dbContext.SaveChanges();
 
-
                 shapeIndex = entry.ShapeIndex;
             }
 
-            MapTreeNodeBase childNode = null;
+            MapTreeNodeBase<TChildEntity> childNode = null;
             if (isShapeNode)
             {
                 var layerHandle = TreeView.LayersInfo.GetLayerHandle(typeof(TChildEntity));
@@ -114,16 +113,18 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 layerHandle = Map.AddLayer(configsProvider.GetConfig<TChildEntity>().Shapefile, true);
                 TreeView.LayersInfo.SetLayerHandle(typeof(TChildEntity), layerHandle);
 
-                childNode = (MapTreeNodeBase)Activator.CreateInstance(typeof(TChildNode),
+                childNode = (MapTreeNodeBase<TChildEntity>)Activator.CreateInstance(typeof(TChildNode),
                     new object[] { childEntity, shapeIndex, layerHandle });
             }
             else
             {
-                childNode = (MapTreeNodeBase)Activator.CreateInstance(typeof(TChildNode),
+                childNode = (MapTreeNodeBase<TChildEntity>)Activator.CreateInstance(typeof(TChildNode),
                     new object[] { childEntity, TreeView.RepositoriesProvider });
             }
 
             childNode.SetMap(Map);
+            await childNode.OnAppend(childEntity);
+
             Nodes.Add(childNode);
             Expand();
 
@@ -131,6 +132,11 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             {
                 routeTreeNode.SetRoute(route);
             }
+        }
+
+        internal virtual ValueTask OnAppend(TEntity entity)
+        {
+            return new ValueTask();
         }
 
         private bool isShapeNodeType(Type type)

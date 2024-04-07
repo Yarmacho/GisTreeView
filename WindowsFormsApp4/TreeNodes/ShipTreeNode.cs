@@ -1,4 +1,6 @@
-﻿using Entities.Entities;
+﻿using DynamicForms;
+using Entities.Entities;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 
@@ -34,6 +36,13 @@ namespace WindowsFormsApp4.TreeNodes
         {
             Name = entity.Name;
             Text = entity.Name;
+        }
+
+        internal override ValueTask OnAppend(Ship entity)
+        {
+            MapDesigner.ConnectShipWithGas(Map, entity);
+
+            return new ValueTask();
         }
     }
 }

@@ -53,6 +53,11 @@ namespace DynamicForms
                                 break;
                         }
                     }
+
+                    if (result.GasLayerHandle != -1)
+                    {
+                        map.MoveLayerTop(result.GasLayerHandle);
+                    }
                 }
                 finally
                 {

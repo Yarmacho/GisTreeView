@@ -1,4 +1,5 @@
 ﻿using GeoDatabase.ORM.Mapper.Mappings.Builder;
+using MapWinGIS;
 using System.Reflection;
 
 namespace GeoDatabase.ORM.Mapper.Mappings
@@ -22,6 +23,13 @@ namespace GeoDatabase.ORM.Mapper.Mappings
             var shapeFile = config.Shapefile;
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
+                if (property.PropertyType.FullName == "MapWinGIS.Shape")
+                {
+                    config.IgnoredProperties.Add(property.Name);
+                    config.ShapePropertyName = property.Name;
+                    continue;
+                }
+
                 if (config.IgnoredProperties.Contains(property.Name))
                 {
                     continue;

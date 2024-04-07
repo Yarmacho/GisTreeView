@@ -1,4 +1,5 @@
 ﻿using AxMapWinGIS;
+using Entities.Entities;
 using MapWinGIS;
 using System;
 using System.IO;
@@ -166,8 +167,15 @@ namespace DynamicForms.Forms
 
         public T GetEntity<T>()
         {
-            return TypeTools.Convert<T>(Entity);
+            var entity = TypeTools.Convert<T>(Entity);
+            if (entity is IShapeEntity shapeEntity)
+            {
+                shapeEntity.Shape = GetShape();
+            }
+
+            return entity;
         }
+
         public Shape GetShape()
         {
             return Shape?.Clone();

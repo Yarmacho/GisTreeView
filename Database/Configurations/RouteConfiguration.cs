@@ -20,6 +20,7 @@ namespace Database.Configurations
             builder.Property(r => r.Name).HasColumnName("NAME");
             builder.Property(r => r.ShipId).HasColumnName("SHIPID");
             builder.Property(r => r.Description).HasColumnName("DESCR");
+            builder.Ignore(r => r.Shape);
 
             builder.HasKey(r => r.Id);
 

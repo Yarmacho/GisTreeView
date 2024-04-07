@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 using Tools;
+using GeoDatabase.ORM;
 
 namespace WindowsFormsApp4
 {
@@ -35,6 +36,7 @@ namespace WindowsFormsApp4
             axMap1.CursorMode = tkCursorMode.cmPan;
             axMap1.SendMouseMove = true;
             var initResult = MapInitializer.Init(_path, axMap1);
+            MapDesigner.ConnectShipsWithGases(axMap1);
             if (initResult.BatimetryLayerHandle != -1)
             {
                 var batimetry = axMap1.get_Image(initResult.BatimetryLayerHandle);

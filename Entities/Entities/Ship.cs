@@ -1,11 +1,12 @@
-﻿using System;
+﻿using MapWinGIS;
+using System;
 using System.Collections.Generic;
 using Tools;
 using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Ship : DictionaryEntity<int>
+    public class Ship : DictionaryEntity<int>, IShapeEntity
     {
         public string Name { get; set; }
 
@@ -17,6 +18,9 @@ namespace Entities.Entities
 
         [Display(Enabled = false)]
         public double Y { get; set; }
+
+        [IgnoreProperty(EditMode.Add | EditMode.View | EditMode.Edit | EditMode.Delete)]
+        public Shape Shape { get; set; }
 
         public override string ToString()
         {

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MapWinGIS;
+using System;
 using Tools;
 using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Scene : EntityBase<int>
+    public class Scene : EntityBase<int>, IShapeEntity
     {
         public string Name { get; set; }
 
@@ -19,6 +20,9 @@ namespace Entities.Entities
 
         [Display(Enabled = false)]
         public double Side { get; set; }
+
+        [IgnoreProperty(EditMode.Add | EditMode.View | EditMode.Edit | EditMode.Delete)]
+        public Shape Shape { get; set; }
 
         public override string ToString()
         {

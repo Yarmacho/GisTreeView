@@ -1,4 +1,5 @@
 ﻿using Database.DI;
+using DynamicForms;
 using DynamicForms.DependencyInjection;
 using DynamicForms.Factories;
 using Entities.Entities;
@@ -31,6 +32,7 @@ namespace WindowsFormsApp4
             var host = CreateHostBuilder().Build();
             ServiceProvider = host.Services;
             FormFactory.ServiceProvider = ServiceProvider;
+            MapDesigner.ServiceProvider = ServiceProvider;
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
 

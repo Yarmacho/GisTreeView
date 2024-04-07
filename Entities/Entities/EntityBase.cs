@@ -8,5 +8,10 @@ namespace Entities
     {
         [IgnoreProperty(EditMode.Add)]
         public TId Id { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is EntityBase<TId> other && other.Id.Equals(Id);
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace GeoDatabase.ORM.Mapper.Mappings
         internal Dictionary<string, int> ColumnIndexes = new Dictionary<string, int>();
         internal Dictionary<string, int> ColumnPrecisions = new Dictionary<string, int>();
         internal Dictionary<string, int> ColumnLengths = new Dictionary<string, int>();
+
+        internal string ShapePropertyName { get; set; }
     }
 
     internal class MappingConfig<T> : MappingConfig, IMappingConfig<T>

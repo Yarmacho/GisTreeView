@@ -37,7 +37,21 @@ namespace GeoDatabase.ORM.Mapper
 
             var factoryMethod = _entityFactories.GetOrAdd(destinationType, getFactoryMethod(config, destinationType));
 
-            return factoryMethod?.Invoke(shapeIndex);
+            var entity = factoryMethod?.Invoke(shapeIndex);
+            if (entity != null && !string.IsNullOrEmpty(config.ShapePropertyName))
+            {
+                var property = destinationType.GetProperty(config.ShapePropertyName, BindingFlags.Instance | BindingFlags.Public);
+                if (property == null || !property.CanWrite)
+                {
+                    throw new Exception("Invalid shape configuration provided");
+                }
+
+                property.SetValue(entity, config.Shapefile.Shape[shapeIndex],
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, null,
+                    System.Globalization.CultureInfo.CurrentCulture);
+            }
+
+            return entity;
         }
 
         private Func<int, object> getFactoryMethod(MappingConfig config, Type destinationType)

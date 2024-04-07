@@ -12,6 +12,10 @@ using Entities;
 using Expression = System.Linq.Expressions.Expression;
 using Interfaces.Database.Repositories;
 using WindowsFormsApp4.ShapeConverters;
+using Microsoft.Extensions.DependencyInjection;
+using GeoDatabase.ORM;
+using System.Drawing;
+using Point = MapWinGIS.Point;
 
 namespace DynamicForms.Factories
 {
@@ -134,6 +138,7 @@ namespace DynamicForms.Factories
             {
                 layersInfo = MapInitializer.Init(Path.GetDirectoryName(shapefile.Filename), map);
                 map.set_ShapeLayerFillTransparency(layersInfo.SceneLayerHandle, 0.2f);
+                MapDesigner.ConnectShipsWithGases(map);
 
                 var layerCheckBoxTop = 0;
                 foreach (var layer in layersInfo)
@@ -213,17 +218,28 @@ namespace DynamicForms.Factories
                         };
                         break;
                     case Ship ship:
+                        var context = ServiceProvider.GetRequiredService<GeoDbContext>();
+                        var shipScene = context.Set<Scene>().FirstOrDefault(sc => sc.Id == ship.SceneId);
+                        if (shipScene is null)
+                        {
+
+                            break;
+                        }
+                        map.ZoomToShape(layersInfo.SceneLayerHandle, context.ChangeTracker.GetShapeIndex(shipScene));
+
+                        var shipGas = context.Set<Gas>().FirstOrDefault(g => g.Id == shipScene.GasId);
+                        if (shipGas is null)
+                        {
+                            break;
+                        }
+
                         form.ValidShape += (point, _) =>
                         {
-                            var sceneShapeFile = map.get_Shapefile(layersInfo.SceneLayerHandle);
-                            if (!sceneShapeFile.Table.Query($"[SceneId] = {ship.SceneId}", ref result, ref error))
+                            if (shipScene == null)
                             {
                                 MessageBox.Show("Scene not found");
                                 return false;
                             }
-
-                            var sceneShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-                            var sceneShape = sceneShapeFile.Shape[sceneShapeId];
 
                             var shape = new Shape();
                             if (!shape.Create(ShpfileType.SHP_POINT))
@@ -233,9 +249,11 @@ namespace DynamicForms.Factories
                             var pointIndex = 0;
                             shape.InsertPoint(point, ref pointIndex);
 
-                            return shape.Intersects(sceneShape);
+                            return shape.Intersects(shipScene.Shape);
                         };
 
+                        var gasPoint = shipGas.Shape.Point[0];
+                        int drawingLayerHandle = -1;
                         form.AfterShapeValid += (shape) =>
                         {
                             if (shape.numPoints == 1)
@@ -243,18 +261,20 @@ namespace DynamicForms.Factories
                                 var point = shape.Point[0];
                                 ship.X = point.x;
                                 ship.Y = point.y;
+
+                                if (drawingLayerHandle != -1)
+                                {
+                                    map.ClearDrawing(drawingLayerHandle);
+                                }
+                                drawingLayerHandle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
+                                map.DrawLineEx(drawingLayerHandle, gasPoint.x, gasPoint.y, ship.X, ship.Y, 2, (uint)Color.Red.ToArgb());
                             }
                         };
                         break;
                     case Scene scene:
-                        var gasShapefile = map.get_Shapefile(layersInfo.GasLayerHandle);
-                        if (!gasShapefile.Table.Query($"[Id] = {scene.GasId}", ref result, ref error))
-                        {
-                            return;
-                        }
-                        var gasShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-                        var gasShape = gasShapefile.Shape[gasShapeId];
-                        var origin = gasShape.Point[0];
+                        var sceneGas = ServiceProvider.GetRequiredService<GeoDbContext>()
+                            .Set<Gas>().FirstOrDefault(g => g.Id == scene.GasId);
+                        var origin = sceneGas.Shape.Point[0];
 
                         form.OnChangeParameters += (shapefileCloned, angle, length) =>
                         {

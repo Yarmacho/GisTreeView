@@ -54,6 +54,7 @@
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\Experiment.cs" />
     <Compile Include="Entities\Gas.cs" />
+    <Compile Include="Entities\IShapeEntity.cs" />
     <Compile Include="Entities\Profil.cs" />
     <Compile Include="Entities\Route.cs" />
     <Compile Include="Entities\RoutePoint.cs" />
@@ -85,6 +86,26 @@
       <Project>{C9F344AD-9207-4205-91AC-05D48B041877}</Project>
       <Name>Tools</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="MapWinGIS">
+      <Guid>{C368D713-CC5F-40ED-9F53-F84FE197B96A}</Guid>
+      <VersionMajor>5</VersionMajor>
+      <VersionMinor>2</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
