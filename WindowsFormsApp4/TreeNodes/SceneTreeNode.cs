@@ -3,6 +3,7 @@ using MapWinGIS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.TreeNodes.Abstractions;
@@ -54,6 +55,28 @@ namespace WindowsFormsApp4.TreeNodes
         {
             Name = entity.Name;
             Text = entity.Name;
+        }
+
+        public override async ValueTask<bool> AppendChild<TChildEntity, TChildNode>()
+        {
+            if (!await base.AppendChild<TChildEntity, TChildNode>())
+            {
+                return false;
+            }
+
+            var shape = Shapefile.Shape[ShapeIndex];
+            if (shape is null)
+            {
+                return false;
+            } 
+
+            var battimetry = TreeView.Map.get_Image(TreeView.LayersInfo.BatimetryLayerHandle);
+            if (battimetry is null)
+            {
+                return true;
+            }
+
+            return true;
         }
     }
 }

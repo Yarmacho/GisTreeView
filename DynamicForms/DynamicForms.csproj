@@ -31,8 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AxInterop.MapWinGIS">
-      <HintPath>..\..\..\..\..\..\dev\MapWinGIS\AxInterop.MapWinGIS.dll</HintPath>
+    <Reference Include="AxInterop.MapWinGIS, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\dev\MapWinGIS\AxInterop.MapWinGIS.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.MapWinGIS">
+      <HintPath>C:\dev\MapWinGIS\Interop.MapWinGIS.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.3.1.32\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
@@ -99,14 +104,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="AxMapWinGIS">
-      <Guid>{C368D713-CC5F-40ED-9F53-F84FE197B96A}</Guid>
-      <VersionMajor>5</VersionMajor>
-      <VersionMinor>2</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>aximp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
     <COMReference Include="MapWinGIS">
       <Guid>{C368D713-CC5F-40ED-9F53-F84FE197B96A}</Guid>
       <VersionMajor>5</VersionMajor>

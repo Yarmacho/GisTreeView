@@ -6,7 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+using Tools;
 
 namespace WindowsFormsApp4
 {
@@ -27,7 +31,17 @@ namespace WindowsFormsApp4
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
 
-            Application.Run(ServiceProvider.GetRequiredService<Form1>());
+            //Application.Run(ServiceProvider.GetRequiredService<Form1>());
+
+            var point1 = new MapWinGIS.Point();
+            point1.Set(1, 0);
+
+            var point2 = new MapWinGIS.Point();
+            point2.Set(2, 1);
+
+            Debug.WriteLine(string.Join("\n", LineTools.EnumeratePointsInLine(point2, point1).Select(p => $"({p.x}, {p.y})")));
+            
+            Debugger.Break();
         }
 
         public static IServiceProvider ServiceProvider { get; private set; }

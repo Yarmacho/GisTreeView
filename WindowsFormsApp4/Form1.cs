@@ -38,6 +38,7 @@ namespace WindowsFormsApp4
             if (initResult.BatimetryLayerHandle != -1)
             {
                 var batimetry = axMap1.get_Image(initResult.BatimetryLayerHandle);
+
                 if (batimetry != null)
                 {
                     var band = batimetry.Band[1];

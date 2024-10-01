@@ -8,7 +8,6 @@ using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -49,7 +48,8 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
         protected abstract void OnUpdate(TEntity entity);
         public abstract ValueTask Delete();
         public abstract ValueTask Update();
-        public virtual async ValueTask AppendChild<TChildEntity, TChildNode>()
+
+        public virtual async ValueTask<bool> AppendChild<TChildEntity, TChildNode>()
             where TChildNode : MapTreeNodeBase<TChildEntity>
             where TChildEntity : EntityBase, new()
         {
@@ -76,13 +76,13 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                                 : -1;
                 if (entityLayerHandle == -1)
                 {
-                    return;
+                    return false;
                 }
 
                 shapeFile = Map.get_Shapefile(entityLayerHandle);
                 if (shapeFile == null)
                 {
-                    return;
+                    return false;
                 }
 
                 form = FormFactory.CreateFormWithMap(childEntity, shapeFile,
@@ -95,7 +95,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
             if (form.Activate() != DialogResult.OK)
             {
-                return;
+                return false;
             }
 
             if (form is IEntityFormWithMap formWithMap)
@@ -104,7 +104,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 if (shape == null || !shape.IsValid)
                 {
                     MessageBox.Show("Shape invalid");
-                    return;
+                    return false;
                 }
 
                 shapeFile.StartAppendMode();
@@ -149,6 +149,8 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                     childNode.Expand();
                 }
             }
+
+            return true;
         }
 
         protected override ContextMenu BuildContextMenu()
