@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DynamicForms.Forms
+namespace DynamicForms.Abstractions
 {
-    public interface IEntityForm
+    public interface IEntityForm<T>
     {
-        T GetEntity<T>();
+        T Entity { get; }
 
-        DialogResult Activate();
+        DialogResult ShowDialog();
     }
 }

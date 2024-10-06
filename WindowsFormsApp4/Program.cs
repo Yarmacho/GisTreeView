@@ -1,16 +1,13 @@
 ﻿using Database.DI;
-using DynamicForms.DependencyInjection;
-using DynamicForms.Factories;
+using Entities.Entities;
 using Interfaces.Database.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
-using Tools;
+using WindowsFormsApp4.Initializers;
+using WindowsFormsApp4.ShapeConverters;
 
 namespace WindowsFormsApp4
 {
@@ -27,21 +24,12 @@ namespace WindowsFormsApp4
 
             var host = CreateHostBuilder().Build();
             ServiceProvider = host.Services;
-            FormFactory.ServiceProvider = ServiceProvider;
+            MapInitializer.ShapesPath = Configuration.GetValue<string>("MapsPath");
+            
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
 
-            //Application.Run(ServiceProvider.GetRequiredService<Form1>());
-
-            var point1 = new MapWinGIS.Point();
-            point1.Set(1, 0);
-
-            var point2 = new MapWinGIS.Point();
-            point2.Set(2, 1);
-
-            Debug.WriteLine(string.Join("\n", LineTools.EnumeratePointsInLine(point2, point1).Select(p => $"({p.x}, {p.y})")));
-            
-            Debugger.Break();
+            Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }
 
         public static IServiceProvider ServiceProvider { get; private set; }
@@ -61,6 +49,16 @@ namespace WindowsFormsApp4
                     services.AddShapeConverters();
                     services.AddDataBase(Configuration);
                 });
+        }
+
+        public static IServiceCollection AddShapeConverters(this IServiceCollection services)
+        {
+            services.AddTransient<IShapeEntityConverter<Gas>, ShapeToGasConverter>();
+            services.AddTransient<IShapeEntityConverter<Scene>, ShapeToSceneConverter>();
+            services.AddTransient<IShapeEntityConverter<Ship>, ShapeToShipConverter>();
+            services.AddTransient<IShapeEntityConverter<Route>, ShapeToRouteConverter>();
+
+            return services;
         }
     }
 }

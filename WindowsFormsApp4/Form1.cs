@@ -1,6 +1,4 @@
-﻿using DynamicForms;
-using DynamicForms.Factories;
-using Entities;
+﻿using Entities;
 using Interfaces.Database.Abstractions;
 using Interfaces.Database.Repositories;
 using MapWinGIS;
@@ -12,6 +10,8 @@ using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 using Tools;
+using WindowsFormsApp4.Initializers;
+using Forms.Forms;
 
 namespace WindowsFormsApp4
 {
@@ -34,7 +34,7 @@ namespace WindowsFormsApp4
         {
             axMap1.CursorMode = tkCursorMode.cmPan;
             axMap1.SendMouseMove = true;
-            var initResult = MapInitializer.Init(_path, axMap1);
+            var initResult = MapInitializer.Init(axMap1).LayersInfo;
             if (initResult.BatimetryLayerHandle != -1)
             {
                 var batimetry = axMap1.get_Image(initResult.BatimetryLayerHandle);
@@ -115,10 +115,10 @@ namespace WindowsFormsApp4
 
         private async void addExperimentBtn_Click(object sender, EventArgs e)
         {
-            var form = FormFactory.CreateForm<Experiment>(EditMode.Add);
-            if (form.Activate() == DialogResult.OK)
+            var form = new ExperimentForm(EditMode.Add);
+            if (form.ShowDialog() == DialogResult.OK)
             {
-                var entity = form.GetEntity<Experiment>();
+                var entity = form.Entity;
 
                 var repository = GetService<IExperimentsRepository>();
                 await repository.AddAsync(entity);

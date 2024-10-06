@@ -1,5 +1,4 @@
 ﻿using AxMapWinGIS;
-using DynamicForms;
 using Interfaces.Database.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsFormsApp4.Initializers;
 
 namespace WindowsFormsApp4
 {

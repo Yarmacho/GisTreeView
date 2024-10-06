@@ -1,10 +1,10 @@
 ﻿using AxMapWinGIS;
-using DynamicForms.Factories;
 using Entities;
 using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsFormsApp4.Forms.Abstractions;
 using WindowsFormsApp4.ShapeConverters;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
@@ -49,13 +49,13 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
             var entity = converter.FromShapeFile(Shapefile, ShapeIndex);
 
-            var form = FormFactory.CreateFormWithMap(entity, Shapefile, Tools.EditMode.Edit);
-            if (form.Activate() != System.Windows.Forms.DialogResult.OK)
+            var form = FormsSelector.Select(entity, Tools.EditMode.Edit);
+            if (form.ShowDialog() != DialogResult.OK)
             {
                 return new ValueTask();
             }
 
-            entity = form.GetEntity<TEntity>();
+            entity = form.Entity;
             converter.WriteToShapeFile(Shapefile, ShapeIndex, entity);
             OnUpdate(entity);
 
