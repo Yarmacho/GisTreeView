@@ -84,6 +84,9 @@ namespace WindowsFormsApp4.Initializers
         public int RoutesLayerHandle => TryGetValue("TraceLine", out var layer) ? layer : -1;
         public int CoastLayerHandle => TryGetValue("BaseChine", out var layer) ? layer : -1;
         public int BatimetryLayerHandle => TryGetValue("Batimetry", out var layer) ? layer : -1;
+
+        public int GetLayerHandle(Type type) => TryGetValue(type.Name, out var layer) ? layer : -1;
+        public int SetLayerHandle(Type type, int layerHandle) => this[type.Name] = layerHandle;
     }
 
     public class Map : IDisposable

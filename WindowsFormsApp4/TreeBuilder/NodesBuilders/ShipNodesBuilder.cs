@@ -1,5 +1,8 @@
 ﻿using Entities.Entities;
+using GeoDatabase.ORM;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
@@ -18,20 +21,14 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
         {
             var nodes = new Dictionary<int, ShipTreeNode>();
 
-            var shapefile = buildNodesParams.Map.get_Shapefile(buildNodesParams.ShipLayerHandle);
-            for (int i = 0; i < shapefile.NumShapes; i++)
+            var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
+            foreach (var ship in dbContext.Set<Ship>().ToList())
             {
-                var id = GetProperty<int>(shapefile, i, "ShipId");
-                if (id == 0)
-                {
-                    continue;
-                }
+                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(ship);
+                var node = new ShipTreeNode(ship, shapeIndex, buildNodesParams.ShipLayerHandle);
+                nodes[ship.Id] = node;
 
-                var node = new ShipTreeNode(shapefile, i, buildNodesParams.ShipLayerHandle);
-                nodes[id] = node;
-
-                var sceneId = GetProperty<int>(shapefile, i, "SceneId");
-                if (sceneId != 0 && _sceneNodes.TryGetValue(sceneId, out var sceneNode))
+                if (_sceneNodes.TryGetValue(ship.SceneId, out var sceneNode))
                 {
                     sceneNode.AddNode(node);
                 }
@@ -39,10 +36,6 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
             if (nodes.Count > 0)
             {
-                if (buildNodesParams.ProfileLayerHandle != -1)
-                {
-                    await new ProfilNodesBuilder(nodes).BuildNodes(buildNodesParams);
-                }
                 if (buildNodesParams.RoutesLayerHandle != -1)
                 {
                     await new RouteNodesBuilder(nodes).BuildNodes(buildNodesParams);

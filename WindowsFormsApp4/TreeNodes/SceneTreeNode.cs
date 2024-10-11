@@ -12,16 +12,11 @@ namespace WindowsFormsApp4.TreeNodes
 {
     internal class SceneTreeNode : ShapeTreeNode<Scene>
     {
-        public SceneTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
-            : base(shapefile, shapeIndex, layerHandle)
+        public SceneTreeNode(Scene scene, int shapeIndex, int layerHandle)
+            : base(scene, shapeIndex, layerHandle)
         {
-            var nameFieldIndex = Shapefile.FieldIndexByName["SceneName"];
-            if (nameFieldIndex == -1)
-            {
-                throw new ArgumentException("Incorrent shapefile provided!");
-            }
-            Name = Shapefile.CellValue[nameFieldIndex, shapeIndex]?.ToString();
-            Text = Shapefile.CellValue[nameFieldIndex, shapeIndex]?.ToString();
+            Name = scene.Name;
+            Text = scene.Name;
         }
 
         public IReadOnlyList<ShipTreeNode> ShipNodes => Nodes.OfType<ShipTreeNode>().ToList();
@@ -43,11 +38,7 @@ namespace WindowsFormsApp4.TreeNodes
         {
             if (childEntity is Ship ship)
             {
-                var idFieldIndex = Shapefile.FieldIndexByName["SceneId"];
-                if (idFieldIndex != -1)
-                {
-                    ship.SceneId = TypeTools.Convert<int>(Shapefile.CellValue[idFieldIndex, ShapeIndex]);
-                }
+                ship.SceneId = Entity.Id;
             }
         }
 

@@ -51,9 +51,11 @@
     <Compile Include="Attributes\DisplayAttribute.cs" />
     <Compile Include="Attributes\EditMode.cs" />
     <Compile Include="Attributes\IgnorePropertyAttribute.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="LineTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeTools.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
