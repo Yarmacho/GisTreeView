@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\CallFormEventsExtensions.cs" />
+    <Compile Include="Extensions\MapExtensions.cs" />
     <Compile Include="FormFactory.cs" />
     <Compile Include="Forms\Abstractions\FormsSelector.cs" />
     <Compile Include="Forms\Abstractions\IEntityForm.cs" />
@@ -132,6 +133,10 @@
     <Compile Include="Forms\RoutesForm.Designer.cs">
       <DependentUpon>RoutesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Initializers\DictionaryInitializers\Implementations\GasDictionartInitializer.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\Implementations\IDictionaryinitialer.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\Implementations\ShipDictioanaryInitializer.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\DictionaryFormInitializer.cs" />
     <Compile Include="Initializers\FormInitializer.cs" />
     <Compile Include="Initializers\MapInitializer.cs" />
     <Compile Include="MapTreeView.cs">

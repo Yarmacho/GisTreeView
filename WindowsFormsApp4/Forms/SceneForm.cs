@@ -26,6 +26,7 @@ namespace Forms.Forms
             InitializeComponent();
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = false;
+            Map.CursorMode = tkCursorMode.cmPan;
 
             // TODO: Use geodbcontext
             object result = null;

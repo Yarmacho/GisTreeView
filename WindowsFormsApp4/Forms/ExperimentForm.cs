@@ -18,6 +18,7 @@ namespace Forms.Forms
             if (editMode == EditMode.Add)
             {
                 gasId.Visible = false;
+                label3.Visible = false;
             }
 
             Entity = experiment;
@@ -26,8 +27,16 @@ namespace Forms.Forms
         private ExperimentForm()
         {
             InitializeComponent();
+            AcceptButton = submit;
+            AcceptButton.DialogResult = DialogResult.OK;
         }
 
         public Experiment Entity { get; }
+
+        private void button1_Click(object sender, System.EventArgs e)
+        {
+            Entity.Name = name.Text;
+            Entity.Description = description.Text;
+        }
     }
 }

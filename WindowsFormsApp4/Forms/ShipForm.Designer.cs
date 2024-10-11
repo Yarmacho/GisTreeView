@@ -38,13 +38,14 @@
             this.name = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.axMap1 = new AxMapWinGIS.AxMap();
+            this.selectFromDict = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
             // coordY
             // 
             this.coordY.AutoSize = true;
-            this.coordY.Location = new System.Drawing.Point(54, 176);
+            this.coordY.Location = new System.Drawing.Point(53, 204);
             this.coordY.Name = "coordY";
             this.coordY.Size = new System.Drawing.Size(35, 13);
             this.coordY.TabIndex = 17;
@@ -53,7 +54,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 176);
+            this.label5.Location = new System.Drawing.Point(11, 204);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(14, 13);
             this.label5.TabIndex = 16;
@@ -62,7 +63,7 @@
             // coordX
             // 
             this.coordX.AutoSize = true;
-            this.coordX.Location = new System.Drawing.Point(54, 144);
+            this.coordX.Location = new System.Drawing.Point(53, 172);
             this.coordX.Name = "coordX";
             this.coordX.Size = new System.Drawing.Size(35, 13);
             this.coordX.TabIndex = 15;
@@ -71,7 +72,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 144);
+            this.label3.Location = new System.Drawing.Point(12, 172);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 14;
@@ -79,7 +80,7 @@
             // 
             // experimentId
             // 
-            this.experimentId.Location = new System.Drawing.Point(15, 109);
+            this.experimentId.Location = new System.Drawing.Point(14, 137);
             this.experimentId.Name = "experimentId";
             this.experimentId.Size = new System.Drawing.Size(100, 20);
             this.experimentId.TabIndex = 13;
@@ -88,7 +89,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Enabled = false;
-            this.label2.Location = new System.Drawing.Point(12, 82);
+            this.label2.Location = new System.Drawing.Point(11, 110);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(49, 13);
             this.label2.TabIndex = 12;
@@ -96,7 +97,7 @@
             // 
             // name
             // 
-            this.name.Location = new System.Drawing.Point(16, 49);
+            this.name.Location = new System.Drawing.Point(15, 77);
             this.name.Name = "name";
             this.name.Size = new System.Drawing.Size(100, 20);
             this.name.TabIndex = 11;
@@ -104,7 +105,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 22);
+            this.label1.Location = new System.Drawing.Point(12, 50);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 10;
@@ -113,17 +114,28 @@
             // axMap1
             // 
             this.axMap1.Enabled = true;
-            this.axMap1.Location = new System.Drawing.Point(131, 12);
+            this.axMap1.Location = new System.Drawing.Point(159, 12);
             this.axMap1.Name = "axMap1";
             this.axMap1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap1.OcxState")));
-            this.axMap1.Size = new System.Drawing.Size(657, 426);
+            this.axMap1.Size = new System.Drawing.Size(719, 426);
             this.axMap1.TabIndex = 9;
+            // 
+            // selectFromDict
+            // 
+            this.selectFromDict.Location = new System.Drawing.Point(12, 12);
+            this.selectFromDict.Name = "selectFromDict";
+            this.selectFromDict.Size = new System.Drawing.Size(127, 24);
+            this.selectFromDict.TabIndex = 18;
+            this.selectFromDict.Text = "Select from dictionary";
+            this.selectFromDict.UseVisualStyleBackColor = true;
+            this.selectFromDict.Click += new System.EventHandler(this.selectFromDict_Click);
             // 
             // ShipForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(890, 450);
+            this.Controls.Add(this.selectFromDict);
             this.Controls.Add(this.coordY);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.coordX);
@@ -152,5 +164,6 @@
         private System.Windows.Forms.TextBox name;
         private System.Windows.Forms.Label label1;
         private AxMapWinGIS.AxMap axMap1;
+        private System.Windows.Forms.Button selectFromDict;
     }
 }

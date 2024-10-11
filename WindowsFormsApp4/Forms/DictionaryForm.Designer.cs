@@ -1,7 +1,7 @@
 ﻿
 namespace DynamicForms.Forms
 {
-    partial class DictionaryForm
+    partial class DictionaryForm<T>
     {
         /// <summary>
         /// Required designer variable.

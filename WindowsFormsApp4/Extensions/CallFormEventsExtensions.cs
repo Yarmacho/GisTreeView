@@ -8,6 +8,11 @@ namespace WindowsFormsApp4.Extensions
     {
         public static void CallAllSubsribers<T1, T2>(this Action<T1, T2> func, T1 arg1, T2 arg2)
         {
+            if (func == null)
+            {
+                return;
+            }
+
             var moveEvents = func.GetInvocationList()
                 .OfType<Action<T1, T2>>().ToList();
 
@@ -19,6 +24,11 @@ namespace WindowsFormsApp4.Extensions
 
         public static void CallAllSubsribers<T1>(this Action<T1> func, T1 arg1)
         {
+            if (func == null)
+            {
+                return;
+            }
+
             var moveEvents = func.GetInvocationList()
                 .OfType<Action<T1>>().ToList();
 
@@ -30,6 +40,11 @@ namespace WindowsFormsApp4.Extensions
 
         public static bool CallAllSubsribers<T1, T2>(this Func<T1, T2, bool> predicate, T1 arg1, T2 arg2)
         {
+            if (predicate == null)
+            {
+                return true;
+            }
+
             var moveEvents = predicate.GetInvocationList()
                 .OfType<Func<T1, T2, bool>>().ToList();
 

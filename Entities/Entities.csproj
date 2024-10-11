@@ -50,10 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\DictionaryEntity.cs" />
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\Experiment.cs" />
     <Compile Include="Entities\Gas.cs" />
+    <Compile Include="Entities\IDictionaryEntity.cs" />
     <Compile Include="Entities\Profil.cs" />
     <Compile Include="Entities\Route.cs" />
     <Compile Include="Entities\RoutePoint.cs" />

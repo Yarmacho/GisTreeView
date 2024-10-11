@@ -37,6 +37,7 @@ namespace WindowsFormsApp4.Initializers
 
         public static void ConfigureMouseDownEvent<T>(this IEntityFormWithMap<T> form)
         {
+            form.Map.AxMap.SendMouseDown = true;
             form.Map.AxMap.MouseDownEvent += (s, e) =>
             {
                 var projX = 0d;

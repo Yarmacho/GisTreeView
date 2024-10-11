@@ -13,6 +13,7 @@ using WindowsFormsApp4.ShapeConverters;
 using Tools;
 using DynamicForms.Abstractions;
 using WindowsFormsApp4.Forms.Abstractions;
+using WindowsFormsApp4.Extensions;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
@@ -69,6 +70,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
             if (form is IEntityFormWithMap<TChildEntity> formWithMap)
             {
+                shapeFile = formWithMap.Map.GetEntityShapefile<TChildEntity>();
                 var shape = formWithMap.Shape;
                 if (shape == null || !shape.IsValid)
                 {
@@ -79,6 +81,8 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 shapeFile.StartAppendMode();
                 shapeIndex = shapeFile.EditAddShape(shape);
                 shapeFile.StopAppendMode();
+
+                formWithMap.Map.Redraw();
             }
 
             childEntity = form.Entity;
@@ -88,7 +92,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             await repository.SaveChanges();
 
             MapTreeNodeBase childNode = null;
-            if (!(form is IEntityFormWithMap<TChildEntity>))
+            if (form is IEntityFormWithMap<TChildEntity>)
             {
                 TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TChildEntity>>()
                     .WriteToShapeFile(shapeFile, shapeIndex, childEntity);

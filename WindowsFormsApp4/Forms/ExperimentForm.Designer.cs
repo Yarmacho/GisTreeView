@@ -34,6 +34,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.gasId = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.submit = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // name
@@ -84,11 +85,22 @@
             this.label3.TabIndex = 5;
             this.label3.Text = "GasId";
             // 
+            // submit
+            // 
+            this.submit.Location = new System.Drawing.Point(128, 133);
+            this.submit.Name = "submit";
+            this.submit.Size = new System.Drawing.Size(75, 23);
+            this.submit.TabIndex = 6;
+            this.submit.Text = "Create";
+            this.submit.UseVisualStyleBackColor = true;
+            this.submit.Click += new System.EventHandler(this.button1_Click);
+            // 
             // ExperimentForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(271, 158);
+            this.ClientSize = new System.Drawing.Size(230, 168);
+            this.Controls.Add(this.submit);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.gasId);
             this.Controls.Add(this.label2);
@@ -110,5 +122,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox gasId;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button submit;
     }
 }

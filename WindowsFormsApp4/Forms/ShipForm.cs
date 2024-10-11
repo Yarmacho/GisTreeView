@@ -1,8 +1,12 @@
 ﻿using DynamicForms.Abstractions;
+using DynamicForms.Forms;
 using Entities.Entities;
+using Interfaces.Database.Repositories;
 using MapWinGIS;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.Extensions;
@@ -17,6 +21,7 @@ namespace WindowsFormsApp4.Forms
             InitializeComponent();
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = true;
+            AcceptButton.DialogResult = DialogResult.OK;
 
             this.ConfigureMouseDownEvent();
 
@@ -97,13 +102,11 @@ namespace WindowsFormsApp4.Forms
 
         public Ship Entity { get; }
 
-        public Shape Shape { get; }
+        public Shape Shape { get; set; }
 
         public Initializers.Map Map { get; }
 
         public Shapefile Shapefile { get; }
-
-        Shape IEntityFormWithMap<Ship>.Shape { get; set; }
 
         public event Action<Point> OnMapMouseDown;
         public event Func<Point, Shape, bool> ValidShape;
@@ -141,6 +144,21 @@ namespace WindowsFormsApp4.Forms
             {
                 Shape.InsertPoint(point, ref pointIndex);
             }
+        }
+
+        private void selectFromDict_Click(object sender, EventArgs e)
+        {
+            // TODO: Try to find another way of resovling service
+
+            var gasRepository = Program.ServiceProvider
+                .GetRequiredService<IShipsRepository>();
+
+            Task.Run(async () =>
+            {
+                var ships = await gasRepository.GetAllAsync();
+
+                new DictionaryForm<Ship>(ships).ShowDialog();
+            });
         }
     }
 }
