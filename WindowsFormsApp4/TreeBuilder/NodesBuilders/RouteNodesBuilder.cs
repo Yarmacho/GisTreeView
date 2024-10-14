@@ -36,8 +36,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                     continue;
                 }
 
-                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(routeShape);
-                var node = new RouteTreeNode(routeShape, shapeIndex, buildNodesParams.RoutesLayerHandle);
+                var node = new RouteTreeNode(route);
                 node.SetRoute(route);
 
                 nodes[route.Id] = node;

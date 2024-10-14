@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DynamicForms.Abstractions
@@ -12,5 +8,7 @@ namespace DynamicForms.Abstractions
         T Entity { get; }
 
         DialogResult ShowDialog();
+        event Action OnEntityFormClosed;
+        void CallOnFormClosedEvents();
     }
 }

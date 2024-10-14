@@ -1,16 +1,9 @@
-﻿using AxMapWinGIS;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WindowsFormsApp4.TreeNodes.Abstractions
+﻿namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
     public interface INodeWithMap
     {
-        AxMap Map { get; }
+        Initializers.Map Map { get; }
 
-        void SetMap(AxMap map);
+        void SetMap(Initializers.Map map);
     }
 }

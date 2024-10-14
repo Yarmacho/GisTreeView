@@ -1,4 +1,5 @@
 ﻿using AxMapWinGIS;
+using Entities.Entities;
 using MapWinGIS;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,11 @@ namespace WindowsFormsApp4.Initializers
                                 break;
                         }
                     }
+
+                    if (result.SceneLayerHandle != -1)
+                    {
+                        map.set_ShapeLayerFillTransparency(result.SceneLayerHandle, 0.3f);
+                    }
                 }
                 finally
                 {
@@ -87,6 +93,29 @@ namespace WindowsFormsApp4.Initializers
 
         public int GetLayerHandle(Type type) => TryGetValue(type.Name, out var layer) ? layer : -1;
         public int SetLayerHandle(Type type, int layerHandle) => this[type.Name] = layerHandle;
+
+        public int GetLayerHandle<T>()
+        {
+            var entityType = typeof(T);
+            if (entityType == typeof(Gas))
+            {
+                return GasLayerHandle;
+            }
+            else if (entityType == typeof(Ship))
+            {
+                return ShipLayerHandle;
+            }
+            else if (entityType == typeof(Scene))
+            {
+                return SceneLayerHandle;
+            }
+            else if (entityType == typeof(Route))
+            {
+                return RoutesLayerHandle;
+            }
+
+            throw new NotImplementedException();
+        }
     }
 
     public class Map : IDisposable
@@ -101,7 +130,18 @@ namespace WindowsFormsApp4.Initializers
             LayersInfo = layersInfo;
         }
 
-        public void Redraw() => AxMap.Redraw();
+        public void Redraw()
+        {
+            try
+            {
+                AxMap.LockWindow(tkLockMode.lmLock);
+                AxMap.Redraw();
+            }
+            finally
+            {
+                AxMap.LockWindow(tkLockMode.lmUnlock);
+            }
+        }
 
         public tkCursorMode CursorMode
         {
@@ -129,5 +169,15 @@ namespace WindowsFormsApp4.Initializers
         public Shapefile RoutesShapeFile => AxMap.get_Shapefile(LayersInfo.RoutesLayerHandle);
         public Shapefile CoastShapeFile => AxMap.get_Shapefile(LayersInfo.CoastLayerHandle);
         public Image Batimetry => AxMap.get_Image(LayersInfo.BatimetryLayerHandle);
+
+        public void ZoomToLayer<T>()
+        {
+            AxMap.ZoomToLayer(LayersInfo.GetLayerHandle<T>());
+        }
+
+        public void ZoomToShape<T>(int shapeIndex)
+        {
+            AxMap.ZoomToShape(LayersInfo.GetLayerHandle<T>(), shapeIndex);
+        }
     }
 }

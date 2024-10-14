@@ -133,6 +133,7 @@
     <Compile Include="Forms\RoutesForm.Designer.cs">
       <DependentUpon>RoutesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EntityMappings\GasMappings.cs" />
     <Compile Include="Initializers\DictionaryInitializers\Implementations\GasDictionartInitializer.cs" />
     <Compile Include="Initializers\DictionaryInitializers\Implementations\IDictionaryinitialer.cs" />
     <Compile Include="Initializers\DictionaryInitializers\Implementations\ShipDictioanaryInitializer.cs" />
@@ -143,11 +144,14 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="NotificationsManager.cs" />
+    <Compile Include="EntityMappings\RouteMappings.cs" />
+    <Compile Include="EntityMappings\SceneMappings.cs" />
     <Compile Include="ShapeConverters\IShapeEntityConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToGasConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToRouteConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToSceneConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToShipConverter.cs" />
+    <Compile Include="EntityMappings\ShipMappings.cs" />
     <Compile Include="TreeBuilder\BuildNodesParams.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -262,6 +266,10 @@
     <ProjectReference Include="..\Entities\Entities.csproj">
       <Project>{91222ced-eb60-4e3e-9aa9-190e523a4f8d}</Project>
       <Name>Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GeoDatabase.ORM\GeoDatabase.ORM.csproj">
+      <Project>{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}</Project>
+      <Name>GeoDatabase.ORM</Name>
     </ProjectReference>
     <ProjectReference Include="..\Interfaces.Database\Interfaces.Database.csproj">
       <Project>{2c99c054-5d26-4ca8-8d66-2d8cafefcfb9}</Project>

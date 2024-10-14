@@ -10,9 +10,9 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class GasTreeNode : ShapeTreeNode<Gas>
+    internal class GasTreeNode : ShapeTreeNode<Gas, int>
     {
-        public GasTreeNode(Gas gas, int shapeIndex, int layerHandle) : base(gas, shapeIndex, layerHandle)
+        public GasTreeNode(Gas gas) : base(gas)
         {
             Name = gas.Name;
             Text = gas.Name;

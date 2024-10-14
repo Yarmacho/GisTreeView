@@ -1,11 +1,15 @@
 ﻿using AxMapWinGIS;
 using DynamicForms.Abstractions;
 using Entities.Entities;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.Set.Extensions;
 using MapWinGIS;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Windows.Forms;
 using Tools;
+using WindowsFormsApp4;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
 
@@ -27,51 +31,71 @@ namespace Forms.Forms
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = false;
             Map.CursorMode = tkCursorMode.cmPan;
+            AcceptButton = submit;
+            AcceptButton.DialogResult = DialogResult.OK;
 
-            // TODO: Use geodbcontext
-            object result = null;
-            string error = null;
-            var shapefile = Map.SceneShapeFile;
-            if (shapefile.Table.Query($"[SceneId] = {scene.Id}", ref result, ref error))
-            {
-                var shapeId = (result as int[] ?? Enumerable.Empty<int>())
-                    .FirstOrDefault();
-
-                Shape = shapefile.Shape[shapeId];
-            }
+            var context = Program.ServiceProvider
+                .GetRequiredService<GeoDbContext>();
+            
             Entity = scene;
-            Shapefile = this.CreateTempShapefile(shapefile);
+            var shapefile = Map.SceneShapeFile;
+            Shapefile = this.CreateTempShapefile(shapefile, 0.3f);
 
-            configureFormEvents();
-
-            if (Map.LayersInfo.SceneLayerHandle != -1)
+            if (scene.Id != 0)
             {
-                axMap1.set_ShapeLayerFillTransparency(Map.LayersInfo.SceneLayerHandle, 0.3f);
+                var sceneEntity = context.Set<Scene>()
+                    .FirstOrDefault(s => s.Id == scene.Id);
+
+                var shapeIndex = context.ChangeTracker.GetShapeIndex(sceneEntity);
+                if (shapeIndex != -1)
+                {
+                    Shape = shapefile.Shape[shapeIndex];
+                }
             }
+
+            configureFormEvents(context);
+
+            buildScene(TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(side.Text));
+            Map.Redraw();
         }
 
         public event Action<Point> OnMapMouseDown;
         public event Func<Point, Shape, bool> ValidShape;
         public event Action<Shape> AfterShapeValid;
         public event Action<double, double> OnMouseMoveOnMap;
+        public event Action OnEntityFormClosed;
 
         private Point _sceneCenter;
 
-        protected void configureFormEvents()
+        protected void configureFormEvents(GeoDbContext context)
         {
-            object result = null;
-            string error = null;
-            var gasShapefile = Map.GasShapeFile;
-            if (!gasShapefile.Table.Query($"[Id] = {Entity.GasId}", ref result, ref error))
+            this.ConfigureSaveShapeOnFormClosed<Scene, int>();
+
+            if (Entity == null || Entity.GasId == 0)
             {
                 return;
             }
-            var gasShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-            var gasShape = gasShapefile.Shape[gasShapeId];
-            _sceneCenter = gasShape.Point[0];
+
+            var gas = context.Set<Gas>()
+                .FirstOrDefault(g => g.Id == Entity.GasId);
+            var gasShapeIndex = context.ChangeTracker.GetShapeIndex(gas);
+            if (gasShapeIndex == -1)
+            {
+                throw new Exception("Scene is not associated to a GAS");
+            }
+
+            Map.ZoomToShape<Gas>(gasShapeIndex);
+
+            _sceneCenter = Map.GasShapeFile.Shape[gasShapeIndex]
+                .Point[0];
+
+            name.TextChanged += (s, e) => Entity.Name = name.Text;
 
             angle.TextChanged += sceneParametersChanged;
             side.TextChanged += sceneParametersChanged;
+
+            object result = null;
+            string error = null;
 
             var coastShapefile = Map.CoastShapeFile;
             string coastQuery = "[OBJECTID]=1";
@@ -103,20 +127,17 @@ namespace Forms.Forms
 
         private void sceneParametersChanged(object sender, EventArgs e)
         {
-            var shape = Shape;
-            buildScene(Map.GasShapeFile, ref shape, _sceneCenter,
-                TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(side.Text));
-            
+            buildScene(TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(side.Text));
             Map.Redraw();
         }
 
-        private static void buildScene(Shapefile shapefile, ref Shape shape, Point point, double angle, double sideLength)
+        private void buildScene(double angle, double sideLength)
         {
-            if (shapefile.NumShapes != 0)
+            if (Shapefile.NumShapes != 0)
             {
-                shapefile.StartEditingShapes();
-                shapefile.EditClear();
-                shapefile.StopEditingShapes();
+                Shapefile.StartEditingShapes();
+                Shapefile.EditClear();
+                Shapefile.StopEditingShapes();
             }
 
             if (angle == 0 && sideLength == 0)
@@ -124,10 +145,12 @@ namespace Forms.Forms
                 return;
             }
 
-            shapefile.StartAppendMode();
-            shapefile.StartEditingShapes();
-            shape = new Shape();
-            shape.Create(shapefile.ShapefileType);
+            Shapefile.StartAppendMode();
+            Shapefile.StartEditingShapes();
+            Shape = new Shape();
+            Shape.Create(Shapefile.ShapefileType);
+
+            var point = _sceneCenter;
 
             var pointA = new Point();
             pointA.x = point.x + sideLength;
@@ -146,17 +169,17 @@ namespace Forms.Forms
             pointD.y = point.y - sideLength;
 
             var pointIndex = -1;
-            shape.InsertPoint(pointA, ref pointIndex);
-            shape.InsertPoint(pointB, ref pointIndex);
-            shape.InsertPoint(pointC, ref pointIndex);
-            shape.InsertPoint(pointD, ref pointIndex);
+            Shape.InsertPoint(pointA, ref pointIndex);
+            Shape.InsertPoint(pointB, ref pointIndex);
+            Shape.InsertPoint(pointC, ref pointIndex);
+            Shape.InsertPoint(pointD, ref pointIndex);
 
-            shape.Rotate(point.x, point.y, angle);
+            Shape.Rotate(point.x, point.y, angle);
 
             var shapeIndex = 0;
-            shapefile.EditInsertShape(shape, ref shapeIndex);
-            shapefile.StopEditingShapes();
-            shapefile.StopAppendMode();
+            Shapefile.EditInsertShape(Shape, ref shapeIndex);
+            Shapefile.StopEditingShapes();
+            Shapefile.StopAppendMode();
         }
 
         public void CallAfterValidShapeEvents()
@@ -177,6 +200,11 @@ namespace Forms.Forms
         public bool CallValidateShapeEvents(Point point)
         {
             return ValidShape.CallAllSubsribers(point, Shape);
+        }
+
+        public void CallOnFormClosedEvents()
+        {
+            OnEntityFormClosed.CallAllSubsribers();
         }
 
         public void InsertPoint(Point point)

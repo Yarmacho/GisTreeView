@@ -44,6 +44,8 @@ namespace GeoDatabase.ORM.QueryBuilder
         private static readonly MethodInfo _enumerableContainsMethod =
             typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .FirstOrDefault(m => m.Name == "Contains" && m.GetParameters().Length == 2);
+        private static readonly MethodInfo _objectsEquals = typeof(object).GetMethod("Equals", BindingFlags.Instance | BindingFlags.Public);
+
         private static readonly Dictionary<Type, MethodInfo> _listContainsMethod = new Dictionary<Type, MethodInfo>();
         private static readonly Dictionary<Type, MethodInfo> _hashSetContainsMethod = new Dictionary<Type, MethodInfo>();
 
@@ -68,6 +70,10 @@ namespace GeoDatabase.ORM.QueryBuilder
             if (node.NodeType == ExpressionType.Not)
             {
                 return Expression.Constant($"NOT {convertExpression(node.Operand)}");
+            }
+            if (node.NodeType == ExpressionType.Convert)
+            {
+                return Expression.Constant(convertExpression(node.Operand));
             }
 
             throw new NotImplementedException();
@@ -125,6 +131,16 @@ namespace GeoDatabase.ORM.QueryBuilder
                         return createInCollectionExpression(collection, value);
                     }
                 }
+            }
+
+            if (node.Method == _objectsEquals)
+            {
+                var argument = node.Arguments[0];
+                var convertedArgument = convertExpression(argument);
+
+                var convertedCaller = convertExpression(node.Object);
+
+                return Expression.Constant($"{convertedArgument}={convertedCaller}");
             }
 
             throw new NotImplementedException();

@@ -20,13 +20,14 @@ namespace WindowsFormsApp4
         private readonly IServiceProvider _serviceProvider;
         private readonly string _path;
 
+        private Initializers.Map _initedMap;
+
         public Form1(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             Text = "Experiments manager";
             _serviceProvider = serviceProvider;
             _path = configuration.GetValue<string>("MapsPath");
             InitializeComponent();
-            treeView1.Map = axMap1;
             treeView1.ServiceProvider = _serviceProvider;
         }
 
@@ -34,10 +35,10 @@ namespace WindowsFormsApp4
         {
             axMap1.CursorMode = tkCursorMode.cmPan;
             axMap1.SendMouseMove = true;
-            var initResult = MapInitializer.Init(axMap1).LayersInfo;
-            if (initResult.BatimetryLayerHandle != -1)
+            _initedMap = MapInitializer.Init(axMap1);
+            if (_initedMap.LayersInfo.BatimetryLayerHandle != -1)
             {
-                var batimetry = axMap1.get_Image(initResult.BatimetryLayerHandle);
+                var batimetry = _initedMap.Batimetry;
 
                 if (batimetry != null)
                 {
@@ -57,21 +58,13 @@ namespace WindowsFormsApp4
                     };
                 }
             }
-            if (initResult.SceneLayerHandle != -1)
-            {
-                axMap1.set_ShapeLayerFillTransparency(initResult.SceneLayerHandle, 0.3f);
-            }
-            treeView1.LayersInfo = initResult;
-            var gasShp = axMap1.get_Shapefile(initResult.GasLayerHandle);
+
+            treeView1.Map = _initedMap;
+            var gasShp = _initedMap.GasShapeFile;
 
             var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
             {
-                Map = axMap1,
-                GasLayerHandle = initResult.GasLayerHandle,
-                ProfileLayerHandle = initResult.ProfilLayerHandle,
-                SceneLayerHandle = initResult.SceneLayerHandle,
-                ShipLayerHandle = initResult.ShipLayerHandle,
-                RoutesLayerHandle = initResult.RoutesLayerHandle,
+                Map = _initedMap,
                 ShowExperiments = true,
                 ServiceProvider = _serviceProvider
             });
@@ -79,7 +72,7 @@ namespace WindowsFormsApp4
             treeView1.AfterSelect += TreeView1_AfterSelect;
 
             var layerCheckBoxTop = 0;
-            foreach (var layer in initResult)
+            foreach (var layer in _initedMap.LayersInfo)
             {
                 var checkBox = new CheckBox()
                 {
@@ -90,7 +83,7 @@ namespace WindowsFormsApp4
                 layerCheckBoxTop += 20;
                 checkBox.CheckedChanged += (s, e1) =>
                 {
-                    axMap1.set_LayerVisible(initResult[checkBox.Text], checkBox.Checked);
+                    axMap1.set_LayerVisible(_initedMap.LayersInfo[checkBox.Text], checkBox.Checked);
                 };
                 layersManager.Controls.Add(checkBox);
             }
@@ -124,8 +117,8 @@ namespace WindowsFormsApp4
                 await repository.AddAsync(entity);
                 if (await repository.SaveChanges())
                 {
-                    var node = new ExperimentTreeNode(entity, GetService<IRepositoriesProvider>());
-                    node.SetMap(axMap1);
+                    var node = new ExperimentTreeNode(entity);
+                    node.SetMap(_initedMap);
                     treeView1.Nodes.Add(node);
                 }
             }
@@ -135,14 +128,10 @@ namespace WindowsFormsApp4
         {
             treeView1.Nodes.Clear();
 
+            _initedMap = MapInitializer.Init(axMap1);
             var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
             {
-                Map = axMap1,
-                GasLayerHandle = treeView1.LayersInfo.GasLayerHandle,
-                ProfileLayerHandle = treeView1.LayersInfo.ProfilLayerHandle,
-                SceneLayerHandle = treeView1.LayersInfo.SceneLayerHandle,
-                ShipLayerHandle = treeView1.LayersInfo.ShipLayerHandle,
-                RoutesLayerHandle = treeView1.LayersInfo.RoutesLayerHandle,
+                Map = _initedMap,
                 ShowExperiments = true,
                 ServiceProvider = _serviceProvider
             });

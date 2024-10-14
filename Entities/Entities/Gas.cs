@@ -5,7 +5,7 @@ using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Gas : EntityBase<int>, IDictionaryEntity
+    public class Gas : EntityBase<int>, IDictionaryEntity, IEntityWithCoordinates
     {
         public string Name { get; set; }
 

@@ -1,4 +1,7 @@
 ﻿using Entities.Entities;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.Set.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -8,11 +11,15 @@ namespace WindowsFormsApp4.Initializers.DictionaryInitializers.ColumnsInitialize
     {
         public IEnumerable<object[]> CreateRows(IEnumerable<Ship> values)
         {
+            var context = Program.ServiceProvider
+                .GetRequiredService<GeoDbContext>();
+            
+            var shipSet = context.Set<Ship>();
             foreach (var value in values)
             {
                 yield return new object[] 
                 {
-                    value.Id, value.Name, value.X, value.Y
+                    value.Id, value.Name, value.X, value.Y, shipSet.Any(s => s.Id == value.Id)
                 };
             }
         }

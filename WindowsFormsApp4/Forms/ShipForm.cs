@@ -1,11 +1,13 @@
 ﻿using DynamicForms.Abstractions;
 using DynamicForms.Forms;
 using Entities.Entities;
+using GeoDatabase.ORM;
 using Interfaces.Database.Repositories;
 using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
@@ -21,23 +23,32 @@ namespace WindowsFormsApp4.Forms
             InitializeComponent();
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = true;
+            AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
 
             this.ConfigureMouseDownEvent();
+            Map.CursorMode = tkCursorMode.cmAddShape;
+            Map.AxMap.ShowZoomBar = false;
 
             Entity = ship;
-            // TODO: Use geodbcontext
-            object result = null;
-            string error = null;
-            var shapefile = Map.ShipShapeFile;
-            if (shapefile.Table.Query($"[ShipId] = {ship.Id}", ref result, ref error))
+            var shapefile = Map.GasShapeFile;
+            if (ship.Id != 0)
             {
-                var shapeId = (result as int[] ?? Enumerable.Empty<int>())
-                    .FirstOrDefault();
-
-                Shape = shapefile.Shape[shapeId];
+                // TODO: Find another way of resolving dbContext
+                var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
+                var entity = context.Set<Ship>().FirstOrDefault(g => g.Id == ship.Id);
+                if (entity != null)
+                {
+                    var shapeIndex = context.ChangeTracker.GetShapeIndex(entity);
+                    if (shapeIndex != -1)
+                    {
+                        Shape = shapefile.Shape[shapeIndex];
+                    }
+                }
             }
+
             Shapefile = this.CreateTempShapefile(shapefile);
+            this.ConfigureSaveShapeOnFormClosed<Ship, int>();
 
             if (editMode == EditMode.Add)
             {
@@ -66,23 +77,22 @@ namespace WindowsFormsApp4.Forms
                 return shape.Intersects(sceneShape);
             };
 
+            name.TextChanged += (s, e) => Entity.Name = name.Text;
+
             AfterShapeValid += (shape) =>
             {
                 if (shape.numPoints == 1)
                 {
                     var point = shape.Point[0];
-                    ship.X = point.x;
-                    ship.Y = point.y;
+                    Entity.X = point.x;
+                    Entity.Y = point.y;
+                    coordX.Text = point.x.ToString();
+                    coordY.Text = point.y.ToString();
                 }
             };
 
             Map.AxMap.ZoomToShape(Map.LayersInfo.SceneLayerHandle,
-                getSceneShapeId(ship.SceneId));
-
-            if (Map.LayersInfo.SceneLayerHandle != -1)
-            {
-                axMap1.set_ShapeLayerFillTransparency(Map.LayersInfo.SceneLayerHandle, 0.3f);
-            }
+                getSceneShapeId(Entity.SceneId));
         }
 
         private int getSceneShapeId(int sceneId)
@@ -112,6 +122,12 @@ namespace WindowsFormsApp4.Forms
         public event Func<Point, Shape, bool> ValidShape;
         public event Action<Shape> AfterShapeValid;
         public event Action<double, double> OnMouseMoveOnMap;
+        public event Action OnEntityFormClosed;
+
+        public void CallOnFormClosedEvents()
+        {
+            OnEntityFormClosed.CallAllSubsribers();
+        }
 
         public void CallAfterValidShapeEvents()
         {
@@ -146,19 +162,36 @@ namespace WindowsFormsApp4.Forms
             }
         }
 
-        private void selectFromDict_Click(object sender, EventArgs e)
+        private async void selectFromDict_Click(object sender, EventArgs e)
         {
             // TODO: Try to find another way of resovling service
 
             var gasRepository = Program.ServiceProvider
                 .GetRequiredService<IShipsRepository>();
 
-            Task.Run(async () =>
-            {
-                var ships = await gasRepository.GetAllAsync();
+            var ships = await gasRepository.GetAllAsync();
 
-                new DictionaryForm<Ship>(ships).ShowDialog();
-            });
+            var form = new DictionaryForm<Ship>(ships);
+            if (form.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            var selectedShip = form.GetSelectedRecord();
+            if (selectedShip == null)
+            {
+                return;
+            }
+
+            Entity.Id = selectedShip.Id;
+            Entity.Name = selectedShip.Name;
+            Entity.X = selectedShip.X;
+            Entity.Y = selectedShip.Y;
+
+            var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
+            context.Set<Ship>().Add(Entity);
+
+            context.SaveChanges();
         }
     }
 }

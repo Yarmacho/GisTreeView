@@ -1,9 +1,5 @@
 ﻿using MapWinGIS;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GeoDatabase.ORM.Set
 {
@@ -11,7 +7,7 @@ namespace GeoDatabase.ORM.Set
         where T : new()
     {
         EntityEntry<T> Add(T entity, Shape shape = null);
-        EntityEntry<T> Update(T entity);
+        EntityEntry<T> Update(T entity, Shape shape = null);
         EntityEntry<T> Delete(T entity);
     }
 }

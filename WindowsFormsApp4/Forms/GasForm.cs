@@ -1,7 +1,8 @@
-﻿using AxMapWinGIS;
-using DynamicForms.Abstractions;
+﻿using DynamicForms.Abstractions;
 using DynamicForms.Forms;
 using Entities.Entities;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.Set.Extensions;
 using Interfaces.Database.Repositories;
 using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,23 +34,25 @@ namespace Forms.Forms
             this.ConfigureMouseDownEvent();
             this.TryAddDepthIndication(Map);
             this.ConfigureMouseMoveEvent();
+            this.ConfigureSaveShapeOnFormClosed<Gas, int>();
 
             var shapefile = Map.GasShapeFile;
             if (gas.Id != 0)
             {
-                // TODO: Use geodbcontext
-                object result = null;
-                string error = null;
-                if (shapefile.Table.Query($"[Id] = {gas.Id}", ref result, ref error))
+                // TODO: Find another way of resolving dbContext
+                var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
+                Entity = context.Set<Gas>().FirstOrDefault(g => g.Id == gas.Id) ?? gas;
+                var shapeIndex = context.ChangeTracker.GetShapeIndex(Entity);
+                if (shapeIndex != -1)
                 {
-                    var shapeId = (result as int[] ?? Enumerable.Empty<int>())
-                        .FirstOrDefault();
-
-                    Shape = shapefile.Shape[shapeId];
+                    Shape = shapefile.Shape[shapeIndex];
                 }
             }
+            else
+            {
+                Entity = gas;
+            }
 
-            Entity = gas;
             Shapefile = this.CreateTempShapefile(shapefile);
 
             if (editMode == EditMode.Add)
@@ -60,8 +63,8 @@ namespace Forms.Forms
             }
             else
             {
-                coordX.Text = gas.X.ToString() ?? string.Empty;
-                coordY.Text = gas.Y.ToString() ?? string.Empty;
+                coordX.Text = Entity.X.ToString() ?? string.Empty;
+                coordY.Text = Entity.Y.ToString() ?? string.Empty;
             }
 
             AfterShapeValid += (s) =>
@@ -69,17 +72,12 @@ namespace Forms.Forms
                 if (s.numPoints == 1)
                 {
                     var point = s.Point[0];
-                    gas.X = point.x;
-                    gas.Y = point.y;
+                    Entity.X = point.x;
+                    Entity.Y = point.y;
                     coordX.Text = point.x.ToString();
                     coordY.Text = point.y.ToString();
                 }
             };
-
-            if (Map.LayersInfo.SceneLayerHandle != -1)
-            {
-                axMap1.set_ShapeLayerFillTransparency(Map.LayersInfo.SceneLayerHandle, 0.3f);
-            }
         }
 
         public System.Windows.Forms.Label DepthLabel { get; }
@@ -96,6 +94,7 @@ namespace Forms.Forms
         public event Func<Point, Shape, bool> ValidShape;
         public event Action<Shape> AfterShapeValid;
         public event Action<double, double> OnMouseMoveOnMap;
+        public event Action OnEntityFormClosed;
 
         public void CallAfterValidShapeEvents()
         {
@@ -115,6 +114,11 @@ namespace Forms.Forms
         public bool CallValidateShapeEvents(Point point)
         {
             return ValidShape.CallAllSubsribers(point, Shape);
+        }
+
+        public void CallOnFormClosedEvents()
+        {
+            OnEntityFormClosed.CallAllSubsribers();
         }
 
         public void InsertPoint(Point point)
@@ -150,38 +154,46 @@ namespace Forms.Forms
             Map.CursorMode = tkCursorMode.cmZoomOut;
         }
 
-        private void selectFromDict_Click(object sender, EventArgs e)
+        private async void selectFromDict_Click(object sender, EventArgs e)
         {
             // TODO: Try to find another way of resovling service
 
             var gasRepository = Program.ServiceProvider
                 .GetRequiredService<IGasRepository>();
 
-            Task.Run(async () =>
+            var gases = await gasRepository.GetAllAsync();
+
+            var form = new DictionaryForm<Gas>(gases);
+            try
             {
-                var gases = await gasRepository.GetAllAsync();
-
-                var form = new DictionaryForm<Gas>(gases);
-                try
+                this.Hide();
+                var result = form.ShowDialog();
+                if (result != DialogResult.OK)
                 {
-                    this.Hide();
-                    var result = form.ShowDialog();
-                    if (result != DialogResult.OK)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var selectedGas = form.GetSelectedRecord();
-                    Entity.Id = selectedGas.Id;
-                    Entity.Name = selectedGas.Name;
-                    Entity.X = selectedGas.X;
-                    Entity.Y = selectedGas.Y;
-                }
-                finally
+                var selectedGas = form.GetSelectedRecord();
+                if (selectedGas == null)
                 {
-                    this.Show();
+                    return;
                 }
-            });
+
+                Entity.Id = selectedGas.Id;
+                Entity.Name = selectedGas.Name;
+                Entity.X = selectedGas.X;
+                Entity.Y = selectedGas.Y;
+
+                // TODO: Find another way of resolving dbContext
+                var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
+                context.Set<Gas>().Add(Entity);
+
+                context.SaveChanges();
+            }
+            finally
+            {
+                this.Show();
+            }
         }
 
         private void submit_Click(object sender, EventArgs e)

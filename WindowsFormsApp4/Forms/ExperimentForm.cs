@@ -1,7 +1,9 @@
 ﻿using DynamicForms.Abstractions;
 using Entities;
+using System;
 using System.Windows.Forms;
 using Tools;
+using WindowsFormsApp4.Extensions;
 
 namespace Forms.Forms
 {
@@ -32,6 +34,13 @@ namespace Forms.Forms
         }
 
         public Experiment Entity { get; }
+
+        public event Action OnEntityFormClosed;
+
+        public void CallOnFormClosedEvents()
+        {
+            OnEntityFormClosed.CallAllSubsribers();
+        }
 
         private void button1_Click(object sender, System.EventArgs e)
         {

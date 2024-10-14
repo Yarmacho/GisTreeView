@@ -39,6 +39,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.axMap1 = new AxMapWinGIS.AxMap();
             this.selectFromDict = new System.Windows.Forms.Button();
+            this.submit = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -130,11 +131,21 @@
             this.selectFromDict.UseVisualStyleBackColor = true;
             this.selectFromDict.Click += new System.EventHandler(this.selectFromDict_Click);
             // 
+            // submit
+            // 
+            this.submit.Location = new System.Drawing.Point(64, 415);
+            this.submit.Name = "submit";
+            this.submit.Size = new System.Drawing.Size(75, 23);
+            this.submit.TabIndex = 19;
+            this.submit.Text = "Create";
+            this.submit.UseVisualStyleBackColor = true;
+            // 
             // ShipForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(890, 450);
+            this.Controls.Add(this.submit);
             this.Controls.Add(this.selectFromDict);
             this.Controls.Add(this.coordY);
             this.Controls.Add(this.label5);
@@ -165,5 +176,6 @@
         private System.Windows.Forms.Label label1;
         private AxMapWinGIS.AxMap axMap1;
         private System.Windows.Forms.Button selectFromDict;
+        private System.Windows.Forms.Button submit;
     }
 }

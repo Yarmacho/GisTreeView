@@ -1,6 +1,8 @@
 ﻿using DynamicForms.Abstractions;
 using Entities.Entities;
+using GeoDatabase.ORM;
 using MapWinGIS;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Windows.Forms;
@@ -18,44 +20,43 @@ namespace WindowsFormsApp4.Forms
             InitializeComponent();
             Entity = route;
 
+            AcceptButton = submit;
+            AcceptButton.DialogResult = DialogResult.OK;
+
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = true;
+            Map.CursorMode = tkCursorMode.cmAddShape;
+            Map.AxMap.ShowZoomBar = false;
 
             Shapefile = this.CreateTempShapefile(Map.RoutesShapeFile);
             this.ConfigureMouseDownEvent();
+            this.ConfigureSaveShapeOnFormClosed<Route, int>();
 
-            object result = null;
-            string error = null;
+            var context = Program.ServiceProvider
+                .GetRequiredService<GeoDbContext>();
 
-            var shipShapeFile = Map.ShipShapeFile;
-            if (!shipShapeFile.Table.Query($"[ShipId] = {route.ShipId}", ref result, ref error))
+            var ship = context.Set<Ship>().FirstOrDefault(s => s.Id == route.ShipId);
+            if (ship == null)
             {
                 return;
             }
 
-            int shipShapeId = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-            if (shipShapeId == -1)
+            var scene = context.Set<Scene>().FirstOrDefault(s => s.Id == ship.SceneId);
+            if (scene == null)
             {
                 return;
             }
 
-            var sceneIdFieldIndex = shipShapeFile.FieldIndexByName["SceneId"];
-            var sceneId = TypeTools.Convert<int>(shipShapeFile.CellValue[sceneIdFieldIndex, shipShapeId]);
+            var shipShape = Map.ShipShapeFile.Shape[
+                context.ChangeTracker.GetShapeIndex(ship)];
 
-            var sceneShapefile = Map.SceneShapeFile;
-            if (!sceneShapefile.Table.Query($"[SceneId] = {sceneId}", result, error))
-            {
-                return;
-            }
+            this.СreateShape();
+            InsertPoint(shipShape.Point[0]);
 
-            var sceneShapeId1 = (result as int[] ?? Array.Empty<int>()).DefaultIfEmpty(-1).First();
-            var sceneShape1 = sceneShapefile.Shape[sceneShapeId1];
-            if (sceneShape1 == null)
-            {
-                return;
-            }
+            var sceneShapeIndex = context.ChangeTracker.GetShapeIndex(scene);
+            var sceneShape = Map.SceneShapeFile.Shape[sceneShapeIndex];
 
-            Map.AxMap.ZoomToShape(Map.LayersInfo.SceneLayerHandle, sceneShapeId1);
+            Map.ZoomToShape<Scene>(sceneShapeIndex);
             ValidShape += (point, _) =>
             {
                 var shape = new Shape();
@@ -66,7 +67,7 @@ namespace WindowsFormsApp4.Forms
                 var pointIndex = 0;
                 shape.InsertPoint(point, ref pointIndex);
 
-                return shape.Intersects(sceneShape1);
+                return shape.Intersects(sceneShape);
             };
 
             AfterShapeValid += (shape) =>
@@ -79,11 +80,6 @@ namespace WindowsFormsApp4.Forms
                     Y = shape.Point[0].y
                 });
             };
-
-            if (Map.LayersInfo.SceneLayerHandle != -1)
-            {
-                axMap1.set_ShapeLayerFillTransparency(Map.LayersInfo.SceneLayerHandle, 0.3f);
-            }
         }
 
         public Route Entity { get; }
@@ -98,6 +94,12 @@ namespace WindowsFormsApp4.Forms
         public event Func<Point, Shape, bool> ValidShape;
         public event Action<Shape> AfterShapeValid;
         public event Action<double, double> OnMouseMoveOnMap;
+        public event Action OnEntityFormClosed;
+
+        public void CallOnFormClosedEvents()
+        {
+            OnEntityFormClosed.CallAllSubsribers();
+        }
 
         public void CallAfterValidShapeEvents()
         {

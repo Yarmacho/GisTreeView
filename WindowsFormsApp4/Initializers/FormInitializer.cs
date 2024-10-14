@@ -3,12 +3,17 @@ using MapWinGIS;
 using System.IO;
 using System;
 using WindowsFormsApp4.Forms.Abstractions;
+using Entities;
+using Microsoft.Extensions.DependencyInjection;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.Set.Extensions;
 
 namespace WindowsFormsApp4.Initializers
 {
     public static class FormInitializer
     {
         public static void TryAddDepthIndication<T>(this IEntityFormWithMapAndDepthLabel<T> form, Map map)
+            where T : new()
         {
             if (map.LayersInfo.BatimetryLayerHandle <= 0 || !map.SendMouseMove)
             {
@@ -54,7 +59,7 @@ namespace WindowsFormsApp4.Initializers
                 {
                     if (form.Shape == null)
                     {
-                        createShape(form);
+                        form.СreateShape();
                     }
 
                     if (!form.CallValidateShapeEvents(point))
@@ -90,11 +95,44 @@ namespace WindowsFormsApp4.Initializers
             };
         }
 
-        private static void createShape<T>(IEntityFormWithMap<T> form)
+        public static void ConfigureSaveShapeOnFormClosed<T, TId>(this IEntityFormWithMap<T> form)
+            where T : EntityBase<TId>, new()
+        {
+            form.OnEntityFormClosed += () =>
+            {
+                if (form.Entity is null) 
+                {
+                    throw new Exception("Entity not initialized");
+                }
+
+                if (form.Shape is null || !form.Shape.IsValid)
+                {
+                    throw new Exception("Shape is not valid");
+                }
+
+                var context = Program.ServiceProvider
+                    .GetRequiredService<GeoDbContext>();
+
+                var set = context.Set<T>();
+                if (set.Any(e => e.Id.Equals(form.Entity.Id)))
+                {
+                    set.Update(form.Entity, form.Shape);
+                }
+                else
+                {
+                    set.Add(form.Entity, form.Shape);
+                }
+
+                context.SaveChanges();
+            };
+        }
+
+        public static void СreateShape<T>(this IEntityFormWithMap<T> form)
         {
             form.Shapefile.StartAppendMode();
             var shape = new Shape();
             shape.Create(form.Shapefile.ShapefileType);
+
             form.Shape = shape;
 
             var shapeIndex = 0;
@@ -102,7 +140,7 @@ namespace WindowsFormsApp4.Initializers
             form.Shapefile.StopAppendMode();
         }
 
-        public static Shapefile CreateTempShapefile<T>(this IEntityFormWithMap<T> form, Shapefile originalShapefile)
+        public static Shapefile CreateTempShapefile<T>(this IEntityFormWithMap<T> form, Shapefile originalShapefile, float transparency = 1f)
         {
             var guid = Guid.NewGuid();
             var directory = Path.Combine(Path.GetDirectoryName(originalShapefile.Filename), "Temp");
@@ -115,6 +153,7 @@ namespace WindowsFormsApp4.Initializers
             if (shapefile.CreateNew(Path.Combine(directory, $"{guid}.shp"), originalShapefile.ShapefileType))
             {
                 var layer = form.Map.AxMap.AddLayer(shapefile, true);
+                form.Map.AxMap.set_ShapeLayerFillTransparency(layer, transparency);
                 form.Map.AxMap.MoveLayerTop(layer);
             }
 

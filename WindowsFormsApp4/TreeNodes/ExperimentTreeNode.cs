@@ -11,8 +11,7 @@ namespace WindowsFormsApp4.TreeNodes
     {
         public int ExperimentId => Entity.Id;
 
-        public ExperimentTreeNode(Experiment entity, IRepositoriesProvider repositoriesProvider)
-            : base(entity, repositoriesProvider)
+        public ExperimentTreeNode(Experiment entity) : base(entity)
         {
             Name = entity.Name;
             Text = entity.Name;

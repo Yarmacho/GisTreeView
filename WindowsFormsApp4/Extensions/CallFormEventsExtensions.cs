@@ -38,6 +38,22 @@ namespace WindowsFormsApp4.Extensions
             }
         }
 
+        public static void CallAllSubsribers(this Action func)
+        {
+            if (func == null)
+            {
+                return;
+            }
+
+            var moveEvents = func.GetInvocationList()
+                .OfType<Action>().ToList();
+
+            foreach (var moveEvent in moveEvents)
+            {
+                moveEvent.Invoke();
+            }
+        }
+
         public static bool CallAllSubsribers<T1, T2>(this Func<T1, T2, bool> predicate, T1 arg1, T2 arg2)
         {
             if (predicate == null)

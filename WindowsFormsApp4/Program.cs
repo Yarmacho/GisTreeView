@@ -1,5 +1,7 @@
 ﻿using Database.DI;
 using Entities.Entities;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.DependencyInjection;
 using Interfaces.Database.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,8 @@ namespace WindowsFormsApp4
             
             ServiceProvider.GetRequiredService<IDbManager>()
                 .CreateAsync().GetAwaiter().GetResult();
+            //ServiceProvider.GetRequiredService<GeoDbContext>()
+            //    .DeleteAllShapes();
 
             Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }
@@ -44,10 +48,14 @@ namespace WindowsFormsApp4
             return Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) => 
                 {
+                    var mapPath = Configuration.GetValue<string>("MapsPath");
+
                     services.AddTransient<Form1>();
                     services.AddSingleton(Configuration);
                     services.AddShapeConverters();
                     services.AddDataBase(Configuration);
+                    services.AddMappings(typeof(Program).Assembly, mapPath);
+                    services.AddGeoDataBase(mapPath);
                 });
         }
 

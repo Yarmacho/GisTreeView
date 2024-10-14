@@ -1,22 +1,28 @@
-﻿using AxMapWinGIS;
-using Interfaces.Database.Abstractions;
+﻿using Interfaces.Database.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp4.Initializers;
+using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4
 {
     internal class MapTreeView : TreeView
     {
         private Button button1;
-        public AxMap Map { get; internal set; }
 
-        public MapInitResult LayersInfo { get; internal set; }
+        public Map Map { get; internal set; }
+
+        public void Redraw()
+        {
+            Map = MapInitializer.Init(Map.AxMap);
+            foreach (var node in Nodes.OfType<MapTreeNodeBase>())
+            {
+                node.SetMap(Map);
+            }
+        }
+
 
         public IRepositoriesProvider RepositoriesProvider => ServiceProvider.GetRequiredService<IRepositoriesProvider>();
 

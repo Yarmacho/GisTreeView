@@ -1,5 +1,6 @@
 ﻿using Entities;
 using Interfaces.Database.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
@@ -11,13 +12,12 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
         where TEntity : EntityBase, new()
     {
         protected TEntity Entity;
-        private readonly IRepositoriesProvider _repositoriesProvider;
-        protected IWriteOnlyRepository<TEntity> GetRepository() => _repositoriesProvider.Get<IWriteOnlyRepository<TEntity>>();
+        protected IWriteOnlyRepository<TEntity> GetRepository() => TreeView.ServiceProvider
+            .GetRequiredService<IWriteOnlyRepository<TEntity>>();
 
-        protected EntityTreeNode(TEntity entity, IRepositoriesProvider repositoriesProvider)
+        protected EntityTreeNode(TEntity entity)
         {
             Entity = entity;
-            _repositoriesProvider = repositoriesProvider;
         }
 
         public override async ValueTask Delete()

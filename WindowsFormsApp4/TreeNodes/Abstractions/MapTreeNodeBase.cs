@@ -14,6 +14,7 @@ using Tools;
 using DynamicForms.Abstractions;
 using WindowsFormsApp4.Forms.Abstractions;
 using WindowsFormsApp4.Extensions;
+using WindowsFormsApp4.Initializers;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
@@ -24,7 +25,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             ContextMenu = BuildContextMenu();
         }
 
-        protected AxMap Map;
+        protected Initializers.Map Map;
 
         protected new MapTreeView TreeView => base.TreeView as MapTreeView;
 
@@ -32,7 +33,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         protected abstract ContextMenu BuildContextMenu();
 
-        public void SetMap(AxMap map)
+        public void SetMap(Initializers.Map map)
         {
             Map = map;
             foreach (var node in Nodes.OfType<INodeWithMap>())
@@ -57,7 +58,6 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             var childNodeType = typeof(TChildNode);
             Shapefile shapeFile = null;
             int entityLayerHandle = -1;
-            int shapeIndex = -1;
 
             var childEntity = new TChildEntity();
             ConfigureChildNodeEntity(childEntity);
@@ -68,43 +68,16 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 return false;
             }
 
-            if (form is IEntityFormWithMap<TChildEntity> formWithMap)
-            {
-                shapeFile = formWithMap.Map.GetEntityShapefile<TChildEntity>();
-                var shape = formWithMap.Shape;
-                if (shape == null || !shape.IsValid)
-                {
-                    MessageBox.Show("Shape invalid");
-                    return false;
-                }
-
-                shapeFile.StartAppendMode();
-                shapeIndex = shapeFile.EditAddShape(shape);
-                shapeFile.StopAppendMode();
-
-                formWithMap.Map.Redraw();
-            }
-
             childEntity = form.Entity;
             ConfigureChildNodeEntity(childEntity);
             var repository = TreeView.RepositoriesProvider.Get<IWriteOnlyRepository<TChildEntity>>();
             childEntity = await repository.AddAsync(childEntity);
             await repository.SaveChanges();
 
-            MapTreeNodeBase childNode = null;
-            if (form is IEntityFormWithMap<TChildEntity>)
-            {
-                TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TChildEntity>>()
-                    .WriteToShapeFile(shapeFile, shapeIndex, childEntity);
+            form.CallOnFormClosedEvents();
 
-                childNode = (MapTreeNodeBase)Activator.CreateInstance(childNodeType,
-                    new object[] { shapeFile, shapeIndex, entityLayerHandle });
-            }
-            else
-            {
-                childNode = (MapTreeNodeBase)Activator.CreateInstance(childNodeType,
-                    new object[] { childEntity, TreeView.RepositoriesProvider });
-            }
+            var childNode = (MapTreeNodeBase)Activator.CreateInstance(childNodeType,
+                    new object[] { childEntity });
 
             childNode.SetMap(Map);
             Nodes.Add(childNode);
@@ -122,7 +95,8 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                     childNode.Expand();
                 }
             }
-
+            
+            TreeView.Redraw();
             return true;
         }
 

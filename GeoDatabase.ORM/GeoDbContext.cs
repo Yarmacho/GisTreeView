@@ -1,4 +1,5 @@
-﻿using GeoDatabase.ORM.Set;
+﻿using GeoDatabase.ORM.Mapper;
+using GeoDatabase.ORM.Set;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -31,6 +32,28 @@ namespace GeoDatabase.ORM
         public bool EnsureShapefilesStructure()
         {
             return _database.EnsureShapefilesStructure();
+        }
+
+        public void DeleteAllShapes()
+        {
+            foreach (var mapping in ServiceProvider.GetRequiredService<MappingConfigs>())
+            {
+                mapping.Shapefile.StartEditingShapes();
+
+                mapping.Shapefile.EditClear();
+
+                mapping.Shapefile.StopEditingShapes();
+
+                mapping.Shapefile.StartEditingTable();
+
+                var numRows = mapping.Shapefile.Table.NumRows;
+                for (var row = 0; row < numRows; row++)
+                {
+                    mapping.Shapefile.Table.EditDeleteRow(0);
+                }
+
+                mapping.Shapefile.StopEditingTable();
+            }
         }
 
         public bool SaveChanges()

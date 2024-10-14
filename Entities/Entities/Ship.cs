@@ -4,7 +4,7 @@ using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Ship : EntityBase<int>, IDictionaryEntity
+    public class Ship : EntityBase<int>, IDictionaryEntity, IEntityWithCoordinates
     {
         public string Name { get; set; }
 

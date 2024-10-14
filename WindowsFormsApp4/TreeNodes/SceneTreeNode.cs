@@ -10,10 +10,9 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class SceneTreeNode : ShapeTreeNode<Scene>
+    internal class SceneTreeNode : ShapeTreeNode<Scene, int>
     {
-        public SceneTreeNode(Scene scene, int shapeIndex, int layerHandle)
-            : base(scene, shapeIndex, layerHandle)
+        public SceneTreeNode(Scene scene) : base(scene)
         {
             Name = scene.Name;
             Text = scene.Name;
@@ -54,20 +53,21 @@ namespace WindowsFormsApp4.TreeNodes
             {
                 return false;
             }
-
-            var shape = Shapefile.Shape[ShapeIndex];
-            if (shape is null)
-            {
-                return false;
-            } 
-
-            var battimetry = TreeView.Map.get_Image(TreeView.LayersInfo.BatimetryLayerHandle);
-            if (battimetry is null)
-            {
-                return true;
-            }
-
             return true;
+
+            //var shape = Shapefile.Shape[ShapeIndex];
+            //if (shape is null)
+            //{
+            //    return false;
+            //} 
+
+            //var battimetry = TreeView.Map.get_Image(TreeView.LayersInfo.BatimetryLayerHandle);
+            //if (battimetry is null)
+            //{
+            //    return true;
+            //}
+
+            //return true;
         }
     }
 }
