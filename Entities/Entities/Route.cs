@@ -1,11 +1,12 @@
-﻿using System;
+﻿using MapWinGIS;
+using System;
 using System.Collections.Generic;
 using Tools;
 using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Route : EntityBase<int>
+    public class Route : EntityBase<int>, IShapeEntity
     {
         public string Name { get; set; }
 
@@ -16,6 +17,7 @@ namespace Entities.Entities
 
         [IgnoreProperty(EditMode.View | EditMode.Add | EditMode.Edit | EditMode.Delete)]
         public List<RoutePoint> Points { get; set; } = new List<RoutePoint>();
+        public Shape Shape { get; set; }
 
         public override string ToString()
         {

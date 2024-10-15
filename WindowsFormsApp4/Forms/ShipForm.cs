@@ -112,7 +112,11 @@ namespace WindowsFormsApp4.Forms
 
         public Ship Entity { get; }
 
-        public Shape Shape { get; set; }
+        public Shape Shape
+        {
+            get => Entity.Shape;
+            set => Entity.Shape = value;
+        }
 
         public Initializers.Map Map { get; }
 

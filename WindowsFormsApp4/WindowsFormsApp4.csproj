@@ -134,6 +134,7 @@
       <DependentUpon>RoutesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EntityMappings\GasMappings.cs" />
+    <Compile Include="Initializers\MapDesigner.cs" />
     <Compile Include="Initializers\DictionaryInitializers\Implementations\GasDictionartInitializer.cs" />
     <Compile Include="Initializers\DictionaryInitializers\Implementations\IDictionaryinitialer.cs" />
     <Compile Include="Initializers\DictionaryInitializers\Implementations\ShipDictioanaryInitializer.cs" />

@@ -41,8 +41,8 @@ namespace Forms.Forms
             {
                 // TODO: Find another way of resolving dbContext
                 var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
-                Entity = context.Set<Gas>().FirstOrDefault(g => g.Id == gas.Id) ?? gas;
-                var shapeIndex = context.ChangeTracker.GetShapeIndex(Entity);
+                var entity = context.Set<Gas>().FirstOrDefault(g => g.Id == gas.Id) ?? gas;
+                var shapeIndex = context.ChangeTracker.GetShapeIndex(entity);
                 if (shapeIndex != -1)
                 {
                     Shape = shapefile.Shape[shapeIndex];
@@ -84,7 +84,11 @@ namespace Forms.Forms
 
         public WindowsFormsApp4.Initializers.Map Map { get; }
 
-        public Shape Shape { get; set; }
+        public Shape Shape
+        {
+            get => Entity.Shape;
+            set => Entity.Shape = value;
+        }
 
         public Shapefile Shapefile { get; }
 

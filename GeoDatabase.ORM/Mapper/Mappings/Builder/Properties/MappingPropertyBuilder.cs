@@ -34,5 +34,11 @@
             _config.IgnoredProperties.Add(_propertyName);
             return this;
         }
+
+        public IMappingPropertyBuilder<T, TProperty> HasShapeProperty(string shapePropertyName)
+        {
+            _config.ShapePropertyName = shapePropertyName;
+            return this;
+        }
     }
 }

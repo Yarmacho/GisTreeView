@@ -16,6 +16,7 @@ namespace Database.Configurations
             builder.Property(r => r.ExperimentId).HasColumnName("EXPERIMENTID");
             builder.Property(r => r.X);
             builder.Property(r => r.Y);
+            builder.Ignore(r => r.Shape);
 
             builder.HasKey(r => r.Id);
         }

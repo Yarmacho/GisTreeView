@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MapWinGIS;
+using System;
 using Tools;
 using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Ship : EntityBase<int>, IDictionaryEntity, IEntityWithCoordinates
+    public class Ship : EntityBase<int>, IDictionaryEntity, IEntityWithCoordinates, IShapeEntity
     {
         public string Name { get; set; }
 
@@ -16,6 +17,7 @@ namespace Entities.Entities
 
         [Display(Enabled = false)]
         public double Y { get; set; }
+        public Shape Shape { get; set; }
 
         public override string ToString()
         {

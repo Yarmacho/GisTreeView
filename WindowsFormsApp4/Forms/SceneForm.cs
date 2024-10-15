@@ -19,7 +19,11 @@ namespace Forms.Forms
     {
         public WindowsFormsApp4.Initializers.Map Map { get; }
 
-        public Shape Shape { get; set; }
+        public Shape Shape
+        {
+            get => Entity.Shape;
+            set => Entity.Shape = value;
+        }
 
         public Shapefile Shapefile { get; }
 
