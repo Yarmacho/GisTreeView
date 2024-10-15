@@ -6,17 +6,21 @@ using GeoDatabase.ORM.Set.Extensions;
 using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
+using Point = MapWinGIS.Point;
 
 namespace Forms.Forms
 {
     public partial class SceneForm : Form, IEntityFormWithMap<Scene>
     {
+        private List<int> _drawingIndexes = new List<int>();
         public WindowsFormsApp4.Initializers.Map Map { get; }
 
         public Shape Shape
@@ -112,26 +116,73 @@ namespace Forms.Forms
 
             ValidShape += (point, shape) =>
             {
-                //if (coast != null && !coast.Intersects(shape))
-                //{
-                //    MessageBox.Show("Сцена побудована на материку. Побудуйте іншу сцену");
-                //    return false;
-                //}
+                foreach (var drawing in _drawingIndexes)
+                {
+                    Map.AxMap.ClearDrawing(drawing);
+                }
+                _drawingIndexes = new List<int>();
+
+                object results = null;
+                coast.GetIntersection(shape, ref results);
+
+                var resultsArray = results as dynamic[];
+                if (resultsArray != null && resultsArray.Length > 0)
+                {
+                    foreach (var element in resultsArray)
+                    {
+                        // TODO: Try to find better way to find the intersection
+                        Shape intersectedShape = element.Clone();
+
+                        if (intersectedShape.numPoints <= 0)
+                        {
+                            continue;
+                        }
+
+                        for (var i = 0; i < intersectedShape.NumParts; i++)
+                        {
+                            var part = intersectedShape.PartAsShape[i];
+
+                            var drawing = Map.AxMap.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
+                            _drawingIndexes.Add(drawing);
+
+                            var xPoints = new List<double>();
+                            var yPoints = new List<double>();
+                            for (var j = 0; j < part.numPoints; j++)
+                            {
+                                var intersectedShapePoint = part.Point[j];
+
+                                xPoints.Add(intersectedShapePoint.x);
+                                yPoints.Add(intersectedShapePoint.y);
+                            }
+
+                            object xPointsArray = xPoints.ToArray();
+                            object yPointsArray = yPoints.ToArray();
+                            Map.AxMap.DrawPolygonEx(drawing, ref xPointsArray, ref yPointsArray, part.numPoints,
+                                (uint)Color.Red.ToArgb(), true);
+                        }
+
+                        NotificationsManager.Popup("Scene intersects coast", MessageBoxIcon.Warning);
+                    }
+                }
 
                 return shape.numPoints != 4;
-            };
-
-            AfterShapeValid += (shape) =>
-            {
-                Entity.Side = TypeTools.Convert<double>(side.Text);
-                Entity.Angle = TypeTools.Convert<double>(angle.Text);
-                Entity.Area = Shape.Area;
             };
         }
 
         private void sceneParametersChanged(object sender, EventArgs e)
         {
             buildScene(TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(side.Text));
+
+            if (!CallValidateShapeEvents(null))
+            {
+                buildScene(Entity.Angle, Entity.Side);
+                return;
+            }
+
+            Entity.Side = TypeTools.Convert<double>(side.Text);
+            Entity.Angle = TypeTools.Convert<double>(angle.Text);
+            Entity.Area = Shape.Area;
+
             Map.Redraw();
         }
 
