@@ -20,7 +20,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             var nodes = new Dictionary<int, ExperimentTreeNode>();
             foreach (var experiment in await repository.GetByIdsAsync(buildNodesParams.ExperimentIds))
             {
-                var node = new ExperimentTreeNode(experiment, repositoriesProvider);
+                var node = new ExperimentTreeNode(experiment);
 
                 nodes[experiment.Id] = node;
             }

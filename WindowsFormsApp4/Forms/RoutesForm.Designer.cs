@@ -1,7 +1,6 @@
-﻿
-namespace DynamicForms.Forms
+﻿namespace WindowsFormsApp4.Forms
 {
-    partial class DictionaryForm
+    partial class RoutesForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,45 +28,47 @@ namespace DynamicForms.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RoutesForm));
+            this.axMap1 = new AxMapWinGIS.AxMap();
             this.submit = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
-            // dataGridView1
+            // axMap1
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(12, 12);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(776, 404);
-            this.dataGridView1.TabIndex = 0;
+            this.axMap1.Enabled = true;
+            this.axMap1.Location = new System.Drawing.Point(98, 12);
+            this.axMap1.Name = "axMap1";
+            this.axMap1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap1.OcxState")));
+            this.axMap1.Size = new System.Drawing.Size(776, 426);
+            this.axMap1.TabIndex = 10;
             // 
             // submit
             // 
-            this.submit.Location = new System.Drawing.Point(713, 422);
+            this.submit.Location = new System.Drawing.Point(12, 415);
             this.submit.Name = "submit";
             this.submit.Size = new System.Drawing.Size(75, 23);
-            this.submit.TabIndex = 1;
-            this.submit.Text = "Submit";
+            this.submit.TabIndex = 20;
+            this.submit.Text = "Create";
             this.submit.UseVisualStyleBackColor = true;
             // 
-            // DictionaryForm
+            // RoutesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(886, 450);
             this.Controls.Add(this.submit);
-            this.Controls.Add(this.dataGridView1);
-            this.Name = "DictionaryForm";
-            this.Text = "DictionaryForm";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.Controls.Add(this.axMap1);
+            this.Name = "RoutesForm";
+            this.Text = "TracePointForm";
+            ((System.ComponentModel.ISupportInitialize)(this.axMap1)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private AxMapWinGIS.AxMap axMap1;
         private System.Windows.Forms.Button submit;
     }
 }

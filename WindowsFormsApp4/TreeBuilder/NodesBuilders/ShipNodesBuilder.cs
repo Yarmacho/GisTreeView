@@ -24,8 +24,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
             foreach (var ship in dbContext.Set<Ship>().ToList())
             {
-                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(ship);
-                var node = new ShipTreeNode(ship, shapeIndex, buildNodesParams.ShipLayerHandle);
+                var node = new ShipTreeNode(ship);
                 nodes[ship.Id] = node;
 
                 if (_sceneNodes.TryGetValue(ship.SceneId, out var sceneNode))

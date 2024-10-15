@@ -74,9 +74,6 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AxInterop.MapWinGIS">
-      <HintPath>..\..\..\..\..\..\dev\MapWinGIS\AxInterop.MapWinGIS.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -93,13 +90,68 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mappings\GasMappings.cs" />
-    <Compile Include="Mappings\RouteMappings.cs" />
-    <Compile Include="Mappings\SceneMappings.cs" />
-    <Compile Include="Mappings\ShipMappings.cs" />
+    <Compile Include="Extensions\CallFormEventsExtensions.cs" />
+    <Compile Include="Extensions\MapExtensions.cs" />
+    <Compile Include="FormFactory.cs" />
+    <Compile Include="Forms\Abstractions\FormsSelector.cs" />
+    <Compile Include="Forms\Abstractions\IEntityForm.cs" />
+    <Compile Include="Forms\Abstractions\IEntityFormWithMap.cs" />
+    <Compile Include="Forms\Abstractions\IEntityFormWithMapAndDepthLabel.cs" />
+    <Compile Include="Forms\DictionaryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DictionaryForm.Designer.cs">
+      <DependentUpon>DictionaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ExperimentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ExperimentForm.Designer.cs">
+      <DependentUpon>ExperimentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\GasForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GasForm.Designer.cs">
+      <DependentUpon>GasForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SceneForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SceneForm.Designer.cs">
+      <DependentUpon>SceneForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ShipForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ShipForm.Designer.cs">
+      <DependentUpon>ShipForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\RoutesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\RoutesForm.Designer.cs">
+      <DependentUpon>RoutesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EntityMappings\GasMappings.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\Implementations\GasDictionartInitializer.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\Implementations\IDictionaryinitialer.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\Implementations\ShipDictioanaryInitializer.cs" />
+    <Compile Include="Initializers\DictionaryInitializers\DictionaryFormInitializer.cs" />
+    <Compile Include="Initializers\FormInitializer.cs" />
+    <Compile Include="Initializers\MapInitializer.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="NotificationsManager.cs" />
+    <Compile Include="EntityMappings\RouteMappings.cs" />
+    <Compile Include="EntityMappings\SceneMappings.cs" />
+    <Compile Include="ShapeConverters\IShapeEntityConverter.cs" />
+    <Compile Include="ShapeConverters\ShapeToGasConverter.cs" />
+    <Compile Include="ShapeConverters\ShapeToRouteConverter.cs" />
+    <Compile Include="ShapeConverters\ShapeToSceneConverter.cs" />
+    <Compile Include="ShapeConverters\ShapeToShipConverter.cs" />
+    <Compile Include="EntityMappings\ShipMappings.cs" />
     <Compile Include="TreeBuilder\BuildNodesParams.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -133,6 +185,24 @@
     <Compile Include="TreeNodes\SceneTreeNode.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DictionaryForm.resx">
+      <DependentUpon>DictionaryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ExperimentForm.resx">
+      <DependentUpon>ExperimentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\GasForm.resx">
+      <DependentUpon>GasForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SceneForm.resx">
+      <DependentUpon>SceneForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ShipForm.resx">
+      <DependentUpon>ShipForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RoutesForm.resx">
+      <DependentUpon>RoutesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MapTreeView.resx">
       <DependentUpon>MapTreeView.cs</DependentUpon>
@@ -193,16 +263,12 @@
       <Project>{1f342b40-80ea-400c-9778-1adc4a299f92}</Project>
       <Name>Database</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DynamicForms\DynamicForms.csproj">
-      <Project>{a6439ad8-fb0e-4298-b48d-ad7a895514d9}</Project>
-      <Name>DynamicForms</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Entities\Entities.csproj">
       <Project>{91222ced-eb60-4e3e-9aa9-190e523a4f8d}</Project>
       <Name>Entities</Name>
     </ProjectReference>
     <ProjectReference Include="..\GeoDatabase.ORM\GeoDatabase.ORM.csproj">
-      <Project>{ed49ef6e-3f40-4bb5-a287-7bf36e5a93ce}</Project>
+      <Project>{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}</Project>
       <Name>GeoDatabase.ORM</Name>
     </ProjectReference>
     <ProjectReference Include="..\Interfaces.Database\Interfaces.Database.csproj">
@@ -328,6 +394,9 @@
     </PackageReference>
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
+    </PackageReference>
+    <PackageReference Include="Tulpep.NotificationWindow">
+      <Version>1.1.38</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

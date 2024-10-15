@@ -12,10 +12,17 @@ namespace GeoDatabase.ORM.Set.Extensions
         {
             return queryable.Provider.CreateQuery<T>(queryable.Expression.AndAlso(predicate));
         }
+
         public static T FirstOrDefault<T>(this IShapesQueryable<T> queryable, Expression<Func<T, bool>> predicate)
             where T : new()
         {
             return queryable.Provider.Execute<T>(queryable.Expression.AndAlso(predicate)).FirstOrDefault();
+        }
+
+        public static bool Any<T>(this IShapesQueryable<T> queryable, Expression<Func<T, bool>> predicate)
+            where T : new()
+        {
+            return queryable.Provider.Execute<T>(queryable.Expression.AndAlso(predicate)).Any();
         }
     }
 }

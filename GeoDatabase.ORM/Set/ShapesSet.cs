@@ -43,9 +43,9 @@ namespace GeoDatabase.ORM.Set
             return _changeTracker.AddAdded(entity, shape);
         }
 
-        public EntityEntry<T> Update(T entity)
+        public EntityEntry<T> Update(T entity, Shape shape = null)
         {
-            return _changeTracker.AddUpdated(entity);
+            return _changeTracker.AddUpdated(entity, shape);
         }
 
         public EntityEntry<T> Delete(T entity)

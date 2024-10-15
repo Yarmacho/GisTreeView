@@ -98,6 +98,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Entities\Entities.csproj">
+      <Project>{91222CED-EB60-4E3E-9AA9-190E523A4F8D}</Project>
+      <Name>Entities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tools\Tools.csproj">
       <Project>{C9F344AD-9207-4205-91AC-05D48B041877}</Project>
       <Name>Tools</Name>

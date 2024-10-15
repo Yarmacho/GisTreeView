@@ -1,29 +1,25 @@
 ﻿using AxMapWinGIS;
-using DynamicForms.Factories;
 using Entities;
 using GeoDatabase.ORM;
 using GeoDatabase.ORM.Set.Extensions;
+using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Tools;
+using WindowsFormsApp4.Forms.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
-    internal abstract class ShapeTreeNode<TEntity> : MapTreeNodeBase<TEntity>, INodeWithMap, IFocusable
-        where TEntity : EntityBase<int>, new()
+    internal abstract class ShapeTreeNode<TEntity, TId> : MapTreeNodeBase<TEntity>, INodeWithMap, IFocusable
+        where TEntity : EntityBase<TId>, new()
     {
-        protected readonly TEntity Entity;
-        protected readonly int ShapeIndex;
-        protected readonly int LayerHandle;
+        Initializers.Map INodeWithMap.Map => Map;
 
-        AxMap INodeWithMap.Map => Map;
+        protected TEntity Entity { get; }
 
-        protected ShapeTreeNode(TEntity entity, int shapeIndex, int layerHandle)
+        protected ShapeTreeNode(TEntity entity)
         {
             Entity = entity;
-            ShapeIndex = shapeIndex;
-            LayerHandle = layerHandle;
         }
 
         public override ValueTask Delete()
@@ -33,33 +29,26 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 MessageBox.Show("Node has child nodes!");
                 return new ValueTask(Task.CompletedTask);
             }
-            var dbContext = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
-            var set = dbContext.Set<TEntity>();
-            var entity = set.FirstOrDefault(e => e.Id == Entity.Id);
-            set.Delete(entity);
 
-            dbContext.SaveChanges();
-            Remove();
+            var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+            context.Set<TEntity>().Delete(Entity);
+            context.SaveChanges();
 
             return new ValueTask(Task.CompletedTask);
         }
 
         public override ValueTask Update()
         {
-            var form = FormFactory.CreateForm(Entity, EditMode.Edit);
-            if (form.Activate() != DialogResult.OK)
+            var form = FormsSelector.Select(Entity, Tools.EditMode.Edit);
+            if (form.ShowDialog() != DialogResult.OK)
             {
                 return new ValueTask();
             }
 
-            var dbContext = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
-            var set = dbContext.Set<TEntity>();
-            var entity = set.FirstOrDefault(e => e.Id == Entity.Id);
-            set.Update(entity);
-
-            dbContext.SaveChanges();
-
+            var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+            context.Set<TEntity>().Update(Entity);
             OnUpdate(Entity);
+            context.SaveChanges();
 
             return new ValueTask();
         }
@@ -67,7 +56,14 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         public void Focus()
         {
-            Map.ZoomToShape(LayerHandle, ShapeIndex);
+            var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+            var entity = context.Set<TEntity>().FirstOrDefault(e => e.Id.Equals(Entity.Id));
+
+            var shapeIndex = context.ChangeTracker.GetShapeIndex(entity);
+            if (shapeIndex != -1)
+            {
+                Map.ZoomToShape<TEntity>(shapeIndex);
+            }
         }
 
         public override string GetDescription()

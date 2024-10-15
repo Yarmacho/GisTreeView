@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33529.622
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp4", "WindowsFormsApp4\WindowsFormsApp4.csproj", "{1B86E171-7494-4CBE-940F-F28B41C07C8A}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{1F342B40-80EA-400C-9778-1ADC4A299F92}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{91222CED-EB60-4E3E-9AA9-190E523A4F8D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicForms", "DynamicForms\DynamicForms.csproj", "{A6439AD8-FB0E-4298-B48D-AD7A895514D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools", "Tools\Tools.csproj", "{C9F344AD-9207-4205-91AC-05D48B041877}"
 EndProject
@@ -75,18 +73,6 @@ Global
 		{91222CED-EB60-4E3E-9AA9-190E523A4F8D}.Release|x64.Build.0 = Release|Any CPU
 		{91222CED-EB60-4E3E-9AA9-190E523A4F8D}.Release|x86.ActiveCfg = Release|Any CPU
 		{91222CED-EB60-4E3E-9AA9-190E523A4F8D}.Release|x86.Build.0 = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x64.Build.0 = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x86.Build.0 = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x64.ActiveCfg = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x64.Build.0 = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x86.ActiveCfg = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x86.Build.0 = Release|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Debug|x64.ActiveCfg = Debug|Any CPU

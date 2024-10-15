@@ -7,8 +7,8 @@
     <ProjectGuid>{A6439AD8-FB0E-4298-B48D-AD7A895514D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DynamicForms</RootNamespace>
-    <AssemblyName>DynamicForms</AssemblyName>
+    <RootNamespace>Forms</RootNamespace>
+    <AssemblyName>Forms</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,8 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AxInterop.MapWinGIS">
-      <HintPath>..\..\..\..\..\..\dev\MapWinGIS\AxInterop.MapWinGIS.dll</HintPath>
+    <Reference Include="AxInterop.MapWinGIS, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\dev\MapWinGIS\AxInterop.MapWinGIS.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.MapWinGIS">
+      <HintPath>C:\dev\MapWinGIS\Interop.MapWinGIS.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.3.1.32\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
@@ -49,29 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DependencyInjection\ServiceCollectionExtensions.cs" />
     <Compile Include="Factories\FormFactory.cs" />
-    <Compile Include="Forms\DictionaryForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\DictionaryForm.Designer.cs">
-      <DependentUpon>DictionaryForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\EntityForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EntityFormWithMap.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\IEntityForm.cs" />
-    <Compile Include="Forms\IEntityFormWithMap.cs" />
-    <Compile Include="MapInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShapeConverters\IShapeEntityConverter.cs" />
-    <Compile Include="ShapeConverters\ShapeToGasConverter.cs" />
-    <Compile Include="ShapeConverters\ShapeToRouteConverter.cs" />
-    <Compile Include="ShapeConverters\ShapeToSceneConverter.cs" />
-    <Compile Include="ShapeConverters\ShapeToShipConverter.cs" />
     <Compile Include="MapDesigner.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,17 +75,6 @@
       <Project>{c9f344ad-9207-4205-91ac-05d48b041877}</Project>
       <Name>Tools</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\DictionaryForm.resx">
-      <DependentUpon>DictionaryForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EntityForm.resx">
-      <DependentUpon>EntityForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EntityFormWithMap.resx">
-      <DependentUpon>EntityFormWithMap.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="AxMapWinGIS">

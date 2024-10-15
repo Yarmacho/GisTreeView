@@ -27,7 +27,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             foreach (var gas in dbContext.Set<Gas>().ToList())
             {
                 var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(gas);
-                var node = new GasTreeNode(gas, shapeIndex, buildNodesParams.GasLayerHandle);
+                var node = new GasTreeNode(gas);
                 nodes[gas.Id] = node;
 
                 if (_experimentNodes.TryGetValue(gas.ExperimentId, out var experimentTreeNode))
@@ -39,6 +39,11 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             if (nodes.Count > 0 && buildNodesParams.SceneLayerHandle != -1)
             {
                 await new SceneNodesBuider(nodes).BuildNodes(buildNodesParams);
+            }
+
+            foreach (var node in nodes.Values)
+            {
+                node.SetMap(buildNodesParams.Map);
             }
 
             return nodes.Values;

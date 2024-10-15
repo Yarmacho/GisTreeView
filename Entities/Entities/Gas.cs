@@ -6,7 +6,7 @@ using Tools.Attributes;
 
 namespace Entities.Entities
 {
-    public class Gas : DictionaryEntity<int>, IShapeEntity
+    public class Gas : EntityBase<int>, IDictionaryEntity, IEntityWithCoordinates
     {
         public string Name { get; set; }
 
@@ -18,19 +18,6 @@ namespace Entities.Entities
 
         [Display(Enabled = false)]
         public double Y { get; set; }
-
-        [IgnoreProperty(EditMode.Add | EditMode.View | EditMode.Edit | EditMode.Delete)]
-        public Shape Shape { get; set; }
-
-        public override IEnumerable<string> AsColumns()
-        {
-            return new string[] { "Id", "Name", "ExperimentId", "X", "Y" };
-        }
-
-        public override object[] AsDataRow()
-        {
-            return new object[] { Id, Name, ExperimentId, X, Y };
-        }
 
         public override string ToString()
         {

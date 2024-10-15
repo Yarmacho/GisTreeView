@@ -23,8 +23,7 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
             foreach (var scene in dbContext.Set<Scene>().ToList())
             {
-                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(scene);
-                var node = new SceneTreeNode(scene, shapeIndex, buildNodesParams.SceneLayerHandle);
+                var node = new SceneTreeNode(scene);
                 nodes[scene.Id] = node;
 
                 if (_gasNodes.TryGetValue(scene.GasId, out var gasNode))

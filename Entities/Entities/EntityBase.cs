@@ -11,7 +11,12 @@ namespace Entities
 
         public override bool Equals(object obj)
         {
-            return obj is EntityBase<TId> other && other.Id.Equals(Id);
+            if (obj == null || obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return obj is EntityBase<TId> entityBase && entityBase.Id.Equals(Id);
         }
     }
 }

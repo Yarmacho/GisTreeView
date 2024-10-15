@@ -5,10 +5,9 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes
 {
-    internal class RouteTreeNode : ShapeTreeNode<Route>
+    internal class RouteTreeNode : ShapeTreeNode<Route, int>
     {
-        public RouteTreeNode(Route route, int shapeIndex, int layerHandle)
-            : base(route, shapeIndex, layerHandle)
+        public RouteTreeNode(Route route) : base(route)
         {
         }
 

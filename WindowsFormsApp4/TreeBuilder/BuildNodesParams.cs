@@ -1,22 +1,23 @@
 ﻿using AxMapWinGIS;
 using System;
 using System.Collections.Generic;
+using WindowsFormsApp4.Initializers;
 
 namespace WindowsFormsApp4
 {
     public class BuildNodesParams
     {
-        public AxMap Map { get; set; }
+        public Map Map { get; set; }
 
-        public int GasLayerHandle { get; set; } = -1;
+        public int GasLayerHandle => Map.LayersInfo.GasLayerHandle;
 
-        public int ShipLayerHandle { get; set; } = -1;
+        public int ShipLayerHandle => Map.LayersInfo.ShipLayerHandle;
 
-        public int SceneLayerHandle { get; set; } = -1;
+        public int SceneLayerHandle => Map.LayersInfo.SceneLayerHandle;
 
-        public int ProfileLayerHandle { get; set; } = -1;
+        //public int ProfileLayerHandle => Map.LayersInfo.ProfileLayerHandle;
 
-        public int RoutesLayerHandle { get; set; } = -1;
+        public int RoutesLayerHandle => Map.LayersInfo.RoutesLayerHandle;
 
         public bool ShowExperiments { get; set; } = true;
 
