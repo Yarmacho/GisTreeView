@@ -12,15 +12,14 @@ namespace WindowsFormsApp4.Initializers
 {
     public static class FormInitializer
     {
-        public static void TryAddDepthIndication<T>(this IEntityFormWithMapAndDepthLabel<T> form, Map map)
-            where T : new()
+        public static void TryAddDepthIndication(this IEntityFormWithMapAndDepthLabel form)
         {
-            if (map.LayersInfo.BatimetryLayerHandle <= 0 || !map.SendMouseMove)
+            if (form.Map.LayersInfo.BatimetryLayerHandle <= 0 || !form.Map.SendMouseMove)
             {
                 return;
             }
 
-            var batimetry = map.Batimetry;
+            var batimetry = form.Map.Batimetry;
             if (batimetry is null)
             {
                 return;

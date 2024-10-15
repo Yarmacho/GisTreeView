@@ -22,8 +22,8 @@ namespace GeoDatabase.ORM.Database
         internal readonly IServiceProvider ServiceProvider;
         private readonly ILogger<Database> _logger;
 
-        private static readonly ConcurrentDictionary<Tuple<Type, EntityState, bool>, Func<object, int>> _savers
-            = new ConcurrentDictionary<Tuple<Type, EntityState, bool>, Func<object, int>>();
+        private static readonly ConcurrentDictionary<Tuple<Type, EntityState>, Func<EntityEntry, int>> _savers
+            = new ConcurrentDictionary<Tuple<Type, EntityState>, Func<EntityEntry, int>>();
 
         private static readonly MethodInfo _invokeMemberMethod
             = typeof(Type).GetMethod("InvokeMember", BindingFlags.Instance | BindingFlags.Public, null, new Type[] { typeof(string), typeof(BindingFlags), typeof(Binder), typeof(object), typeof(object[]) }, null);
@@ -145,30 +145,36 @@ namespace GeoDatabase.ORM.Database
             }
             else
             {
-                var key = new Tuple<Type, EntityState, bool>(entry.EntityType, entry.State, entry.Shape != null);
+                var key = new Tuple<Type, EntityState>(entry.EntityType, entry.State);
 
                 var saver = _savers.GetOrAdd(key, _ => getSaver(config, entry));
-                entry.ShapeIndex = saver.Invoke(entry.Entity);
+
+                if (entry.Shape == null)
+                {
+                    entry.Shape = new Shape();
+                }
+
+                entry.ShapeIndex = saver.Invoke(entry);
             }
 
             return config.Shapefile.StopEditingShapes();
         }
 
-        private Func<object, int> getSaver(MappingConfig config, EntityEntry entry)
+        private Func<EntityEntry, int> getSaver(MappingConfig config, EntityEntry entry)
         {
             if (entry.State == EntityState.Updated)
             {
-                return getUpdater(config, entry);
+                return getUpdater(config, entry.EntityType);
             }
             else
             {
-                return getAddFunc(config, entry);
+                return getAddFunc(config, entry.EntityType);
             }
         }
 
-        private Func<object, int> getAddFunc(MappingConfig config, EntityEntry entry)
+        private Func<EntityEntry, int> getAddFunc(MappingConfig config, Type entityType)
         {
-            var param = Expression.Parameter(typeof(object));
+            var param = Expression.Parameter(typeof(EntityEntry));
 
             var shapefile = Expression.Constant(config.Shapefile);
             var shapefileType = Expression.Constant(config.Shapefile.GetType());
@@ -176,12 +182,15 @@ namespace GeoDatabase.ORM.Database
             var expressions = new List<Expression>();
             var shapeIndexVariable = Expression.Variable(typeof(int));
 
-            var addShapeArgs = Expression.NewArrayInit(typeof(object), Expression.Constant(entry.Shape ?? new Shape()));
+            var addShapeArgs = Expression.NewArrayInit(typeof(object), Expression.Convert(Expression.PropertyOrField(param, "Shape"), typeof(object)));
             var callAddShape = Expression.Call(shapefileType, _invokeMemberMethod,
                     Expression.Constant("EditAddShape"), Expression.Constant(BindingFlags.InvokeMethod),
                     Expression.Constant(null, typeof(Binder)), shapefile, addShapeArgs);
 
-            foreach (var prop in entry.EntityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            expressions.Add(Expression.Assign(shapeIndexVariable, Expression.Convert(callAddShape, typeof(int))));
+
+            var castedEntity = Expression.Convert(Expression.PropertyOrField(param, "Entity"), entityType);
+            foreach (var prop in entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (config.IgnoredProperties.Contains(prop.Name) ||
                    !config.ColumnIndexes.TryGetValue(prop.Name, out var columnIndex) || columnIndex == -1)
@@ -189,25 +198,24 @@ namespace GeoDatabase.ORM.Database
                     continue;
                 }
 
-                var editCellArgs = Expression.NewArrayInit(typeof(object), Expression.Constant(columnIndex, typeof(object)), Expression.Convert(shapeIndexVariable, typeof(object)),
-                    Expression.Convert(Expression.MakeMemberAccess(Expression.Convert(param, entry.EntityType), prop), typeof(object)));
+                var editCellArgs = Expression.NewArrayInit(typeof(object), Expression.Constant(columnIndex, typeof(object)), 
+                    Expression.Convert(shapeIndexVariable, typeof(object)),
+                    Expression.Convert(Expression.MakeMemberAccess(castedEntity, prop), typeof(object)));
                 var callEditCell = Expression.Call(shapefileType, _invokeMemberMethod,
                     Expression.Constant("EditCellValue"), Expression.Constant(BindingFlags.InvokeMethod),
                     Expression.Constant(null, typeof(Binder)), shapefile, editCellArgs);
                 expressions.Add(callEditCell);
             }
 
-            expressions.Add(Expression.Assign(shapeIndexVariable, Expression.Convert(callAddShape, typeof(int))));
-
             expressions.Add(shapeIndexVariable);
             var body = Expression.Block(new ParameterExpression[] { shapeIndexVariable }, expressions);
-            return Expression.Lambda<Func<object, int>>(body, param).Compile();
+            return Expression.Lambda<Func<EntityEntry, int>>(body, param).Compile();
         }
 
 
-        private Func<object, int> getUpdater(MappingConfig config, EntityEntry entry)
+        private Func<EntityEntry, int> getUpdater(MappingConfig config, Type entityType)
         {
-            var param = Expression.Parameter(typeof(object));
+            var param = Expression.Parameter(typeof(EntityEntry));
 
             var shapefile = Expression.Constant(config.Shapefile);
             var shapefileType = Expression.Constant(config.Shapefile.GetType());
@@ -215,25 +223,19 @@ namespace GeoDatabase.ORM.Database
             var expressions = new List<Expression>();
             var shapeIndexVariable = Expression.Variable(typeof(int));
 
-            expressions.Add(Expression.Assign(shapeIndexVariable, Expression.Constant(entry.ShapeIndex)));
+            expressions.Add(Expression.Assign(shapeIndexVariable, Expression.PropertyOrField(param, "ShapeIndex")));
             var shape = Expression.Variable(typeof(Shape));
-            expressions.Add(Expression.Assign(shape, Expression.Constant(entry.Shape)));
+            expressions.Add(Expression.Assign(shape, Expression.PropertyOrField(param, "Shape")));
 
-            var updateShapeArgs = Expression.NewArrayInit(typeof(object), shapeIndexVariable, shape);
-            var callUpdateShape = Expression.Call(shapefileType, _invokeMemberMethod,
-                    Expression.Constant("EditUpdateShape"), Expression.Constant(BindingFlags.InvokeMethod),
-                    Expression.Constant(null, typeof(Binder)), shapefile, updateShapeArgs);
-
-            var shapeNotProvidedClause = new List<Expression>();
-
-            var getShapeArgs = Expression.NewArrayInit(typeof(object), Expression.Constant(entry.ShapeIndex, typeof(object)));
+            var getShapeArgs = Expression.NewArrayInit(typeof(object), Expression.Convert(Expression.PropertyOrField(param, "ShapeIndex"), typeof(object)));
             var getShape = Expression.Call(shapefileType, _invokeMemberMethod,
                     Expression.Constant("Shape"), Expression.Constant(BindingFlags.GetProperty),
                     Expression.Constant(null, typeof(Binder)), shapefile, getShapeArgs);
 
-            shapeNotProvidedClause.Add(Expression.Assign(shape, getShape));
+            expressions.Add(Expression.Assign(shape, getShape));
 
-            foreach (var prop in entry.EntityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            var castedEntity = Expression.Convert(Expression.PropertyOrField(param, "Entity"), entityType);
+            foreach (var prop in entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (config.IgnoredProperties.Contains(prop.Name) ||
                    !config.ColumnIndexes.TryGetValue(prop.Name, out var columnIndex) || columnIndex == -1)
@@ -242,15 +244,14 @@ namespace GeoDatabase.ORM.Database
                 }
 
                 var editCellArgs = Expression.NewArrayInit(typeof(object), Expression.Constant(columnIndex, typeof(object)), Expression.Convert(shapeIndexVariable, typeof(object)),
-                    Expression.Convert(Expression.MakeMemberAccess(Expression.Convert(param, entry.EntityType), prop), typeof(object)));
+                    Expression.Convert(Expression.MakeMemberAccess(castedEntity, prop), typeof(object)));
                 var callEditCell = Expression.Call(shapefileType, _invokeMemberMethod,
                     Expression.Constant("EditCellValue"), Expression.Constant(BindingFlags.InvokeMethod),
                     Expression.Constant(null, typeof(Binder)), shapefile, editCellArgs);
-                shapeNotProvidedClause.Add(callEditCell);
+                expressions.Add(callEditCell);
             }
 
-            var setCoords = new List<Expression>();
-            if (TypeTools.Implements(entry.Entity, typeof(IEntityWithCoordinates)))
+            if (TypeTools.Implements(entityType, typeof(IEntityWithCoordinates)))
             {
                 var point = Expression.Variable(typeof(Point));
 
@@ -259,37 +260,30 @@ namespace GeoDatabase.ORM.Database
                         Expression.Constant("Point"), Expression.Constant(BindingFlags.GetProperty),
                         Expression.Constant(null, typeof(Binder)), shapefile, getPointArgs);
 
-                setCoords.Add(point);
-                setCoords.Add(Expression.Assign(point, getPoint));
+                expressions.Add(point);
+                expressions.Add(Expression.Assign(point, getPoint));
 
                 var setXArgs = Expression.NewArrayInit(typeof(object), Expression.Convert(
-                    Expression.PropertyOrField(Expression.Constant(entry.Entity), "X"), typeof(object)));
+                    Expression.PropertyOrField(Expression.PropertyOrField(param, "Entity"), "X"), typeof(object)));
                 
                 var setX = Expression.Call(Expression.Constant(typeof(Point)), _invokeMemberMethod,
                         Expression.Constant("x"), Expression.Constant(BindingFlags.SetProperty),
                         Expression.Constant(null, typeof(Binder)), point, setXArgs);
 
                 var setYArgs = Expression.NewArrayInit(typeof(object), Expression.Convert(
-                    Expression.PropertyOrField(Expression.Constant(entry.Entity), "Y"), typeof(object)));
+                    Expression.PropertyOrField(Expression.PropertyOrField(param, "Entity"), "Y"), typeof(object)));
                 
                 var setY = Expression.Call(Expression.Constant(typeof(Point)), _invokeMemberMethod,
                         Expression.Constant("y"), Expression.Constant(BindingFlags.SetProperty),
                         Expression.Constant(null, typeof(Binder)), point, setYArgs);
 
-                setCoords.Add(setX);
-                setCoords.Add(setY);
+                expressions.Add(setX);
+                expressions.Add(setY);
             }
-            
-            var condition = Expression.NotEqual(Expression.Constant(entry.Shape), Expression.Constant(null, entry.Shape.GetType()));
-
-            var trueBlock = Expression.Block(setCoords.Prepend(updateShapeArgs).ToArray());
-            var falseBlock = Expression.Block(shapeNotProvidedClause.Concat(setCoords).ToArray());
-
-            expressions.Add(Expression.IfThenElse(condition, trueBlock, falseBlock));
 
             expressions.Add(shapeIndexVariable);
             var body = Expression.Block(new ParameterExpression[] { shapeIndexVariable }, expressions);
-            return Expression.Lambda<Func<object, int>>(body, param).Compile();
+            return Expression.Lambda<Func<EntityEntry, int>>(body, param).Compile();
         }
     }
 }

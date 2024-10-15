@@ -12,15 +12,22 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 using Tools;
 using WindowsFormsApp4.Initializers;
 using Forms.Forms;
+using WindowsFormsApp4.Forms.Abstractions;
 
 namespace WindowsFormsApp4
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, IEntityFormWithMapAndDepthLabel
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly string _path;
 
         private Initializers.Map _initedMap;
+
+        public event Action<double, double> OnMouseMoveOnMap;
+
+        public Initializers.Map Map => _initedMap;
+
+        public System.Windows.Forms.Label DepthLabel => depth;
 
         public Form1(IServiceProvider serviceProvider, IConfiguration configuration)
         {
@@ -36,6 +43,7 @@ namespace WindowsFormsApp4
             axMap1.CursorMode = tkCursorMode.cmPan;
             axMap1.SendMouseMove = true;
             _initedMap = MapInitializer.Init(axMap1);
+            this.TryAddDepthIndication();
             if (_initedMap.LayersInfo.BatimetryLayerHandle != -1)
             {
                 var batimetry = _initedMap.Batimetry;

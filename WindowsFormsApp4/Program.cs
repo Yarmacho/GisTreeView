@@ -29,9 +29,9 @@ namespace WindowsFormsApp4
             MapInitializer.ShapesPath = Configuration.GetValue<string>("MapsPath");
             
             ServiceProvider.GetRequiredService<IDbManager>()
-                .CreateAsync().GetAwaiter().GetResult();
-            //ServiceProvider.GetRequiredService<GeoDbContext>()
-            //    .DeleteAllShapes();
+                .ReCreateAsync().GetAwaiter().GetResult();
+            ServiceProvider.GetRequiredService<GeoDbContext>()
+                .DeleteAllShapes();
 
             Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }

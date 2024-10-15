@@ -32,7 +32,7 @@ namespace Forms.Forms
             Map.SendMouseMove = true;
 
             this.ConfigureMouseDownEvent();
-            this.TryAddDepthIndication(Map);
+            this.TryAddDepthIndication();
             this.ConfigureMouseMoveEvent();
             this.ConfigureSaveShapeOnFormClosed<Gas, int>();
 
