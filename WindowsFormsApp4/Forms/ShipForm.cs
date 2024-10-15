@@ -1,4 +1,5 @@
-﻿using DynamicForms.Abstractions;
+﻿using DynamicForms;
+using DynamicForms.Abstractions;
 using DynamicForms.Forms;
 using Entities.Entities;
 using GeoDatabase.ORM;
@@ -88,6 +89,8 @@ namespace WindowsFormsApp4.Forms
                     Entity.Y = point.y;
                     coordX.Text = point.x.ToString();
                     coordY.Text = point.y.ToString();
+
+                    MapDesigner.ConnectShipWithGas(Map, Entity);
                 }
             };
 

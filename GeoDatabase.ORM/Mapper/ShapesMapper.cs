@@ -50,7 +50,7 @@ namespace GeoDatabase.ORM.Mapper
                     System.Globalization.CultureInfo.CurrentCulture);
             }
 
-            return factoryMethod?.Invoke(shapeIndex);
+            return entity;
         }
 
         private Func<int, object> getFactoryMethod(MappingConfig config, Type destinationType)

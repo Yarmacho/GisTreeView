@@ -92,7 +92,6 @@
   <ItemGroup>
     <Compile Include="Extensions\CallFormEventsExtensions.cs" />
     <Compile Include="Extensions\MapExtensions.cs" />
-    <Compile Include="FormFactory.cs" />
     <Compile Include="Forms\Abstractions\FormsSelector.cs" />
     <Compile Include="Forms\Abstractions\IEntityForm.cs" />
     <Compile Include="Forms\Abstractions\IEntityFormWithMap.cs" />

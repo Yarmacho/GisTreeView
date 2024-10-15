@@ -1,4 +1,5 @@
 ﻿using AxMapWinGIS;
+using DynamicForms;
 using Entities.Entities;
 using MapWinGIS;
 using System;
@@ -61,6 +62,8 @@ namespace WindowsFormsApp4.Initializers
                     {
                         map.set_ShapeLayerFillTransparency(result.SceneLayerHandle, 0.3f);
                     }
+
+                    
                 }
                 finally
                 {
@@ -69,7 +72,10 @@ namespace WindowsFormsApp4.Initializers
                 }
             }
 
-            return new Map(map, result);
+            var initedMap = new Map(map, result);
+            MapDesigner.ConnectShipsWithGases(initedMap);
+
+            return initedMap;
         }
     }
 
@@ -179,5 +185,8 @@ namespace WindowsFormsApp4.Initializers
         {
             AxMap.ZoomToShape(LayersInfo.GetLayerHandle<T>(), shapeIndex);
         }
+
+        // <ShipId, DrawingId>
+        public Dictionary<int, int> ShipGasLinesIndexes = new Dictionary<int, int>();
     }
 }

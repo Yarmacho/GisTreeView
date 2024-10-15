@@ -1,4 +1,5 @@
 ﻿using Database.DI;
+using DynamicForms;
 using Entities.Entities;
 using GeoDatabase.ORM;
 using GeoDatabase.ORM.DependencyInjection;
@@ -27,11 +28,12 @@ namespace WindowsFormsApp4
             var host = CreateHostBuilder().Build();
             ServiceProvider = host.Services;
             MapInitializer.ShapesPath = Configuration.GetValue<string>("MapsPath");
-            
+            MapDesigner.ServiceProvider = host.Services;
+
             ServiceProvider.GetRequiredService<IDbManager>()
-                .ReCreateAsync().GetAwaiter().GetResult();
-            ServiceProvider.GetRequiredService<GeoDbContext>()
-                .DeleteAllShapes();
+                .CreateAsync().GetAwaiter().GetResult();
+            //ServiceProvider.GetRequiredService<GeoDbContext>()
+            //    .DeleteAllShapes();
 
             Application.Run(ServiceProvider.GetRequiredService<Form1>());
         }

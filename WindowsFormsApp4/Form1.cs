@@ -13,6 +13,7 @@ using Tools;
 using WindowsFormsApp4.Initializers;
 using Forms.Forms;
 using WindowsFormsApp4.Forms.Abstractions;
+using DynamicForms;
 
 namespace WindowsFormsApp4
 {
@@ -44,6 +45,7 @@ namespace WindowsFormsApp4
             axMap1.SendMouseMove = true;
             _initedMap = MapInitializer.Init(axMap1);
             this.TryAddDepthIndication();
+
             if (_initedMap.LayersInfo.BatimetryLayerHandle != -1)
             {
                 var batimetry = _initedMap.Batimetry;
