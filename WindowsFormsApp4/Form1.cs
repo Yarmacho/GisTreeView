@@ -1,6 +1,4 @@
-﻿using DynamicForms;
-using DynamicForms.Factories;
-using Entities;
+﻿using Entities;
 using Interfaces.Database.Abstractions;
 using Interfaces.Database.Repositories;
 using MapWinGIS;
@@ -12,13 +10,24 @@ using System.Windows.Forms;
 using WindowsFormsApp4.TreeNodes;
 using WindowsFormsApp4.TreeNodes.Abstractions;
 using Tools;
+using WindowsFormsApp4.Initializers;
+using Forms.Forms;
+using WindowsFormsApp4.Forms.Abstractions;
 
 namespace WindowsFormsApp4
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, IEntityFormWithMapAndDepthLabel
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly string _path;
+
+        private Initializers.Map _initedMap;
+
+        public event Action<double, double> OnMouseMoveOnMap;
+
+        public Initializers.Map Map => _initedMap;
+
+        public System.Windows.Forms.Label DepthLabel => depth;
 
         public Form1(IServiceProvider serviceProvider, IConfiguration configuration)
         {
@@ -26,7 +35,6 @@ namespace WindowsFormsApp4
             _serviceProvider = serviceProvider;
             _path = configuration.GetValue<string>("MapsPath");
             InitializeComponent();
-            treeView1.Map = axMap1;
             treeView1.ServiceProvider = _serviceProvider;
         }
 
@@ -34,10 +42,12 @@ namespace WindowsFormsApp4
         {
             axMap1.CursorMode = tkCursorMode.cmPan;
             axMap1.SendMouseMove = true;
-            var initResult = MapInitializer.Init(_path, axMap1);
-            if (initResult.BatimetryLayerHandle != -1)
+            _initedMap = MapInitializer.Init(axMap1);
+            this.TryAddDepthIndication();
+            if (_initedMap.LayersInfo.BatimetryLayerHandle != -1)
             {
-                var batimetry = axMap1.get_Image(initResult.BatimetryLayerHandle);
+                var batimetry = _initedMap.Batimetry;
+
                 if (batimetry != null)
                 {
                     var band = batimetry.Band[1];
@@ -56,21 +66,13 @@ namespace WindowsFormsApp4
                     };
                 }
             }
-            if (initResult.SceneLayerHandle != -1)
-            {
-                axMap1.set_ShapeLayerFillTransparency(initResult.SceneLayerHandle, 0.3f);
-            }
-            treeView1.LayersInfo = initResult;
-            var gasShp = axMap1.get_Shapefile(initResult.GasLayerHandle);
+
+            treeView1.Map = _initedMap;
+            var gasShp = _initedMap.GasShapeFile;
 
             var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
             {
-                Map = axMap1,
-                GasLayerHandle = initResult.GasLayerHandle,
-                ProfileLayerHandle = initResult.ProfilLayerHandle,
-                SceneLayerHandle = initResult.SceneLayerHandle,
-                ShipLayerHandle = initResult.ShipLayerHandle,
-                RoutesLayerHandle = initResult.RoutesLayerHandle,
+                Map = _initedMap,
                 ShowExperiments = true,
                 ServiceProvider = _serviceProvider
             });
@@ -78,7 +80,7 @@ namespace WindowsFormsApp4
             treeView1.AfterSelect += TreeView1_AfterSelect;
 
             var layerCheckBoxTop = 0;
-            foreach (var layer in initResult)
+            foreach (var layer in _initedMap.LayersInfo)
             {
                 var checkBox = new CheckBox()
                 {
@@ -89,7 +91,7 @@ namespace WindowsFormsApp4
                 layerCheckBoxTop += 20;
                 checkBox.CheckedChanged += (s, e1) =>
                 {
-                    axMap1.set_LayerVisible(initResult[checkBox.Text], checkBox.Checked);
+                    axMap1.set_LayerVisible(_initedMap.LayersInfo[checkBox.Text], checkBox.Checked);
                 };
                 layersManager.Controls.Add(checkBox);
             }
@@ -114,17 +116,17 @@ namespace WindowsFormsApp4
 
         private async void addExperimentBtn_Click(object sender, EventArgs e)
         {
-            var form = FormFactory.CreateForm<Experiment>(EditMode.Add);
-            if (form.Activate() == DialogResult.OK)
+            var form = new ExperimentForm(EditMode.Add);
+            if (form.ShowDialog() == DialogResult.OK)
             {
-                var entity = form.GetEntity<Experiment>();
+                var entity = form.Entity;
 
                 var repository = GetService<IExperimentsRepository>();
                 await repository.AddAsync(entity);
                 if (await repository.SaveChanges())
                 {
-                    var node = new ExperimentTreeNode(entity, GetService<IRepositoriesProvider>());
-                    node.SetMap(axMap1);
+                    var node = new ExperimentTreeNode(entity);
+                    node.SetMap(_initedMap);
                     treeView1.Nodes.Add(node);
                 }
             }
@@ -134,14 +136,10 @@ namespace WindowsFormsApp4
         {
             treeView1.Nodes.Clear();
 
+            _initedMap = MapInitializer.Init(axMap1);
             var nodes = await new MapObjectsTreeBuilder().BuidNodes(new BuildNodesParams()
             {
-                Map = axMap1,
-                GasLayerHandle = treeView1.LayersInfo.GasLayerHandle,
-                ProfileLayerHandle = treeView1.LayersInfo.ProfilLayerHandle,
-                SceneLayerHandle = treeView1.LayersInfo.SceneLayerHandle,
-                ShipLayerHandle = treeView1.LayersInfo.ShipLayerHandle,
-                RoutesLayerHandle = treeView1.LayersInfo.RoutesLayerHandle,
+                Map = _initedMap,
                 ShowExperiments = true,
                 ServiceProvider = _serviceProvider
             });

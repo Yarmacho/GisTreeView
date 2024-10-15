@@ -9,8 +9,8 @@ using WindowsFormsApp4.TreeNodes.Abstractions;
 namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
     internal abstract class ShapeNodesBuilder<TNode, TEntity> : IMapTreeNodesBuilder
-        where TNode : ShapeTreeNode<TEntity>
-        where TEntity : EntityBase, new()
+        where TNode : ShapeTreeNode<TEntity, int>
+        where TEntity : EntityBase<int>, new()
     {
         public abstract ValueTask<IEnumerable<TNode>> BuildNodes(BuildNodesParams buildNodesParams);
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33529.622
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp4", "WindowsFormsApp4\WindowsFormsApp4.csproj", "{1B86E171-7494-4CBE-940F-F28B41C07C8A}"
 EndProject
@@ -11,9 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{91222CED-EB60-4E3E-9AA9-190E523A4F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicForms", "DynamicForms\DynamicForms.csproj", "{A6439AD8-FB0E-4298-B48D-AD7A895514D9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools", "Tools\Tools.csproj", "{C9F344AD-9207-4205-91AC-05D48B041877}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoDatabase.ORM", "GeoDatabase.ORM\GeoDatabase.ORM.csproj", "{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,18 +73,6 @@ Global
 		{91222CED-EB60-4E3E-9AA9-190E523A4F8D}.Release|x64.Build.0 = Release|Any CPU
 		{91222CED-EB60-4E3E-9AA9-190E523A4F8D}.Release|x86.ActiveCfg = Release|Any CPU
 		{91222CED-EB60-4E3E-9AA9-190E523A4F8D}.Release|x86.Build.0 = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x64.Build.0 = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Debug|x86.Build.0 = Debug|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x64.ActiveCfg = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x64.Build.0 = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x86.ActiveCfg = Release|Any CPU
-		{A6439AD8-FB0E-4298-B48D-AD7A895514D9}.Release|x86.Build.0 = Release|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -97,6 +85,18 @@ Global
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Release|x64.Build.0 = Release|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Release|x86.ActiveCfg = Release|Any CPU
 		{C9F344AD-9207-4205-91AC-05D48B041877}.Release|x86.Build.0 = Release|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Debug|x86.Build.0 = Debug|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Release|x64.Build.0 = Release|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Release|x86.ActiveCfg = Release|Any CPU
+		{ED49EF6E-3F40-4BB5-A287-7BF36E5A93CE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

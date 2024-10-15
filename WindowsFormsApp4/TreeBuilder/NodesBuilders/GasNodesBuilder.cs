@@ -1,5 +1,8 @@
 ﻿using Entities.Entities;
+using GeoDatabase.ORM;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using WindowsFormsApp4.TreeNodes;
 
@@ -20,20 +23,14 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
         public override async ValueTask<IEnumerable<GasTreeNode>> BuildNodes(BuildNodesParams buildNodesParams)
         {
             var nodes = new Dictionary<int, GasTreeNode>();
-            var shapefile = buildNodesParams.Map.get_Shapefile(buildNodesParams.GasLayerHandle);
-            for (int i = 0; i < shapefile.NumShapes; i++)
+            var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
+            foreach (var gas in dbContext.Set<Gas>().ToList())
             {
-                var id = GetProperty<int>(shapefile, i, "Id");
-                if (id == 0)
-                {
-                    continue;
-                }
+                var shapeIndex = dbContext.ChangeTracker.GetShapeIndex(gas);
+                var node = new GasTreeNode(gas);
+                nodes[gas.Id] = node;
 
-                var node = new GasTreeNode(shapefile, i, buildNodesParams.GasLayerHandle);
-                nodes[id] = node;
-
-                var experimentId = GetProperty<int>(shapefile, i, "Experiment");
-                if (_experimentNodes.TryGetValue(experimentId, out var experimentTreeNode))
+                if (_experimentNodes.TryGetValue(gas.ExperimentId, out var experimentTreeNode))
                 {
                     experimentTreeNode.Nodes.Add(node);
                 }
@@ -42,6 +39,11 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
             if (nodes.Count > 0 && buildNodesParams.SceneLayerHandle != -1)
             {
                 await new SceneNodesBuider(nodes).BuildNodes(buildNodesParams);
+            }
+
+            foreach (var node in nodes.Values)
+            {
+                node.SetMap(buildNodesParams.Map);
             }
 
             return nodes.Values;

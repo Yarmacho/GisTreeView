@@ -1,28 +1,25 @@
 ﻿using AxMapWinGIS;
-using DynamicForms.Factories;
 using Entities;
+using GeoDatabase.ORM;
+using GeoDatabase.ORM.Set.Extensions;
 using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WindowsFormsApp4.ShapeConverters;
+using WindowsFormsApp4.Forms.Abstractions;
 
 namespace WindowsFormsApp4.TreeNodes.Abstractions
 {
-    internal abstract class ShapeTreeNode<TEntity> : MapTreeNodeBase<TEntity>, INodeWithMap, IFocusable
-        where TEntity : EntityBase, new()
+    internal abstract class ShapeTreeNode<TEntity, TId> : MapTreeNodeBase<TEntity>, INodeWithMap, IFocusable
+        where TEntity : EntityBase<TId>, new()
     {
-        protected readonly Shapefile Shapefile;
-        protected readonly int ShapeIndex;
-        protected readonly int LayerHandle;
+        Initializers.Map INodeWithMap.Map => Map;
 
-        AxMap INodeWithMap.Map => Map;
+        protected TEntity Entity { get; }
 
-        protected ShapeTreeNode(Shapefile shapefile, int shapeIndex, int layerHandle)
+        protected ShapeTreeNode(TEntity entity)
         {
-            Shapefile = shapefile;
-            ShapeIndex = shapeIndex;
-            LayerHandle = layerHandle;
+            Entity = entity;
         }
 
         public override ValueTask Delete()
@@ -33,31 +30,25 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
                 return new ValueTask(Task.CompletedTask);
             }
 
-            Shapefile.StartEditingShapes();
-            if (Shapefile.EditDeleteShape(ShapeIndex) && Shapefile.Save())
-            {
-                Remove();
-            }
-            Shapefile.StopEditingShapes();
+            var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+            context.Set<TEntity>().Delete(Entity);
+            context.SaveChanges();
 
             return new ValueTask(Task.CompletedTask);
         }
 
         public override ValueTask Update()
         {
-            var converter = TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TEntity>>();
-
-            var entity = converter.FromShapeFile(Shapefile, ShapeIndex);
-
-            var form = FormFactory.CreateFormWithMap(entity, Shapefile, Tools.EditMode.Edit);
-            if (form.Activate() != System.Windows.Forms.DialogResult.OK)
+            var form = FormsSelector.Select(Entity, Tools.EditMode.Edit);
+            if (form.ShowDialog() != DialogResult.OK)
             {
                 return new ValueTask();
             }
 
-            entity = form.GetEntity<TEntity>();
-            converter.WriteToShapeFile(Shapefile, ShapeIndex, entity);
-            OnUpdate(entity);
+            var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+            context.Set<TEntity>().Update(Entity);
+            OnUpdate(Entity);
+            context.SaveChanges();
 
             return new ValueTask();
         }
@@ -65,16 +56,19 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
         public void Focus()
         {
-            Map.ZoomToShape(LayerHandle, ShapeIndex);
+            var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
+            var entity = context.Set<TEntity>().FirstOrDefault(e => e.Id.Equals(Entity.Id));
+
+            var shapeIndex = context.ChangeTracker.GetShapeIndex(entity);
+            if (shapeIndex != -1)
+            {
+                Map.ZoomToShape<TEntity>(shapeIndex);
+            }
         }
 
         public override string GetDescription()
         {
-            var converter = TreeView.ServiceProvider.GetRequiredService<IShapeEntityConverter<TEntity>>();
-
-            var entity = converter.FromShapeFile(Shapefile, ShapeIndex);
-
-            return entity.ToString();
+            return Entity?.ToString();
         }
     }
 }

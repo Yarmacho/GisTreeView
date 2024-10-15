@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Tools
@@ -90,6 +91,29 @@ namespace Tools
             }
 
             return valueType != null;
+        }
+
+        public static bool Implements(object value, Type type)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            var valueType = value.GetType();
+            return Implements(valueType, type);
+        }
+
+        public static bool Implements(Type valueType, Type type)
+        {
+            if (!type.IsInterface)
+            {
+                throw new ArgumentException("Interface type expected", nameof(type));
+            }
+
+            var interfaces = valueType.GetInterfaces();
+
+            return interfaces.Contains(type);
         }
     }
 }
