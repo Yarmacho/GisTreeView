@@ -32,7 +32,11 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
 
             var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
             context.Set<TEntity>().Delete(Entity);
-            context.SaveChanges();
+            if (context.SaveChanges())
+            {
+                TreeView.Redraw();
+                Remove();
+            }
 
             return new ValueTask(Task.CompletedTask);
         }

@@ -62,8 +62,6 @@ namespace WindowsFormsApp4.Initializers
                     {
                         map.set_ShapeLayerFillTransparency(result.SceneLayerHandle, 0.3f);
                     }
-
-                    
                 }
                 finally
                 {

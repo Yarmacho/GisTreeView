@@ -40,13 +40,15 @@
             this.axMap1 = new AxMapWinGIS.AxMap();
             this.selectFromDict = new System.Windows.Forms.Button();
             this.submit = new System.Windows.Forms.Button();
+            this.length = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
             // coordY
             // 
             this.coordY.AutoSize = true;
-            this.coordY.Location = new System.Drawing.Point(53, 204);
+            this.coordY.Location = new System.Drawing.Point(61, 327);
             this.coordY.Name = "coordY";
             this.coordY.Size = new System.Drawing.Size(35, 13);
             this.coordY.TabIndex = 17;
@@ -55,7 +57,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(11, 204);
+            this.label5.Location = new System.Drawing.Point(19, 327);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(14, 13);
             this.label5.TabIndex = 16;
@@ -64,7 +66,7 @@
             // coordX
             // 
             this.coordX.AutoSize = true;
-            this.coordX.Location = new System.Drawing.Point(53, 172);
+            this.coordX.Location = new System.Drawing.Point(61, 295);
             this.coordX.Name = "coordX";
             this.coordX.Size = new System.Drawing.Size(35, 13);
             this.coordX.TabIndex = 15;
@@ -73,7 +75,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 172);
+            this.label3.Location = new System.Drawing.Point(20, 295);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 14;
@@ -140,11 +142,30 @@
             this.submit.Text = "Create";
             this.submit.UseVisualStyleBackColor = true;
             // 
+            // length
+            // 
+            this.length.Location = new System.Drawing.Point(15, 199);
+            this.length.Name = "length";
+            this.length.Size = new System.Drawing.Size(100, 20);
+            this.length.TabIndex = 21;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Enabled = false;
+            this.label4.Location = new System.Drawing.Point(12, 172);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(40, 13);
+            this.label4.TabIndex = 20;
+            this.label4.Text = "Length";
+            // 
             // ShipForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(890, 450);
+            this.Controls.Add(this.length);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.submit);
             this.Controls.Add(this.selectFromDict);
             this.Controls.Add(this.coordY);
@@ -177,5 +198,7 @@
         private AxMapWinGIS.AxMap axMap1;
         private System.Windows.Forms.Button selectFromDict;
         private System.Windows.Forms.Button submit;
+        private System.Windows.Forms.TextBox length;
+        private System.Windows.Forms.Label label4;
     }
 }

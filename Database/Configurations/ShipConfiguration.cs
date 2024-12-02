@@ -16,6 +16,7 @@ namespace Database.Configurations
             builder.Property(s => s.SceneId).HasColumnName("SCENEID");
             builder.Property(s => s.X);
             builder.Property(s => s.Y);
+            builder.Property(s => s.Lenght);
             builder.Ignore(r => r.Shape);
 
             builder.HasKey(s => s.Id);

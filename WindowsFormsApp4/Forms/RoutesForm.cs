@@ -72,12 +72,23 @@ namespace WindowsFormsApp4.Forms
 
             AfterShapeValid += (shape) =>
             {
+                if (shape.numPoints >= 3) 
+                {
+                    var shipPoint = ship.Shape.Point[0];
+
+                    var utils = new Utils();
+                    var angle1 = utils.GetAngle(shipPoint, 
+                        shape.Point[shape.numPoints - 2]);
+                    var angle2 = utils.GetAngle(shipPoint, 
+                        shape.Point[shape.numPoints - 1]);
+                }
+
                 route.Points.Add(new RoutePoint()
                 {
                     RouteId = route.Id,
                     Id = route.Points.Count,
-                    X = shape.Point[0].x,
-                    Y = shape.Point[0].y
+                    X = shape.Point[shape.numPoints - 1].x,
+                    Y = shape.Point[shape.numPoints - 1].y
                 });
             };
         }

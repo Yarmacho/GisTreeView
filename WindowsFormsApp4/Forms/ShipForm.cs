@@ -8,8 +8,6 @@ using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.Extensions;
@@ -26,6 +24,10 @@ namespace WindowsFormsApp4.Forms
             Map.SendMouseMove = true;
             AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
+            if (editMode == EditMode.Edit)
+            {
+                submit.Text = "Update";
+            }
 
             this.ConfigureMouseDownEvent();
             Map.CursorMode = tkCursorMode.cmAddShape;
@@ -78,7 +80,12 @@ namespace WindowsFormsApp4.Forms
                 return shape.Intersects(sceneShape);
             };
 
+            name.Text = Entity.Name;
+            length.Text = Entity.Lenght.ToString();
+            coordX.Text = Entity.X.ToString();
+            coordY.Text = Entity.Y.ToString();
             name.TextChanged += (s, e) => Entity.Name = name.Text;
+            length.TextChanged += (s, e) => Entity.Lenght = TypeTools.Convert<double>(length.Text);
 
             AfterShapeValid += (shape) =>
             {
@@ -194,6 +201,7 @@ namespace WindowsFormsApp4.Forms
             Entity.Name = selectedShip.Name;
             Entity.X = selectedShip.X;
             Entity.Y = selectedShip.Y;
+            Entity.Lenght = selectedShip.Lenght;
 
             var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
             context.Set<Ship>().Add(Entity);
