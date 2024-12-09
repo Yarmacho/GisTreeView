@@ -1,5 +1,6 @@
 ﻿using AxMapWinGIS;
 using DynamicForms.Abstractions;
+using Entities.Contracts;
 using Entities.Entities;
 using GeoDatabase.ORM;
 using GeoDatabase.ORM.Set.Extensions;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4;
+using WindowsFormsApp4.Events;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
 using Point = MapWinGIS.Point;
@@ -167,6 +169,12 @@ namespace Forms.Forms
 
                 return shape.numPoints != 4;
             };
+
+            OnEntityFormClosed += () =>
+            {
+                Program.ServiceProvider.GetService<IEventBus>()
+                    .Publish(new SceneCreated(Entity.Id));
+            };
         }
 
         private void sceneParametersChanged(object sender, EventArgs e)
@@ -182,7 +190,6 @@ namespace Forms.Forms
             Entity.Side = TypeTools.Convert<double>(side.Text);
             Entity.Angle = TypeTools.Convert<double>(angle.Text);
             Entity.Area = Shape.Area;
-
             Map.Redraw();
         }
 

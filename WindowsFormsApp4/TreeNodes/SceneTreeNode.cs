@@ -1,7 +1,6 @@
 ﻿using Entities.Entities;
-using MapWinGIS;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -47,27 +46,24 @@ namespace WindowsFormsApp4.TreeNodes
             Text = entity.Name;
         }
 
-        public override async ValueTask<bool> AppendChild<TChildEntity, TChildNode>()
+        public override async ValueTask<bool> Delete()
         {
-            if (!await base.AppendChild<TChildEntity, TChildNode>())
+            if (!await base.Delete())
             {
                 return false;
             }
+
+            if (Map.SceneBattimetries.TryGetValue(Entity.Id, out var layerHandle))
+            {
+                var image = Map.AxMap.get_Image(layerHandle);
+                if (File.Exists(image.SourceFilename))
+                {
+                    Map.AxMap.RemoveLayer(layerHandle);
+                    File.Delete(image.SourceFilename);
+                }
+            }
+
             return true;
-
-            //var shape = Shapefile.Shape[ShapeIndex];
-            //if (shape is null)
-            //{
-            //    return false;
-            //} 
-
-            //var battimetry = TreeView.Map.get_Image(TreeView.LayersInfo.BatimetryLayerHandle);
-            //if (battimetry is null)
-            //{
-            //    return true;
-            //}
-
-            //return true;
         }
     }
 }

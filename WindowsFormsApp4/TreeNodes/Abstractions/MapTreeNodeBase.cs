@@ -48,7 +48,7 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
         where TEntity : EntityBase, new()
     {
         protected abstract void OnUpdate(TEntity entity);
-        public abstract ValueTask Delete();
+        public abstract ValueTask<bool> Delete();
         public abstract ValueTask Update();
 
         public virtual async ValueTask<bool> AppendChild<TChildEntity, TChildNode>()

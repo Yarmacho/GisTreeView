@@ -12,9 +12,10 @@ namespace WindowsFormsApp4.Initializers
     {
         internal static string ShapesPath { get; set; }
 
-        public static Map Init(AxMap map)
+        public static Map Init(AxMap map, bool initSceneBattimetry = true)
         {
             var result = new MapInitResult();
+            var sceneBattimetries = new Dictionary<int, int>();
             if (Directory.Exists(ShapesPath))
             {
                 try
@@ -58,6 +59,26 @@ namespace WindowsFormsApp4.Initializers
                         }
                     }
 
+                    if (initSceneBattimetry)
+                    {
+                        int layerHandle = -1;
+                        foreach (var file in Directory.EnumerateFiles(Path.Combine(ShapesPath, "Battimetries")))
+                        {
+                            var image = new Image();
+                            if (image.Open(file, ImageType.ASC_FILE))
+                            {
+                                layerHandle = map.AddLayer(image, false);
+
+                                var fileWithoutExtension = Path.GetFileNameWithoutExtension(file);
+                                var slashIndex = fileWithoutExtension.IndexOf('_');
+                                if (slashIndex > 0 && int.TryParse(fileWithoutExtension.Substring(slashIndex + 1), out var sceneId))
+                                {
+                                    sceneBattimetries.Add(sceneId, layerHandle);
+                                }
+                            }
+                        }
+                    }
+
                     if (result.SceneLayerHandle != -1)
                     {
                         map.set_ShapeLayerFillTransparency(result.SceneLayerHandle, 0.3f);
@@ -70,7 +91,10 @@ namespace WindowsFormsApp4.Initializers
                 }
             }
 
-            var initedMap = new Map(map, result);
+            var initedMap = new Map(map, result)
+            {
+                SceneBattimetries = sceneBattimetries
+            };
             MapDesigner.ConnectShipsWithGases(initedMap);
 
             return initedMap;
@@ -127,6 +151,8 @@ namespace WindowsFormsApp4.Initializers
         public AxMap AxMap { get; }
 
         public MapInitResult LayersInfo { get; }
+
+        public Dictionary<int, int> SceneBattimetries { get; set; }
 
         public Map(AxMap axMap, MapInitResult layersInfo)
         {

@@ -20,12 +20,12 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             Entity = entity;
         }
 
-        public override async ValueTask Delete()
+        public override async ValueTask<bool> Delete()
         {
             if (Nodes.Count != 0)
             {
                 MessageBox.Show("Node has child nodes!");
-                return;
+                return false;
             }
 
             var repository = GetRepository();
@@ -35,6 +35,8 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             {
                 Remove();
             }
+
+            return true;
         }
 
         public override async ValueTask Update()

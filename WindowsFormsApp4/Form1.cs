@@ -14,6 +14,8 @@ using WindowsFormsApp4.Initializers;
 using Forms.Forms;
 using WindowsFormsApp4.Forms.Abstractions;
 using DynamicForms;
+using WindowsFormsApp4.Extensions;
+using WindowsFormsApp4.Events;
 
 namespace WindowsFormsApp4
 {
@@ -45,29 +47,14 @@ namespace WindowsFormsApp4
             axMap1.SendMouseMove = true;
             _initedMap = MapInitializer.Init(axMap1);
             this.TryAddDepthIndication();
-
-            if (_initedMap.LayersInfo.BatimetryLayerHandle != -1)
+            axMap1.MouseMoveEvent += (s, e1) =>
             {
-                var batimetry = _initedMap.Batimetry;
+                var projX = 0d;
+                var projY = 0d;
+                axMap1.PixelToProj(e1.x, e1.y, ref projX, ref projY);
 
-                if (batimetry != null)
-                {
-                    var band = batimetry.Band[1];
-
-                    axMap1.MouseMoveEvent += (s, e1) =>
-                    {
-                        var longtitude = 0d;
-                        var latitude = 0d;
-
-                        axMap1.PixelToProj(e1.x, e1.y, ref longtitude, ref latitude);
-                        batimetry.ProjectionToImage(longtitude, latitude, out int column, out int row);
-
-                        var hasValue = band.Value[column, row, out var depthValue];
-                        depth.AutoSize = true;
-                        depth.Text = hasValue ? $"Depth: {depthValue}" : "Depth: undefined";
-                    };
-                }
-            }
+                OnMouseMoveOnMap.CallAllSubsribers(projX, projY);
+            };
 
             treeView1.Map = _initedMap;
             var gasShp = _initedMap.GasShapeFile;

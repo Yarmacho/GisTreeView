@@ -29,6 +29,7 @@ namespace WindowsFormsApp4
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.axMap1 = new AxMapWinGIS.AxMap();
             this.addExperimentBtn = new System.Windows.Forms.Button();
@@ -39,6 +40,7 @@ namespace WindowsFormsApp4
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.ObjectsTree = new System.Windows.Forms.TabPage();
             this.layersManager = new System.Windows.Forms.TabPage();
+            this.eventsDispathTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.ObjectsTree.SuspendLayout();
@@ -129,6 +131,11 @@ namespace WindowsFormsApp4
             this.layersManager.Text = "Layers manager";
             this.layersManager.UseVisualStyleBackColor = true;
             // 
+            // eventsDispathTimer
+            // 
+            this.eventsDispathTimer.Enabled = true;
+            this.eventsDispathTimer.Interval = 5000;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -162,6 +169,7 @@ namespace WindowsFormsApp4
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage ObjectsTree;
         private System.Windows.Forms.TabPage layersManager;
+        private System.Windows.Forms.Timer eventsDispathTimer;
     }
 }
 
