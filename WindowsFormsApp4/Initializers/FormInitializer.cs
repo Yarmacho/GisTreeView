@@ -67,15 +67,13 @@ namespace WindowsFormsApp4.Initializers
                     }
                     battimetry.ProjectionToImage(x, y, out column, out row);
 
-                    var band = battimetry.ActiveBand == null
-                        ? battimetry.Band[0]
-                        : battimetry.ActiveBand;
+                    var band = battimetry.ActiveBand ?? battimetry.Band[1];
 
                     var depth = 0d;
                     var hasValue = band != null && band.Value[column, row, out depth];
 
                     form.DepthLabel.AutoSize = true;
-                    form.DepthLabel.Text = hasValue ? $"Depth: {depth}" : string.Empty;
+                    form.DepthLabel.Text = hasValue ? $"Depth: {depth}" : $"Depth undefined";
                 };
             }
         }

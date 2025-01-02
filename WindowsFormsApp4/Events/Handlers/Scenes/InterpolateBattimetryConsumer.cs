@@ -11,6 +11,7 @@ using Entities.Contracts;
 using System.Runtime.Remoting.Contexts;
 using WindowsFormsApp4.Initializers;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Events.Handlers
 {
@@ -43,6 +44,8 @@ namespace Events.Handlers
 
             var layerHandle = Program.MainForm.Map.AxMap.AddLayer(sceneBattimetry, false);
             Program.MainForm.Map.SceneBattimetries[scene.Id] = layerHandle;
+
+            MessageBox.Show(Program.MainForm, $"Scene \"{scene.Name ?? scene.Id.ToString()}\"battimetry calculated");
             return new ValueTask();
         }
     }

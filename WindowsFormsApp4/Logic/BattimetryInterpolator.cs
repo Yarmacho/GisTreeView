@@ -1,8 +1,7 @@
-﻿using AxMapWinGIS;
-using MapWinGIS;
+﻿using MapWinGIS;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Tools
 {
@@ -22,11 +21,11 @@ namespace Tools
 
             var step = cellSize;
 
-            var chunksDir = GetBatimetryValueIDWExtent(battimetry, sceneShape, kvadrWidth, step, out int dimX, out int dimY, out double xCorner, out double yCorner);
-            return CombineChunks(chunksDir, sceneId, dimX, dimY, xCorner, yCorner);
+            return GetBatimetryValueIDWExtent(battimetry, sceneId, sceneShape, kvadrWidth,
+                step, out int dimX, out int dimY, out double xCorner, out double yCorner);
         }
 
-        private static string GetBatimetryValueIDWExtent(Image battimetry, Shape sceneShape,
+        private static string GetBatimetryValueIDWExtent(Image battimetry, int sceneId, Shape sceneShape,
             double kvadrWidth, double step, out int dimX, out int dimY, out double xCorner, out double yCorner)
         {
             IGdalRasterBand _band = battimetry.Band[1];
@@ -50,7 +49,7 @@ namespace Tools
             string tempDir = Path.Combine(Path.GetTempPath(), "batimetry_chunks_" + Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempDir);
 
-            // Process data in chunks
+            var chunkStreams = new SortedDictionary<int, FileStream>();
             for (int chunkIndex = 0; chunkIndex < numChunks; chunkIndex++)
             {
                 int startRow = chunkIndex * CHUNK_SIZE;
@@ -62,11 +61,13 @@ namespace Tools
 
                 // Save chunk to temporary file
                 string chunkFile = Path.Combine(tempDir, $"chunk_{chunkIndex}.chunk");
-                SaveChunkToFile(chunkValues, chunkFile);
+                var stream = SaveChunkToFile(chunkValues, chunkFile);
+
+                chunkStreams.Add(chunkIndex, stream);
             }
 
             // Combine all chunks into final result
-            return tempDir;
+            return CombineChunks(chunkStreams.Values, sceneId, dimX, dimY, xCorner, yCorner);
         }
 
         private static double[,] ProcessBatimetryChunk(Image img, IGdalRasterBand _band,
@@ -155,32 +156,30 @@ namespace Tools
             }
         }
 
-        private static void SaveChunkToFile(double[,] chunk, string filePath)
+        private static FileStream SaveChunkToFile(double[,] chunk, string filePath)
         {
-            using (var writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
-            {
-                int rows = chunk.GetLength(0);
-                int cols = chunk.GetLength(1);
-                writer.Write(rows);
-                writer.Write(cols);
+            var fileStream = File.Open(filePath, FileMode.Create);
+            var writer = new BinaryWriter(fileStream);
+            
+            int rows = chunk.GetLength(0);
+            int cols = chunk.GetLength(1);
+            writer.Write(rows);
+            writer.Write(cols);
 
-                for (int i = 0; i < rows; i++)
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
                 {
-                    for (int j = 0; j < cols; j++)
-                    {
-                        writer.Write(chunk[i, j]);
-                    }
+                    writer.Write(chunk[i, j]);
                 }
             }
+
+            fileStream.Seek(0, SeekOrigin.Begin);
+            return fileStream;
         }
 
-        private static string CombineChunks(string tempDir, int sceneId, int totalRows, int totalCols, double xCorner, double yCorner)
+        private static string CombineChunks(IEnumerable<FileStream> chunkStreams, int sceneId, int totalRows, int totalCols, double xCorner, double yCorner)
         {
-            // Get all chunk files sorted by index
-            var chunkFiles = Directory.GetFiles(tempDir, "chunk_*.chunk")
-                .OrderBy(f => int.Parse(Path.GetFileNameWithoutExtension(f).Split('_')[1]))
-                .ToList();
-
             var battimetryPath = Path.Combine(BattimetriesPath, $"Scene_{sceneId}.asc");
             using (var sw = new StreamWriter(battimetryPath))
             {
@@ -191,9 +190,9 @@ namespace Tools
                 sw.WriteLine("cellsize    " + cellSize.ToString());
                 sw.WriteLine("NODATA_value -32768");
 
-                foreach (string chunkFile in chunkFiles)
+                foreach (var stream in chunkStreams)
                 {
-                    using (var reader = new BinaryReader(File.OpenRead(chunkFile)))
+                    using (var reader = new BinaryReader(stream))
                     {
                         int rows = reader.ReadInt32();
                         int cols = reader.ReadInt32();

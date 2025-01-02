@@ -4,9 +4,9 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms.Design;
 using WindowsFormsApp4.Events.Handlers;
 
 namespace WindowsFormsApp4.Events
@@ -59,7 +59,14 @@ namespace WindowsFormsApp4.Events
                     return;
                 }
 
-                await (handler as IEventHandler).Handle(@event);
+                try
+                {
+                    await (handler as IEventHandler).Handle(@event);
+                }
+                catch (Exception ex)
+                {
+                    Debugger.Log(1, "Event handlers", ex.Message);
+                }
             }
         }
     }

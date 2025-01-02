@@ -62,18 +62,22 @@ namespace WindowsFormsApp4.Initializers
                     if (initSceneBattimetry)
                     {
                         int layerHandle = -1;
-                        foreach (var file in Directory.EnumerateFiles(Path.Combine(ShapesPath, "Battimetries")))
+                        var battimetriesPath = Path.Combine(ShapesPath, "Battimetries");
+                        if (Directory.Exists(battimetriesPath))
                         {
-                            var image = new Image();
-                            if (image.Open(file, ImageType.ASC_FILE))
+                            foreach (var file in Directory.EnumerateFiles(battimetriesPath))
                             {
-                                layerHandle = map.AddLayer(image, false);
-
-                                var fileWithoutExtension = Path.GetFileNameWithoutExtension(file);
-                                var slashIndex = fileWithoutExtension.IndexOf('_');
-                                if (slashIndex > 0 && int.TryParse(fileWithoutExtension.Substring(slashIndex + 1), out var sceneId))
+                                var image = new Image();
+                                if (image.Open(file, ImageType.ASC_FILE))
                                 {
-                                    sceneBattimetries.Add(sceneId, layerHandle);
+                                    layerHandle = map.AddLayer(image, false);
+
+                                    var fileWithoutExtension = Path.GetFileNameWithoutExtension(file);
+                                    var slashIndex = fileWithoutExtension.IndexOf('_');
+                                    if (slashIndex > 0 && int.TryParse(fileWithoutExtension.Substring(slashIndex + 1), out var sceneId))
+                                    {
+                                        sceneBattimetries.Add(sceneId, layerHandle);
+                                    }
                                 }
                             }
                         }
