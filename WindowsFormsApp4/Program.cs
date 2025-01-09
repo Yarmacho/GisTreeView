@@ -17,6 +17,7 @@ using WindowsFormsApp4.Events;
 using WindowsFormsApp4.Events.Handlers;
 using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.ShapeConverters;
+using GeoDatabase.ORM;
 
 namespace WindowsFormsApp4
 {
@@ -37,8 +38,8 @@ namespace WindowsFormsApp4
             BattimetryInterpolator.ShapesPath = Configuration.GetValue<string>("MapsPath");
             MapDesigner.ServiceProvider = host.Services;
 
-            ServiceProvider.GetRequiredService<IDbManager>()
-                .CreateAsync().GetAwaiter().GetResult();
+            //ServiceProvider.GetRequiredService<IDbManager>()
+            //    .ReCreateAsync().GetAwaiter().GetResult();
             //ServiceProvider.GetRequiredService<GeoDbContext>()
             //    .DeleteAllShapes();
 

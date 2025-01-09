@@ -2,6 +2,7 @@
 using Entities.Entities;
 using GeoDatabase.ORM;
 using MapWinGIS;
+using MassTransit.Contracts.JobService;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -9,12 +10,16 @@ using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
+using WindowsFormsApp4.Logic;
 using Point = MapWinGIS.Point;
 
 namespace WindowsFormsApp4.Forms
 {
     public partial class RoutesForm : Form, IEntityFormWithMap<Route>
     {
+        private readonly Ship _ship;
+        private readonly Image _battimetry;
+
         public RoutesForm(Route route, EditMode editMode)
         {
             InitializeComponent();
@@ -35,26 +40,28 @@ namespace WindowsFormsApp4.Forms
             var context = Program.ServiceProvider
                 .GetRequiredService<GeoDbContext>();
 
-            var ship = context.Set<Ship>().FirstOrDefault(s => s.Id == route.ShipId);
-            if (ship == null)
+            _ship = context.Set<Ship>().FirstOrDefault(s => s.Id == route.ShipId);
+            if (_ship == null)
             {
                 return;
             }
 
-            var scene = context.Set<Scene>().FirstOrDefault(s => s.Id == ship.SceneId);
+            var scene = context.Set<Scene>().FirstOrDefault(s => s.Id == _ship.SceneId);
             if (scene == null)
             {
                 return;
             }
 
             var shipShape = Map.ShipShapeFile.Shape[
-                context.ChangeTracker.GetShapeIndex(ship)];
+                context.ChangeTracker.GetShapeIndex(_ship)];
 
             this.СreateShape();
             InsertPoint(shipShape.Point[0]);
-
+             
             var sceneShapeIndex = context.ChangeTracker.GetShapeIndex(scene);
             var sceneShape = Map.SceneShapeFile.Shape[sceneShapeIndex];
+
+            _battimetry = Map.AxMap.get_Image(Map.SceneBattimetries[scene.Id]);
 
             Map.ZoomToShape<Scene>(sceneShapeIndex);
             ValidShape += (point, _) =>
@@ -72,18 +79,35 @@ namespace WindowsFormsApp4.Forms
 
             AfterShapeValid += (shape) =>
             {
-                if (shape.numPoints >= 3) 
-                {
-                    var shipPoint = ship.Shape.Point[0];
+                //if (shape.numPoints > 1) 
+                //{
+                //    var routeBuilder = new RouteBuilder(new ShipParameters()
+                //    {
+                //        Length = _ship.Lenght,
+                //        TurnRate = 0.3,
+                //        MaxSpeed = 10,
+                //        Acceleration = 0.3,
+                //        Deceleration = 0.1
+                //    }, _battimetry);
 
-                    var utils = new Utils();
-                    var angle1 = utils.GetAngle(shipPoint, 
-                        shape.Point[shape.numPoints - 2]);
-                    var angle2 = utils.GetAngle(shipPoint, 
-                        shape.Point[shape.numPoints - 1]);
-                }
+                //    var preLastPoint = shape.Point[shape.numPoints - 2];
+                //    var lastPoint = shape.Point[shape.numPoints - 1];
+                //    var routePoints = routeBuilder.CalculateRoutePoints(preLastPoint, lastPoint);
 
-                route.Points.Add(new RoutePoint()
+                //    //shape.DeletePoint(shape.numPoints - 1);
+                //    foreach (var point in routePoints.Skip(1))
+                //    {
+                //        var pointIndex = 0;
+                //        shape.InsertPoint(new Point()
+                //        {
+                //            x = point.X,
+                //            y = point.Y,
+                //            Z = point.Depth
+                //        }, ref pointIndex);
+                //    }
+                //}
+
+                route.Points.Add(new Entities.Entities.RoutePoint()
                 {
                     RouteId = route.Id,
                     Id = route.Points.Count,
@@ -138,8 +162,30 @@ namespace WindowsFormsApp4.Forms
 
         public void InsertPoint(Point point)
         {
-            var pointIndex = 0;
-            Shape.InsertPoint(point, ref pointIndex);
+            if (Shape.numPoints < 1)
+            {
+                var pointIndex = 0;
+                Shape.InsertPoint(point, ref pointIndex);
+            }
+            else
+            {
+                var routeBuilder = new RouteBuilder(new ShipParameters()
+                {
+                    Length = _ship.Lenght,
+                    TurnRate = 0.3,
+                    MaxSpeed = 10,
+                    Acceleration = 0.3,
+                    Deceleration = 0.1
+                }, _battimetry);
+
+                var lastPoint = Shape.Point[Shape.numPoints - 1];
+                var routePoints = routeBuilder.CalculateRoutePoints(lastPoint, point);
+
+                foreach (var routePoint in routePoints)
+                {
+                    Shape.AddPoint(routePoint.X, routePoint.Y);
+                }
+            }
         }
     }
 }

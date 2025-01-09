@@ -77,6 +77,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Xml.Linq" />
@@ -90,6 +91,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\NumericTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Components\NumericTextBox.Designer.cs">
+      <DependentUpon>NumericTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Events\Bus\EventBus.cs" />
     <Compile Include="Events\EventsDispather.cs" />
     <Compile Include="Events\Handlers\Abstractions\EventHandlerBase.cs" />
@@ -146,6 +153,7 @@
     <Compile Include="Initializers\FormInitializer.cs" />
     <Compile Include="Initializers\MapInitializer.cs" />
     <Compile Include="Logic\BattimetryInterpolator.cs" />
+    <Compile Include="Logic\RouteBuilder.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
