@@ -2,7 +2,6 @@
 using Entities.Entities;
 using GeoDatabase.ORM;
 using MapWinGIS;
-using MassTransit.Contracts.JobService;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -11,6 +10,7 @@ using Tools;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.Logic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Point = MapWinGIS.Point;
 
 namespace WindowsFormsApp4.Forms
@@ -115,6 +115,12 @@ namespace WindowsFormsApp4.Forms
                     Y = shape.Point[shape.numPoints - 1].y
                 });
             };
+
+            routePoints.ContextMenu = new ContextMenu();
+
+            var item = new MenuItem("Delete");
+            item.Click += deleteNode;
+            routePoints.ContextMenu.MenuItems.Add(item);
         }
 
         public Route Entity { get; }
@@ -162,10 +168,11 @@ namespace WindowsFormsApp4.Forms
 
         public void InsertPoint(Point point)
         {
+            var pointIndex = 0;
             if (Shape.numPoints < 1)
             {
-                var pointIndex = 0;
                 Shape.InsertPoint(point, ref pointIndex);
+                addToTreeView();
             }
             else
             {
@@ -181,9 +188,69 @@ namespace WindowsFormsApp4.Forms
                 var lastPoint = Shape.Point[Shape.numPoints - 1];
                 var routePoints = routeBuilder.CalculateRoutePoints(lastPoint, point);
 
-                foreach (var routePoint in routePoints)
+                foreach (var routePoint in routePoints.Skip(1))
                 {
-                    Shape.AddPoint(routePoint.X, routePoint.Y);
+                    pointIndex = Shape.AddPoint(routePoint.X, routePoint.Y);
+                    addToTreeView();
+                }
+            }
+
+            void addToTreeView()
+            {
+                routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex));
+            }
+        }
+
+        private void deleteNode(object sender, EventArgs e)
+        {
+            if (routePoints.SelectedNode != null && routePoints.SelectedNode is RoutePointTreeNode routePointTreeNode)
+            {
+                if (routePointTreeNode.PointIndex == 0)
+                {
+                    MessageBox.Show("Start point can not be deleted");
+                    return;
+                }
+
+                var result = MessageBox.Show(
+                    "Ви впевнені, що хочете видалити цей вузол?",
+                    "Підтвердження видалення",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.Yes)
+                {
+                    routePointTreeNode.Remove();
+                    Map.Redraw();
+                }
+            }
+        }
+
+        private class RoutePointTreeNode : TreeNode
+        {
+            private readonly Shape _route;
+            public int PointIndex { get; private set; }
+
+            public RoutePointTreeNode(Shape route, int pointIndex) : base(pointIndex.ToString())
+            {
+                _route = route;
+                PointIndex = pointIndex;
+            }
+
+            public new void Remove()
+            {
+                if (_route.DeletePoint(PointIndex))
+                {
+                    if (PointIndex > 0)
+                    {
+                        foreach (var node in TreeView.Nodes.OfType<RoutePointTreeNode>().Where(n => n.PointIndex > PointIndex))
+                        {
+                            node.PointIndex--;
+                            node.Text = node.PointIndex.ToString();
+                        }
+                    }
+
+                    base.Remove();
                 }
             }
         }
