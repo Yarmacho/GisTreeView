@@ -201,7 +201,15 @@ namespace WindowsFormsApp4.Forms
 
             void addToTreeView(bool isWayPoint)
             {
-                routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
+                if (isWayPoint)
+                {
+                    routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
+                }
+                else
+                {
+                    routePoints.Nodes[routePoints.Nodes.Count - 1]
+                        .Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
+                }
             }
         }
 
@@ -256,59 +264,41 @@ namespace WindowsFormsApp4.Forms
             {
                 if (!IsWayPoint)
                 {
-                    base.Remove();
                     return;
                 }
 
                 if (PointIndex > 0)
                 {
-                    var nodes = TreeView.Nodes.OfType<RoutePointTreeNode>()
-                        .ToList();
+                    var prevNode = TreeView.Nodes.OfType<RoutePointTreeNode>()
+                        .ElementAt(Index - 1);
 
-                    deleteWaypoint(nodes);
+                    deleteNodePoints(this);
+                    _route.DeletePoint(PointIndex);
+                    deleteNodePoints(prevNode);
+
+                    prevNode.Nodes.Clear();
+                    Nodes.Clear();
+                    base.Remove();
+
+                    var pointIndex = prevNode.PointIndex;
+                    foreach (var node in prevNode.TreeView.Nodes.OfType<RoutePointTreeNode>().Where(n => n.Index > prevNode.Index))
+                    {
+                        node.PointIndex = ++pointIndex;
+                        node.Text = node.PointIndex.ToString();
+                        foreach (var childNode in node.Nodes.OfType<RoutePointTreeNode>())
+                        {
+                            childNode.PointIndex = ++pointIndex;
+                            childNode.Text = childNode.PointIndex.ToString();
+                        }
+                    }
                 }
             }
 
-            private void deleteWaypoint(List<RoutePointTreeNode> nodes)
+            private void deleteNodePoints(RoutePointTreeNode node)
             {
-                var nextWayPointIndex = Index;
-                for (var i = Index + 1; i < nodes.Count; i++)
+                foreach (var childNode in node.Nodes.OfType<RoutePointTreeNode>().Reverse())
                 {
-                    if (nodes[i].IsWayPoint)
-                    {
-                        nextWayPointIndex = i;
-                        break;
-                    }
-                }
-
-                var prevWaypointIndex = Index;
-                var prevWaypointPointIndex = Index;
-
-                var startIndex = nextWayPointIndex == Index
-                    ? Index
-                    : nextWayPointIndex - 1;
-
-                for (var i = startIndex; ; i--)
-                {
-                    var node = nodes[i];
-
-                    if ((node.Index != Index && node.IsWayPoint) || node.Index == 0)
-                    {
-                        prevWaypointIndex = node.Index;
-                        prevWaypointPointIndex = node.PointIndex;
-                        break;
-                    }
-
-                    _route.DeletePoint(node.PointIndex);
-                    ((TreeNode)node).Remove();
-                    nodes.Remove(node);
-                }
-
-                for (var i = prevWaypointIndex + 1; i < nodes.Count; i++)
-                {
-                    var node = nodes[i];
-                    node.PointIndex = ++prevWaypointPointIndex;
-                    node.Text = node.PointIndex.ToString();
+                    _route.DeletePoint(childNode.PointIndex);
                 }
             }
         }
