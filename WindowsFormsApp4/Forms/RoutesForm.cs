@@ -2,8 +2,10 @@
 using Entities.Entities;
 using GeoDatabase.ORM;
 using MapWinGIS;
+using MassTransit.Internals.GraphValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Tools;
@@ -172,7 +174,7 @@ namespace WindowsFormsApp4.Forms
             if (Shape.numPoints < 1)
             {
                 Shape.InsertPoint(point, ref pointIndex);
-                addToTreeView();
+                addToTreeView(true);
             }
             else
             {
@@ -183,21 +185,23 @@ namespace WindowsFormsApp4.Forms
                     MaxSpeed = 10,
                     Acceleration = 0.3,
                     Deceleration = 0.1
-                }, _battimetry);
+                }, _battimetry, Map);
 
                 var lastPoint = Shape.Point[Shape.numPoints - 1];
-                var routePoints = routeBuilder.CalculateRoutePoints(lastPoint, point);
+                var routePoints = routeBuilder.CalculateRouteBetweenPoints(lastPoint, point);
 
-                foreach (var routePoint in routePoints.Skip(1))
+                for (var i = 1; i < routePoints.Count; i++)
                 {
+                    var routePoint = routePoints[i];
+
                     pointIndex = Shape.AddPoint(routePoint.X, routePoint.Y);
-                    addToTreeView();
+                    addToTreeView(i == (routePoints.Count - 1));
                 }
             }
 
-            void addToTreeView()
+            void addToTreeView(bool isWayPoint)
             {
-                routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex));
+                routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
             }
         }
 
@@ -211,9 +215,15 @@ namespace WindowsFormsApp4.Forms
                     return;
                 }
 
+                if (!routePointTreeNode.IsWayPoint)
+                {
+                    MessageBox.Show("Only way points can be deleted");
+                    return;
+                }
+
                 var result = MessageBox.Show(
-                    "Ви впевнені, що хочете видалити цей вузол?",
-                    "Підтвердження видалення",
+                    "Are you sure that you want to delete a route point?",
+                    "Delete confirmation",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question
                 );
@@ -229,28 +239,76 @@ namespace WindowsFormsApp4.Forms
         private class RoutePointTreeNode : TreeNode
         {
             private readonly Shape _route;
+            public readonly bool IsWayPoint;
+
             public int PointIndex { get; private set; }
 
-            public RoutePointTreeNode(Shape route, int pointIndex) : base(pointIndex.ToString())
+            public RoutePointTreeNode(Shape route, int pointIndex, bool isWayPoint) : base(pointIndex.ToString())
             {
                 _route = route;
                 PointIndex = pointIndex;
+                IsWayPoint = isWayPoint;
+
+                ForeColor = isWayPoint ? System.Drawing.Color.Black : System.Drawing.Color.DarkGray;
             }
 
             public new void Remove()
             {
-                if (_route.DeletePoint(PointIndex))
+                if (!IsWayPoint)
                 {
-                    if (PointIndex > 0)
+                    base.Remove();
+                    return;
+                }
+
+                if (PointIndex > 0)
+                {
+                    var nodes = TreeView.Nodes.OfType<RoutePointTreeNode>()
+                        .ToList();
+
+                    deleteWaypoint(nodes);
+                }
+            }
+
+            private void deleteWaypoint(List<RoutePointTreeNode> nodes)
+            {
+                var nextWayPointIndex = Index;
+                for (var i = Index + 1; i < nodes.Count; i++)
+                {
+                    if (nodes[i].IsWayPoint)
                     {
-                        foreach (var node in TreeView.Nodes.OfType<RoutePointTreeNode>().Where(n => n.PointIndex > PointIndex))
-                        {
-                            node.PointIndex--;
-                            node.Text = node.PointIndex.ToString();
-                        }
+                        nextWayPointIndex = i;
+                        break;
+                    }
+                }
+
+                var prevWaypointIndex = Index;
+                var prevWaypointPointIndex = Index;
+
+                var startIndex = nextWayPointIndex == Index
+                    ? Index
+                    : nextWayPointIndex - 1;
+
+                for (var i = startIndex; ; i--)
+                {
+                    var node = nodes[i];
+
+                    if ((node.Index != Index && node.IsWayPoint) || node.Index == 0)
+                    {
+                        prevWaypointIndex = node.Index;
+                        prevWaypointPointIndex = node.PointIndex;
+                        break;
                     }
 
-                    base.Remove();
+                    _route.DeletePoint(node.PointIndex);
+                    ((TreeNode)node).Remove();
+                    nodes.Remove(node);
+                }
+
+                for (var i = prevWaypointIndex + 1; i < nodes.Count; i++)
+                {
+                    var node = nodes[i];
+                    node.PointIndex = ++prevWaypointPointIndex;
+                    node.Text = node.PointIndex.ToString();
                 }
             }
         }
