@@ -6,14 +6,16 @@ using MassTransit.Internals.GraphValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Tools;
+using Tools.Extensions;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.Logic;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Point = MapWinGIS.Point;
+using Image = MapWinGIS.Image;
 
 namespace WindowsFormsApp4.Forms
 {
@@ -81,34 +83,6 @@ namespace WindowsFormsApp4.Forms
 
             AfterShapeValid += (shape) =>
             {
-                //if (shape.numPoints > 1) 
-                //{
-                //    var routeBuilder = new RouteBuilder(new ShipParameters()
-                //    {
-                //        Length = _ship.Lenght,
-                //        TurnRate = 0.3,
-                //        MaxSpeed = 10,
-                //        Acceleration = 0.3,
-                //        Deceleration = 0.1
-                //    }, _battimetry);
-
-                //    var preLastPoint = shape.Point[shape.numPoints - 2];
-                //    var lastPoint = shape.Point[shape.numPoints - 1];
-                //    var routePoints = routeBuilder.CalculateRoutePoints(preLastPoint, lastPoint);
-
-                //    //shape.DeletePoint(shape.numPoints - 1);
-                //    foreach (var point in routePoints.Skip(1))
-                //    {
-                //        var pointIndex = 0;
-                //        shape.InsertPoint(new Point()
-                //        {
-                //            x = point.X,
-                //            y = point.Y,
-                //            Z = point.Depth
-                //        }, ref pointIndex);
-                //    }
-                //}
-
                 route.Points.Add(new Entities.Entities.RoutePoint()
                 {
                     RouteId = route.Id,
@@ -174,7 +148,7 @@ namespace WindowsFormsApp4.Forms
             if (Shape.numPoints < 1)
             {
                 Shape.InsertPoint(point, ref pointIndex);
-                addToTreeView(true);
+                addToTreeView(pointIndex, true);
             }
             else
             {
@@ -195,21 +169,21 @@ namespace WindowsFormsApp4.Forms
                     var routePoint = routePoints[i];
 
                     pointIndex = Shape.AddPoint(routePoint.X, routePoint.Y);
-                    addToTreeView(i == (routePoints.Count - 1));
+                    addToTreeView(pointIndex, i == (routePoints.Count - 1));
                 }
             }
+        }
 
-            void addToTreeView(bool isWayPoint)
+        private void addToTreeView(int pointIndex, bool isWayPoint)
+        {
+            if (isWayPoint)
             {
-                if (isWayPoint)
-                {
-                    routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
-                }
-                else
-                {
-                    routePoints.Nodes[routePoints.Nodes.Count - 1]
-                        .Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
-                }
+                routePoints.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
+            }
+            else
+            {
+                routePoints.Nodes[routePoints.Nodes.Count - 1]
+                    .Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, isWayPoint));
             }
         }
 
@@ -238,7 +212,90 @@ namespace WindowsFormsApp4.Forms
 
                 if (result == DialogResult.Yes)
                 {
+                    var nodeIndex = routePointTreeNode.Index;
+
+                    var nextNode = routePointTreeNode.NextNode as RoutePointTreeNode;
+                    var prevNode = routePointTreeNode.PrevNode as RoutePointTreeNode;
+
                     routePointTreeNode.Remove();
+
+                    // Rebuild the route shape
+                    if (nextNode != null) 
+                    {
+                        var endPoint = Shape.Point[nextNode.PointIndex];
+                        var startPoint = Shape.Point[prevNode.PointIndex];
+
+                        var routeBuilder = new RouteBuilder(new ShipParameters()
+                        {
+                            Length = _ship.Lenght,
+                            TurnRate = 0.3,
+                            MaxSpeed = 10,
+                            Acceleration = 0.3,
+                            Deceleration = 0.1
+                        }, _battimetry, Map);
+
+                        var shapeClone = Shape.Clone();
+                        Shape.DeleteAllPoints();
+
+                        var newNodes = new List<RoutePointTreeNode>();
+                        for (var i = 0; i < routePoints.Nodes.Count; i++)
+                        {
+                            var node = routePoints.Nodes[i] as RoutePointTreeNode;
+                            if (node.PointIndex > prevNode.PointIndex)
+                            {
+                                break;
+                            }
+
+                            var point = shapeClone.Point[node.PointIndex];
+                            var pointIndex = Shape.AddPoint(point.x, point.y);
+
+                            var newNode = new RoutePointTreeNode(Shape, pointIndex, true);
+                            newNodes.Add(newNode);
+
+                            foreach (var childNode in node.Nodes.OfType<RoutePointTreeNode>())
+                            {
+                                point = shapeClone.Point[childNode.PointIndex];
+                                pointIndex = Shape.AddPoint(point.x, point.y);
+
+                                newNode.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, false));
+                            }
+                        }
+
+                        var lastNode = newNodes[newNodes.Count - 1];
+                        var route = routeBuilder.CalculateRouteBetweenPoints(startPoint, endPoint);
+                        for (var i = 1; i < route.Count - 1; i++)
+                        {
+                            var routePoint = route[i];
+
+                            var pointIndex = Shape.AddPoint(routePoint.X, routePoint.Y);
+
+                            lastNode.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, false));
+                        }
+
+                        var tempNode = nextNode;
+                        while (tempNode != null)
+                        {
+                            var point = shapeClone.Point[tempNode.PointIndex];
+                            var pointIndex = Shape.AddPoint(point.x, point.y);
+
+                            var newNode = new RoutePointTreeNode(Shape, pointIndex, true);
+                            newNodes.Add(newNode);
+
+                            foreach (var childNode in tempNode.Nodes.OfType<RoutePointTreeNode>())
+                            {
+                                point = shapeClone.Point[childNode.PointIndex];
+                                pointIndex = Shape.AddPoint(point.x, point.y);
+
+                                newNode.Nodes.Add(new RoutePointTreeNode(Shape, pointIndex, false));
+                            }
+
+                            tempNode = tempNode.NextNode as RoutePointTreeNode;
+                        }
+
+                        routePoints.Nodes.Clear();
+                        routePoints.Nodes.AddRange(newNodes.ToArray());
+                    }
+
                     Map.Redraw();
                 }
             }
@@ -269,8 +326,7 @@ namespace WindowsFormsApp4.Forms
 
                 if (PointIndex > 0)
                 {
-                    var prevNode = TreeView.Nodes.OfType<RoutePointTreeNode>()
-                        .ElementAt(Index - 1);
+                    var prevNode = PrevNode as RoutePointTreeNode;
 
                     deleteNodePoints(this);
                     _route.DeletePoint(PointIndex);
