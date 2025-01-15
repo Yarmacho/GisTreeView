@@ -85,7 +85,12 @@ namespace WindowsFormsApp4.Forms
             coordX.Text = Entity.X.ToString();
             coordY.Text = Entity.Y.ToString();
             name.TextChanged += (s, e) => Entity.Name = name.Text;
-            length.TextChanged += (s, e) => Entity.Lenght = TypeTools.Convert<double>(length.Text);
+            length.TextChanged += (s, e) => Entity.Lenght = length.Value;
+            maxSpeed.TextChanged += (s, e) => Entity.MaxSpeed = maxSpeed.Value;
+            turnRate.TextChanged += (s, e) => Entity.TurnRate = turnRate.Value;
+            deceleration.TextChanged += (s, e) => Entity.Deceleration = deceleration.Value;
+            acceleration.TextChanged += (s, e) => Entity.Acceleration = acceleration.Value;
+            width.TextChanged += (s, e) => Entity.Width = width.Value;
 
             AfterShapeValid += (shape) =>
             {
@@ -202,6 +207,11 @@ namespace WindowsFormsApp4.Forms
             Entity.X = selectedShip.X;
             Entity.Y = selectedShip.Y;
             Entity.Lenght = selectedShip.Lenght;
+            Entity.Width = selectedShip.Width;
+            Entity.TurnRate = selectedShip.TurnRate;
+            Entity.Acceleration = selectedShip.Acceleration;
+            Entity.Deceleration = selectedShip.Deceleration;
+            Entity.MaxSpeed = selectedShip.MaxSpeed;
 
             var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
             context.Set<Ship>().Add(Entity);
