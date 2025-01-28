@@ -34,13 +34,13 @@ namespace WindowsFormsApp4
             {
                 return new ExperimentsNodesBuilder();
             }
+            else if (buildNodesParams.SceneLayerHandle != -1)
+            {
+                return new SceneNodesBuider(new Dictionary<int, ExperimentTreeNode>());
+            }
             else if (buildNodesParams.GasLayerHandle != -1)
             {
                 return new GasNodesBuilder();
-            }
-            else if (buildNodesParams.SceneLayerHandle != -1)
-            {
-                return new SceneNodesBuider(new Dictionary<int, GasTreeNode>());
             }
             else if (buildNodesParams.ShipLayerHandle != -1)
             {

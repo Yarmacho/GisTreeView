@@ -102,7 +102,7 @@ namespace WindowsFormsApp4.Forms
                     coordX.Text = point.x.ToString();
                     coordY.Text = point.y.ToString();
 
-                    MapDesigner.ConnectShipWithGas(Map, Entity);
+                    MapDesigner.ConnectShipWithGases(Map, Entity);
                 }
             };
 

@@ -18,6 +18,7 @@ namespace Entities.Entities
 
         [Display(Enabled = false)]
         public double Y { get; set; }
+        public int SceneId { get; set; }
         public Shape Shape { get; set; }
 
         public override string ToString()

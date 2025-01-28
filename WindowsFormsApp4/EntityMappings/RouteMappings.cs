@@ -15,6 +15,7 @@ namespace WindowsFormsApp4.Mappings
             builder.Property(r => r.ShipId).Ignore();
             builder.Property(r => r.Description).Ignore();
             builder.Property(r => r.Points).Ignore();
+            builder.Property(x => x.Shape).Ignore();
         }
     }
 }

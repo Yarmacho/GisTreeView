@@ -214,7 +214,46 @@ namespace WindowsFormsApp4.Initializers
             AxMap.ZoomToShape(LayersInfo.GetLayerHandle<T>(), shapeIndex);
         }
 
-        // <ShipId, DrawingId>
-        public Dictionary<int, int> ShipGasLinesIndexes = new Dictionary<int, int>();
+        // <<ShipId, GasId>, DrawingId>
+        public Dictionary<ShipGasPair, int> ShipGasLinesIndexes = new Dictionary<ShipGasPair, int>();
+    }
+
+    public class ShipGasPair 
+    {
+        public int GasId { get; }
+
+        public int ShipId { get; }
+
+        public ShipGasPair(int gasId, int shipId)
+        {
+            GasId = gasId;
+            ShipId = shipId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) { return false; }
+
+            if (ReferenceEquals(this, obj)) { return true; }
+
+            if (obj.GetType() != this.GetType()) { return false; }
+
+            ShipGasPair other = (ShipGasPair)obj;
+            return GasId == other.GasId && ShipId == other.ShipId;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                const int hashingBase = 397;
+                int hash = 17;
+
+                hash = hash * hashingBase + GasId.GetHashCode();
+                hash = hash * hashingBase + ShipId.GetHashCode();
+
+                return hash;
+            }
+        }
     }
 }

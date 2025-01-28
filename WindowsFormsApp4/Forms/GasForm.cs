@@ -8,7 +8,6 @@ using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4;
@@ -31,28 +30,23 @@ namespace Forms.Forms
             Map.CursorMode = tkCursorMode.cmPan;
             Map.SendMouseMove = true;
 
+
             this.ConfigureMouseDownEvent();
             this.TryAddDepthIndication();
             this.ConfigureMouseMoveEvent();
             this.ConfigureSaveShapeOnFormClosed<Gas, int>();
 
-            var shapefile = Map.GasShapeFile;
-            if (gas.Id != 0)
+            Entity = gas;
+            // TODO: Find another way of resolving dbContext
+            var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
+            var entity = context.Set<Scene>().FirstOrDefault(g => g.Id == gas.SceneId);
+            if (entity != null)
             {
-                // TODO: Find another way of resolving dbContext
-                var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
-                var entity = context.Set<Gas>().FirstOrDefault(g => g.Id == gas.Id) ?? gas;
-                var shapeIndex = context.ChangeTracker.GetShapeIndex(entity);
-                if (shapeIndex != -1)
-                {
-                    Shape = shapefile.Shape[shapeIndex];
-                }
-            }
-            else
-            {
-                Entity = gas;
+                var sceneShapeIndex = context.ChangeTracker.GetShapeIndex(entity);
+                Map.ZoomToShape<Scene>(sceneShapeIndex);
             }
 
+            var shapefile = Map.GasShapeFile;
             Shapefile = this.CreateTempShapefile(shapefile);
 
             if (editMode == EditMode.Add)

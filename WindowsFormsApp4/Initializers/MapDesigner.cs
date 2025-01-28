@@ -1,7 +1,9 @@
 ﻿using Entities.Entities;
 using GeoDatabase.ORM;
+using GeoDatabase.ORM.Set.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using WindowsFormsApp4.Initializers;
@@ -17,36 +19,13 @@ namespace DynamicForms
             var dbContext = ServiceProvider.GetRequiredService<GeoDbContext>();
 
             var ships = dbContext.Set<Ship>().ToList();
-            var scenesShips = ships.ToLookup(s => s.SceneId);
-
-            var sceneIds = scenesShips.Select(s => s.Key).ToList();
-            var gasScenes = dbContext.Set<Scene>().Where(s => sceneIds.Contains(s.Id))
-                .ToDictionary(s => s.GasId, s => s.Id);
-
-            var gases = dbContext.Set<Gas>().Where(g => gasScenes.Keys.Contains(g.Id)).ToList();
-
-            foreach (var gas in gases)
+            foreach (var ship in ships)
             {
-                if (!gasScenes.TryGetValue(gas.Id, out var sceneId))
-                {
-                    continue;
-                }
-
-                var sceneShips = scenesShips[sceneId];
-                if (!sceneShips.Any())
-                {
-                    continue;
-                }
-
-                var gasPoint = gas.Shape.Point[0];
-                foreach (var ship in sceneShips)
-                {
-                    connectShipWithGas(map, ship, gas);
-                }
+                ConnectShipWithGases(map, ship);
             }
         }
 
-        public static int ConnectShipWithGas(Map map, Ship ship)
+        public static void ConnectShipWithGases(Map map, Ship ship)
         {
             var dbContext = ServiceProvider.GetRequiredService<GeoDbContext>();
 
@@ -56,31 +35,28 @@ namespace DynamicForms
                 throw new Exception("Scene not found");
             }
 
-            var gas = dbContext.Set<Gas>().FirstOrDefault(g => g.Id == scene.GasId);
-            if (gas == null)
-            {
-                throw new Exception("Gas not found");
-            }
-
-            return connectShipWithGas(map, ship, gas);
+            var gases = dbContext.Set<Gas>().Where(g => g.SceneId == scene.Id).ToList();
+            connectShipWithGas(map, ship, gases);
         }
 
-        private static int connectShipWithGas(Map map, Ship ship, Gas gas)
+        private static void connectShipWithGas(Map map, Ship ship, List<Gas> gases)
         {
-            var gasPoint = gas.Shape.Point[0];
-            var shipPoint = ship.Shape.Point[0];
-
-            if (map.ShipGasLinesIndexes.TryGetValue(ship.Id, out var drawingIndex))
+            foreach (var gas in gases)
             {
-                map.AxMap.ClearDrawing(drawingIndex);
+                var gasPoint = gas.Shape.Point[0];
+                var shipPoint = ship.Shape.Point[0];
+
+                var key = new ShipGasPair(gas.Id, ship.Id);
+                if (map.ShipGasLinesIndexes.TryGetValue(key, out var drawingIndex))
+                {
+                    map.AxMap.ClearDrawing(drawingIndex);
+                }
+
+                drawingIndex = map.AxMap.NewDrawing(MapWinGIS.tkDrawReferenceList.dlSpatiallyReferencedList);
+                map.ShipGasLinesIndexes[key] = drawingIndex;
+
+                map.AxMap.DrawLineEx(drawingIndex, gasPoint.x, gasPoint.y, shipPoint.x, shipPoint.y, 2, (uint)Color.Red.ToArgb());
             }
-
-            drawingIndex = map.AxMap.NewDrawing(MapWinGIS.tkDrawReferenceList.dlSpatiallyReferencedList);
-            map.ShipGasLinesIndexes[ship.Id] = drawingIndex;
-
-            map.AxMap.DrawLineEx(drawingIndex, gasPoint.x, gasPoint.y, shipPoint.x, shipPoint.y, 2, (uint)Color.Red.ToArgb());
-
-            return drawingIndex;
         }
     }
 }

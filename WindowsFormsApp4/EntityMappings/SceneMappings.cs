@@ -15,6 +15,8 @@ namespace WindowsFormsApp4.Mappings
             builder.Property(x => x.Side).HasColumnName("Shape_Leng");
             builder.Property(x => x.Area).HasColumnName("Shape_Area");
             builder.Property(x => x.Angle).Ignore();
+            builder.Property(x => x.ExperimentId).HasColumnName("ExpId");
+            builder.Property(x => x.Shape).Ignore();
         }
     }
 }

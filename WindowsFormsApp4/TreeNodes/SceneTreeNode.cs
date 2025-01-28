@@ -15,6 +15,8 @@ namespace WindowsFormsApp4.TreeNodes
         {
             Name = scene.Name;
             Text = scene.Name;
+            ImageKey = "scene";
+            SelectedImageKey = "scene";
         }
 
         public IReadOnlyList<ShipTreeNode> ShipNodes => Nodes.OfType<ShipTreeNode>().ToList();
@@ -28,6 +30,7 @@ namespace WindowsFormsApp4.TreeNodes
         {
             var menu = base.BuildContextMenu();
             menu.MenuItems.Add(0, new MenuItem("Add sea object", async (s, e) => await AppendChild<Ship, ShipTreeNode>()));
+            menu.MenuItems.Add(0, new MenuItem("Add gas", async (s, e) => await AppendChild<Gas, GasTreeNode>()));
 
             return menu;
         }
@@ -37,6 +40,10 @@ namespace WindowsFormsApp4.TreeNodes
             if (childEntity is Ship ship)
             {
                 ship.SceneId = Entity.Id;
+            }
+            if (childEntity is Gas gas)
+            {
+                gas.SceneId = Entity.Id;
             }
         }
 

@@ -140,12 +140,14 @@ namespace WindowsFormsApp4.Initializers
             {
                 if (form.Entity is null) 
                 {
-                    throw new Exception("Entity not initialized");
+                    NotificationsManager.Popup("Entity not initialized");
+                    return;
                 }
 
                 if (form.Shape is null || !form.Shape.IsValid)
                 {
-                    throw new Exception("Shape is not valid");
+                    NotificationsManager.Popup("Shape is not valid");
+                    return;
                 }
 
                 var context = Program.ServiceProvider

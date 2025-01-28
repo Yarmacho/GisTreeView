@@ -15,6 +15,8 @@ namespace WindowsFormsApp4.TreeNodes
         {
             Name = entity.Name;
             Text = entity.Name;
+            ImageKey = "experiment";
+            SelectedImageKey = "experiment";
         }
 
         protected override void OnUpdate(Experiment entity)
@@ -27,7 +29,7 @@ namespace WindowsFormsApp4.TreeNodes
         {
             var menu = base.BuildContextMenu();
 
-            menu.MenuItems.Add(0, new MenuItem("Add Gas", async (s, e) => await AppendChild<Gas, GasTreeNode>()));
+            menu.MenuItems.Add(0, new MenuItem("Add scene", async (s, e) => await AppendChild<Scene, SceneTreeNode>()));
 
             return menu;
         }
@@ -37,6 +39,10 @@ namespace WindowsFormsApp4.TreeNodes
             if (childEntity is Gas gas)
             {
                 gas.ExperimentId = ExperimentId;
+            }
+            else if (childEntity is Scene scene)
+            {
+                scene.ExperimentId = ExperimentId;
             }
         }
     }

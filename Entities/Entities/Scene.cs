@@ -9,6 +9,8 @@ namespace Entities.Entities
     {
         public string Name { get; set; }
 
+        public int ExperimentId { get; set; }
+
         [IgnoreProperty(EditMode.Add)]
         public int GasId { get; set; }
 

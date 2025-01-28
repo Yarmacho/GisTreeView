@@ -9,6 +9,8 @@ namespace WindowsFormsApp4.TreeNodes
     {
         public RouteTreeNode(Route route) : base(route)
         {
+            ImageKey = "route";
+            SelectedImageKey = "route";
         }
 
         internal void SetRoute(Route route)
