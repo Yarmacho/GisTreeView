@@ -153,6 +153,9 @@
     <Compile Include="Initializers\FormInitializer.cs" />
     <Compile Include="Initializers\MapInitializer.cs" />
     <Compile Include="Logic\BattimetryInterpolator.cs" />
+    <Compile Include="Logic\Exporters\ExperimentJsonExporter.cs" />
+    <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
+    <Compile Include="Logic\Exporters\ExporterBase.cs" />
     <Compile Include="Logic\RouteBuilder.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>

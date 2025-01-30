@@ -1,22 +1,21 @@
 ﻿using System;
-using Tools;
-using Tools.Attributes;
+using System.Text.Json.Serialization;
 
 namespace Entities
 {
+    [Serializable]
     public class Experiment : EntityBase<int>
     {
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
+        [JsonPropertyName("desc")]
         public string Description { get; set; }
-
-        [IgnoreProperty(EditMode.Add)]
-        public int GasId { get; set; }
 
         public override string ToString()
         {
-            return string.Format("Id: {4}{1}Name: {0}{1}Description: {2}{1}GasId: {3}", Name, Environment.NewLine,
-                Description, GasId, Id);
+            return string.Format("Id: {3}{1}Name: {0}{1}Description: {2}{1}", Name, Environment.NewLine,
+                Description, Id);
         }
     }
 }

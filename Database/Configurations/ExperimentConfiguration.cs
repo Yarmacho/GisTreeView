@@ -14,7 +14,6 @@ namespace Database.Configurations
                 .ValueGeneratedOnAdd();
             builder.Property(e => e.Name).HasColumnName("NAME");
             builder.Property(e => e.Description).HasColumnName("DESC");
-            builder.Property(e => e.GasId).HasColumnName("GASID");
 
             builder.HasKey(e => e.Id);
         }
