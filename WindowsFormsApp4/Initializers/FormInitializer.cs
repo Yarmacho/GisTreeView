@@ -19,14 +19,7 @@ namespace WindowsFormsApp4.Initializers
             {
                 return;
             }
-
-            var mapBattimetry = sceneId.HasValue && form.Map.SceneBattimetries.TryGetValue(sceneId.Value, out var sceneBattimetryLayerHandle)
-                ? form.Map.AxMap.get_Image(sceneBattimetryLayerHandle)
-                : form.Map.Batimetry;
-            if (mapBattimetry is null)
-            {
-                return;
-            }
+            form.DepthLabel.AutoSize = true;
 
             if (form.DepthLabel != null)
             {
@@ -41,7 +34,15 @@ namespace WindowsFormsApp4.Initializers
                     var pointIndex = 0;
                     pointShape.InsertPoint(point, ref pointIndex);
 
-                    var battimetry = mapBattimetry;
+                    var battimetry = sceneId.HasValue && form.Map.SceneBattimetries.TryGetValue(sceneId.Value, out var sceneBattimetryLayerHandle)
+                        ? form.Map.AxMap.get_Image(sceneBattimetryLayerHandle)
+                        : form.Map.Batimetry;
+                    if (battimetry is null)
+                    {
+                        form.DepthLabel.Text = "Depth undefined";
+                        return;
+                    }
+
                     var column = 0;
                     var row = 0;
                     if (!sceneId.HasValue)
@@ -72,8 +73,7 @@ namespace WindowsFormsApp4.Initializers
                     var depth = 0d;
                     var hasValue = band != null && band.Value[column, row, out depth];
 
-                    form.DepthLabel.AutoSize = true;
-                    form.DepthLabel.Text = hasValue ? $"Depth: {depth}" : $"Depth undefined";
+                    form.DepthLabel.Text = hasValue ? $"Depth: {depth}" : "Depth undefined";
                 };
             }
         }
@@ -140,12 +140,14 @@ namespace WindowsFormsApp4.Initializers
             {
                 if (form.Entity is null) 
                 {
-                    throw new Exception("Entity not initialized");
+                    NotificationsManager.Popup("Entity not initialized");
+                    return;
                 }
 
                 if (form.Shape is null || !form.Shape.IsValid)
                 {
-                    throw new Exception("Shape is not valid");
+                    NotificationsManager.Popup("Shape is not valid");
+                    return;
                 }
 
                 var context = Program.ServiceProvider

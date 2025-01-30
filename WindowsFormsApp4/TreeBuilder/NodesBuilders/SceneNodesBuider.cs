@@ -10,10 +10,10 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
     internal class SceneNodesBuider : ShapeNodesBuilder<SceneTreeNode, Scene>
     {
-        private readonly IReadOnlyDictionary<int, GasTreeNode> _gasNodes;
-        public SceneNodesBuider(IReadOnlyDictionary<int, GasTreeNode> gasNodes)
+        private readonly IReadOnlyDictionary<int, ExperimentTreeNode> _experimentNodes;
+        public SceneNodesBuider(IReadOnlyDictionary<int, ExperimentTreeNode> exprimentNodes)
         {
-            _gasNodes = gasNodes;
+            _experimentNodes = exprimentNodes;
         }
 
         public override async ValueTask<IEnumerable<SceneTreeNode>> BuildNodes(BuildNodesParams buildNodesParams)
@@ -26,15 +26,20 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 var node = new SceneTreeNode(scene);
                 nodes[scene.Id] = node;
 
-                if (_gasNodes.TryGetValue(scene.GasId, out var gasNode))
+                if (_experimentNodes.TryGetValue(scene.ExperimentId, out var experimentTreeNode))
                 {
-                    gasNode.AddNode(node);
+                    experimentTreeNode.Nodes.Add(node);
                 }
             }
 
             if (nodes.Count > 0 && buildNodesParams.ShipLayerHandle != -1)
             {
                 await new ShipNodesBuilder(nodes).BuildNodes(buildNodesParams);
+            }
+
+            if (nodes.Count > 0 && buildNodesParams.GasLayerHandle != -1)
+            {
+                await new GasNodesBuilder(nodes).BuildNodes(buildNodesParams);
             }
 
             return nodes.Values;

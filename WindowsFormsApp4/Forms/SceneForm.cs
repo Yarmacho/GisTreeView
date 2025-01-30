@@ -40,9 +40,12 @@ namespace Forms.Forms
             InitializeComponent();
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = false;
-            Map.CursorMode = tkCursorMode.cmPan;
+            Map.CursorMode = tkCursorMode.cmAddShape;
             AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
+
+            addShape.Click += (s, e) => Map.CursorMode = tkCursorMode.cmAddShape;
+            panBtn.Click += (s, e) => Map.CursorMode = tkCursorMode.cmPan;
 
             var context = Program.ServiceProvider
                 .GetRequiredService<GeoDbContext>();
@@ -79,25 +82,13 @@ namespace Forms.Forms
 
         protected void configureFormEvents(GeoDbContext context)
         {
+            this.ConfigureMouseDownEvent();
             this.ConfigureSaveShapeOnFormClosed<Scene, int>();
 
-            if (Entity == null || Entity.GasId == 0)
+            if (Entity == null)
             {
                 return;
             }
-
-            var gas = context.Set<Gas>()
-                .FirstOrDefault(g => g.Id == Entity.GasId);
-            var gasShapeIndex = context.ChangeTracker.GetShapeIndex(gas);
-            if (gasShapeIndex == -1)
-            {
-                throw new Exception("Scene is not associated to a GAS");
-            }
-
-            Map.ZoomToShape<Gas>(gasShapeIndex);
-
-            _sceneCenter = Map.GasShapeFile.Shape[gasShapeIndex]
-                .Point[0];
 
             name.TextChanged += (s, e) => Entity.Name = name.Text;
 
@@ -179,6 +170,12 @@ namespace Forms.Forms
 
         private void sceneParametersChanged(object sender, EventArgs e)
         {
+            if (_sceneCenter == null)
+            {
+                NotificationsManager.Popup("Scene center not selected", MessageBoxIcon.Warning);
+                return;
+            }
+
             buildScene(TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(side.Text));
 
             if (!CallValidateShapeEvents(null))
@@ -195,6 +192,11 @@ namespace Forms.Forms
 
         private void buildScene(double angle, double sideLength)
         {
+            if (_sceneCenter == null)
+            {
+                return;
+            }
+
             if (Shapefile.NumShapes != 0)
             {
                 Shapefile.StartEditingShapes();
@@ -271,7 +273,8 @@ namespace Forms.Forms
 
         public void InsertPoint(Point point)
         {
-            throw new NotImplementedException();
+            _sceneCenter = point;
+            sceneParametersChanged(null, null);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using GeoDatabase.ORM.Mapper.Mappings.Builder;
+using MapWinGIS;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace GeoDatabase.ORM.Mapper.Mappings
@@ -39,6 +41,15 @@ namespace GeoDatabase.ORM.Mapper.Mappings
                 //}
 
                 config.ColumnIndexes.Add(property.Name, index);
+            }
+        }
+
+        private IEnumerable<string> getFieldNames(Shapefile shapefile)
+        {
+            for (int i = 0; i < shapefile.NumFields; i++)
+            {
+                var field = shapefile.Field[i];
+                yield return field.Name;
             }
         }
     }

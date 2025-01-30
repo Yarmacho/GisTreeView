@@ -53,13 +53,16 @@ namespace GeoDatabase.ORM.Database
                 }
 
                 var propertiesToCreate = mapping.ColumnIndexes
-                    .Where(c => c.Value == -1)
+                    .Where(c => c.Value == -1 && !mapping.IgnoredProperties.Contains(c.Key))
                     .Select(c => c.Key)
                     .ToHashSet();
 
                 if (propertiesToCreate.Count > 0)
                 {
-                    mapping.Shapefile.StartEditingTable();
+                    if (!mapping.Shapefile.StartEditingTable())
+                    {
+                        break;
+                    }
 
                     var entityType = mapping.GetType().GetGenericArguments()[0];
                     foreach (var propertyName in propertiesToCreate)
@@ -70,9 +73,9 @@ namespace GeoDatabase.ORM.Database
                             throw new Exception("Invalid mapping property");
                         }
 
-                        if (mapping.ColumnNames.TryGetValue(propertyName, out var columnName))
+                        if (!mapping.ColumnNames.TryGetValue(propertyName, out var columnName))
                         {
-                            throw new Exception("Invalid property");
+                            columnName = propertyName;
                         }
 
                         if (!mapping.ColumnPrecisions.TryGetValue(propertyName, out var precision))
@@ -87,7 +90,8 @@ namespace GeoDatabase.ORM.Database
 
                         var fieldType = getFieldType(property.PropertyType);
 
-                        mapping.Shapefile.EditAddField(columnName, fieldType, precision, length);
+                        var fieldIndex = mapping.Shapefile.EditAddField(columnName, fieldType, precision, length);
+                        mapping.ColumnIndexes[propertyName] = fieldIndex;
                     }
 
                     mapping.Shapefile.StopEditingTable();

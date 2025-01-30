@@ -153,6 +153,9 @@
     <Compile Include="Initializers\FormInitializer.cs" />
     <Compile Include="Initializers\MapInitializer.cs" />
     <Compile Include="Logic\BattimetryInterpolator.cs" />
+    <Compile Include="Logic\Exporters\ExperimentJsonExporter.cs" />
+    <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
+    <Compile Include="Logic\Exporters\ExporterBase.cs" />
     <Compile Include="Logic\RouteBuilder.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
@@ -160,6 +163,11 @@
     <Compile Include="NotificationsManager.cs" />
     <Compile Include="EntityMappings\RouteMappings.cs" />
     <Compile Include="EntityMappings\SceneMappings.cs" />
+    <Compile Include="Properties\Icons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Icons.resx</DependentUpon>
+    </Compile>
     <Compile Include="ShapeConverters\IShapeEntityConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToGasConverter.cs" />
     <Compile Include="ShapeConverters\ShapeToRouteConverter.cs" />
@@ -221,16 +229,10 @@
     <EmbeddedResource Include="MapTreeView.resx">
       <DependentUpon>MapTreeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Include="Properties\Icons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
+      <LastGenOutput>Icons.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -1,4 +1,5 @@
-﻿using Tools;
+﻿using System.Text.Json.Serialization;
+using Tools;
 using Tools.Attributes;
 
 namespace Entities
@@ -6,6 +7,7 @@ namespace Entities
     public abstract class EntityBase { }
     public abstract class EntityBase<TId> : EntityBase
     {
+        [JsonPropertyName("id")]
         [IgnoreProperty(EditMode.Add)]
         public TId Id { get; set; }
 

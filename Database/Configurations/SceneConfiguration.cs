@@ -17,6 +17,7 @@ namespace Database.Configurations
             builder.Property(s => s.Side);
             builder.Property(s => s.Area);
             builder.Property(s => s.Angle);
+            builder.Property(s => s.ExperimentId);
             builder.Ignore(r => r.Shape);
 
             builder.HasKey(s => s.Id);
