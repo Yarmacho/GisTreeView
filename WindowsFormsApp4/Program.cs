@@ -62,16 +62,16 @@ namespace WindowsFormsApp4
 
             MainForm = ServiceProvider.GetRequiredService<Form1>();
 
-            //var cancellationTokenSource = new CancellationTokenSource();
-            //try
-            //{
-            //    InitDispatchEventsScheduler(cancellationTokenSource.Token);
-            Application.Run(MainForm);
-            //}
-            //finally
-            //{
-            //    cancellationTokenSource.Cancel();
-            //}
+            var cancellationTokenSource = new CancellationTokenSource();
+            try
+            {
+                InitDispatchEventsScheduler(cancellationTokenSource.Token);
+                Application.Run(MainForm);
+            }
+            finally
+            {
+                cancellationTokenSource.Cancel();
+            }
         }
 
         public static Form1 MainForm { get; private set; }
