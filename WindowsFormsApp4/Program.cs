@@ -18,6 +18,9 @@ using WindowsFormsApp4.Events.Handlers;
 using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.ShapeConverters;
 using GeoDatabase.ORM;
+using WindowsFormsApp4.Logic;
+using System.IO;
+using MapWinGIS;
 
 namespace WindowsFormsApp4
 {
@@ -35,29 +38,40 @@ namespace WindowsFormsApp4
             var host = CreateHostBuilder().Build();
             ServiceProvider = host.Services;
             MapInitializer.ShapesPath = Configuration.GetValue<string>("MapsPath");
+            MapInitializer.TemperatureProfileFileName = Configuration.GetValue<string>("TemperatureProfileFileName");
+            MapInitializer.SalnityProfileFileName = Configuration.GetValue<string>("SalinityProfileFileName");
+            MapInitializer.CoastFileName = Configuration.GetValue<string>("CoastFileName");
             BattimetryInterpolator.ShapesPath = Configuration.GetValue<string>("MapsPath");
             MapDesigner.ServiceProvider = host.Services;
+
+
+            var battimetryPath = BattimetryInterpolator.ShapesPath;
+
+            //var batimetryFilename = Path.Combine(battimetryPath, "Batimetry.tif");
+            //var temperatureFilename = Path.Combine(battimetryPath, Configuration.GetValue<string>("TemperatureProfileFileName"));
+            //var salnityFilename = Path.Combine(battimetryPath, Configuration.GetValue<string>("SalinityProfileFileName"));
+
+            //new ChinaSeasSalinityConverter().ConvertBathymetry(batimetryFilename, temperatureFilename, salnityFilename);
 
             //ServiceProvider.GetRequiredService<IDbManager>()
             //    .ReCreateAsync().GetAwaiter().GetResult();
             //ServiceProvider.GetRequiredService<GeoDbContext>()
             //    .DeleteAllShapes();
-            ServiceProvider.GetRequiredService<GeoDbContext>()
-                .EnsureShapefilesStructure();
-
+            //ServiceProvider.GetRequiredService<GeoDbContext>()
+            //    .EnsureShapefilesStructure();
 
             MainForm = ServiceProvider.GetRequiredService<Form1>();
 
-            var cancellationTokenSource = new CancellationTokenSource();
-            try
-            {
-                InitDispatchEventsScheduler(cancellationTokenSource.Token);
-                Application.Run(MainForm);
-            }
-            finally
-            {
-                cancellationTokenSource.Cancel();
-            }
+            //var cancellationTokenSource = new CancellationTokenSource();
+            //try
+            //{
+            //    InitDispatchEventsScheduler(cancellationTokenSource.Token);
+            Application.Run(MainForm);
+            //}
+            //finally
+            //{
+            //    cancellationTokenSource.Cancel();
+            //}
         }
 
         public static Form1 MainForm { get; private set; }

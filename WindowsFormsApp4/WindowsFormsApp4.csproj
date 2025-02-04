@@ -152,7 +152,10 @@
     <Compile Include="Initializers\DictionaryInitializers\DictionaryFormInitializer.cs" />
     <Compile Include="Initializers\FormInitializer.cs" />
     <Compile Include="Initializers\MapInitializer.cs" />
+    <Compile Include="Initializers\MapSynchronizer.cs" />
+    <Compile Include="Logic\BathymetryToTemperatureConverter.cs" />
     <Compile Include="Logic\BattimetryInterpolator.cs" />
+    <Compile Include="Logic\ChinaSeasSalinityConverter.cs" />
     <Compile Include="Logic\Exporters\ExperimentJsonExporter.cs" />
     <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
     <Compile Include="Logic\Exporters\ExporterBase.cs" />

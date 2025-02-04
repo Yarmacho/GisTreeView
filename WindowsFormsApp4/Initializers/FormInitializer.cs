@@ -73,7 +73,7 @@ namespace WindowsFormsApp4.Initializers
                     var depth = 0d;
                     var hasValue = band != null && band.Value[column, row, out depth];
 
-                    form.DepthLabel.Text = hasValue ? $"Depth: {depth}" : "Depth undefined";
+                    form.DepthLabel.Text = hasValue ? $"Depth: {-depth}" : "Depth undefined";
                 };
             }
         }
