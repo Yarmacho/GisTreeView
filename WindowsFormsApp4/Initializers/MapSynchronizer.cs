@@ -32,7 +32,7 @@ namespace WindowsFormsApp4.Initializers
 
         private void AttachEventHandlers()
         {
-            _sourceMap.AfterDrawing += OnSourceMapDrawing;
+            _sourceMap.ExtentsChanged += OnExtendsChanged;
             _sourceMap.MouseMoveEvent += (s, e) =>
             {
                 if (OnMouseMove == null)
@@ -49,7 +49,7 @@ namespace WindowsFormsApp4.Initializers
             };
         }
 
-        private void OnSourceMapDrawing(object sender, _DMapEvents_AfterDrawingEvent e)
+        private void OnExtendsChanged(object sender, EventArgs e)
         {
             SynchronizeMaps();
         }
@@ -98,7 +98,7 @@ namespace WindowsFormsApp4.Initializers
 
         public void Detach()
         {
-            _sourceMap.AfterDrawing -= OnSourceMapDrawing;
+            _sourceMap.ExtentsChanged -= OnExtendsChanged;
         }
     }
 
