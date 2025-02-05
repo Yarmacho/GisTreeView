@@ -19,22 +19,6 @@ namespace WindowsFormsApp4.Logic
         public double Weight { get; set; }      // Вага човна в кг
     }
 
-    public class RoutePoint
-    {
-        public RoutePoint(Point point)
-        {
-            X = point.x;
-            Y = point.y;
-        }
-
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Speed { get; set; }           // швидкість в даній точці (м/с)
-        public double Heading { get; set; }         // напрямок руху в радіанах
-        public double Depth { get; set; }           // глибина в точці
-    }
-
-
     internal class RouteBuilder
     {
         private readonly ShipParameters _shipParameters;
@@ -56,32 +40,83 @@ namespace WindowsFormsApp4.Logic
 
         public List<RoutePoint> CalculateRouteBetweenPoints(Point startPoint, Point endPoint, double distanceBetweenPoints = 100d)
         {
-            var result = new List<RoutePoint>();
+            return CreateBaseRoute(startPoint, endPoint);
+        }
 
-            // Відстань між точками в метрах
-            double distance = _map.AxMap.GeodesicDistance(startPoint.x, startPoint.y,
-                endPoint.x, endPoint.y);
+        private List<RoutePoint> CreateBaseRoute(Point start, Point end)
+        {
+            var route = new List<RoutePoint>();
 
-            // Визначаємо кількість проміжних точок
-            // Припустимо, що хочемо мати точку кожні 100 метрів
-            int numberOfPoints = (int)(distance / 100) + 1;
+            // Розрахунок відстані між точками
+            double distance = _map.AxMap.GeodesicDistance(start.x, start.y, end.x, end.y);
+
+            // Визначаємо кількість проміжних точок (кожні 100 метрів)
+            int numberOfPoints = Math.Max((int)(distance / 100), 10);
 
             for (int i = 0; i <= numberOfPoints; i++)
             {
-                // Коефіцієнт інтерполяції від 0 до 1
                 double t = i / (double)numberOfPoints;
 
-                // Лінійна інтерполяція між початковою і кінцевою точкою в проекції карти
-                var point = new Point() 
-                {
-                    x = startPoint.x + (endPoint.x - startPoint.x) * t,
-                        y = startPoint.y + (endPoint.y - startPoint.y) * t
-                };
-
-                result.Add(new RoutePoint(point));
+                // Використовуємо сферичну інтерполяцію для більшої точності
+                var point = InterpolateSpherical(start, end, t);
+                route.Add(new RoutePoint(point));
             }
 
-            return result;
+            return route;
+        }
+
+        private Point InterpolateSpherical(Point start, Point end, double t)
+        {
+            // Створюємо одну контрольну точку для квадратичної кривої Безьє
+            var controlPoint = GenerateControlPoint(start, end, 0.5); // Контрольна точка на середині шляху
+
+            // Застосовуємо формулу квадратичної кривої Безьє
+            double oneMinusT = 1 - t;
+            double oneMinusTSquared = oneMinusT * oneMinusT;
+            double tSquared = t * t;
+
+            // Обчислюємо координати точки на кривій
+            double x = oneMinusTSquared * start.x +
+                       2 * oneMinusT * t * controlPoint.x +
+                       tSquared * end.x;
+
+            double y = oneMinusTSquared * start.y +
+                       2 * oneMinusT * t * controlPoint.y +
+                       tSquared * end.y;
+
+            return new Point { x = x, y = y };
+        }
+
+        private Point GenerateControlPoint(Point start, Point end, double factor)
+        {
+            // Розраховуємо відстань між точками
+            double distance = _map.AxMap.GeodesicDistance(start.x, start.y, end.x, end.y);
+
+            // Визначаємо зміщення для контрольної точки (адаптивне зміщення)
+            double deviation = distance * Math.Sin(factor * Math.PI) * 0.2; // Синусоїдальне зміщення
+
+            // Створюємо вектор напрямку
+            double dx = end.x - start.x;
+            double dy = end.y - start.y;
+
+            // Нормалізуємо вектор
+            double length = Math.Sqrt(dx * dx + dy * dy);
+            double nx = -dy / length; // Перпендикулярний вектор
+            double ny = dx / length;
+
+            // Визначаємо напрямок відхилення на основі фактору та відстані
+            double sign = Math.Cos(factor * 2 * Math.PI); // Плавна зміна напрямку
+
+            // Обчислюємо проміжну позицію з урахуванням кривизни Землі
+            double midX = start.x + dx * factor;
+            double midY = start.y + dy * factor;
+
+            // Додаємо відхилення для створення більш природної кривої
+            return new Point
+            {
+                x = midX + nx * deviation * sign,
+                y = midY + ny * deviation * sign
+            };
         }
     }
 }
