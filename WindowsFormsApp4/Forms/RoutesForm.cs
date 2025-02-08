@@ -27,6 +27,7 @@ namespace WindowsFormsApp4.Forms
         public RoutesForm(Route route, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Entity = route;
 
             AcceptButton = submit;
@@ -40,6 +41,8 @@ namespace WindowsFormsApp4.Forms
             Shapefile = this.CreateTempShapefile(Map.RoutesShapeFile);
             this.ConfigureMouseDownEvent();
             this.ConfigureSaveShapeOnFormClosed<Route, int>();
+            addShape.Click += (s, e) => Map.CursorMode = tkCursorMode.cmAddShape;
+            panBtn.Click += (s, e) => Map.CursorMode = tkCursorMode.cmPan;
 
             var context = Program.ServiceProvider
                 .GetRequiredService<GeoDbContext>();
@@ -55,6 +58,8 @@ namespace WindowsFormsApp4.Forms
             {
                 return;
             }
+
+            _routeBuilder = new RouteBuilder(new ShipParameters(_ship), _battimetry, Map);
 
             var shipShape = Map.ShipShapeFile.Shape[
                 context.ChangeTracker.GetShapeIndex(_ship)];
@@ -109,6 +114,8 @@ namespace WindowsFormsApp4.Forms
 
         public Initializers.Map Map { get; }
 
+        private RouteBuilder _routeBuilder;
+
         public Shapefile Shapefile { get; }
 
         public event Action<Point> OnMapMouseDown;
@@ -152,17 +159,8 @@ namespace WindowsFormsApp4.Forms
             }
             else
             {
-                var routeBuilder = new RouteBuilder(new ShipParameters()
-                {
-                    Length = _ship.Lenght,
-                    TurnRate = 0.3,
-                    MaxSpeed = 10,
-                    Acceleration = 0.3,
-                    Deceleration = 0.1
-                }, _battimetry, Map);
-
                 var lastPoint = Shape.Point[Shape.numPoints - 1];
-                var routePoints = routeBuilder.CalculateRouteBetweenPoints(lastPoint, point);
+                var routePoints = _routeBuilder.CalculateRouteBetweenPoints(lastPoint, point);
 
                 for (var i = 1; i < routePoints.Count; i++)
                 {
@@ -225,14 +223,7 @@ namespace WindowsFormsApp4.Forms
                         var endPoint = Shape.Point[nextNode.PointIndex];
                         var startPoint = Shape.Point[prevNode.PointIndex];
 
-                        var routeBuilder = new RouteBuilder(new ShipParameters()
-                        {
-                            Length = _ship.Lenght,
-                            TurnRate = 0.3,
-                            MaxSpeed = 10,
-                            Acceleration = 0.3,
-                            Deceleration = 0.1
-                        }, _battimetry, Map);
+                        _routeBuilder = new RouteBuilder(new ShipParameters(_ship), _battimetry, Map);
 
                         var shapeClone = Shape.Clone();
                         Shape.DeleteAllPoints();
@@ -262,7 +253,7 @@ namespace WindowsFormsApp4.Forms
                         }
 
                         var lastNode = newNodes[newNodes.Count - 1];
-                        var route = routeBuilder.CalculateRouteBetweenPoints(startPoint, endPoint);
+                        var route = _routeBuilder.CalculateRouteBetweenPoints(startPoint, endPoint);
                         for (var i = 1; i < route.Count - 1; i++)
                         {
                             var routePoint = route[i];

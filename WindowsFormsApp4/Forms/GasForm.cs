@@ -22,6 +22,7 @@ namespace Forms.Forms
         public GasForm(Gas gas, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
 

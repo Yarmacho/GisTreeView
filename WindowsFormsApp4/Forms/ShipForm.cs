@@ -20,6 +20,7 @@ namespace WindowsFormsApp4.Forms
         public ShipForm(Ship ship, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = true;
             AcceptButton = submit;
@@ -28,6 +29,9 @@ namespace WindowsFormsApp4.Forms
             {
                 submit.Text = "Update";
             }
+
+            addShape.Click += (s, e) => Map.CursorMode = tkCursorMode.cmAddShape;
+            panBtn.Click += (s, e) => Map.CursorMode = tkCursorMode.cmPan;
 
             this.ConfigureMouseDownEvent();
             Map.CursorMode = tkCursorMode.cmAddShape;

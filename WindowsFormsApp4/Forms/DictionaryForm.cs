@@ -17,6 +17,7 @@ namespace DynamicForms.Forms
         public DictionaryForm(IEnumerable<T> entities)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             AcceptButton = submit;
             submit.DialogResult = DialogResult.OK;
 

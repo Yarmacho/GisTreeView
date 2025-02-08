@@ -29,6 +29,7 @@ namespace Forms.Forms
         private ExperimentForm()
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
         }
