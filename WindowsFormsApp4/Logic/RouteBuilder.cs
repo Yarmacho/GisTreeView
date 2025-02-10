@@ -3,8 +3,7 @@ using MapWinGIS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using WindowsFormsApp4.Initializers;
+using Vector = Entities.Dtos.Vector;
 
 namespace WindowsFormsApp4.Logic
 {
@@ -142,42 +141,41 @@ namespace WindowsFormsApp4.Logic
                 y = start.y + normalizedDirection.Y * controlDistance
             };
         }
-
         private List<RoutePoint> OptimizeRoute(List<RoutePoint> route)
         {
+            var optimizer = new TurnOptimizer(_shipParameters);
             var optimized = new List<RoutePoint>();
 
-            // Згладжування траєкторії за допомогою ковзного середнього
-            int windowSize = 5;
-            for (int i = 0; i < route.Count; i++)
+            // Якщо маршрут занадто короткий для оптимізації
+            if (route.Count < 3)
             {
-                var window = GetWindowPoints(route, i, windowSize);
-                var smoothed = new RoutePoint(new Point
-                {
-                    x = window.Average(p => p.X),
-                    y = window.Average(p => p.Y)
-                });
-                optimized.Add(smoothed);
+                return route;
             }
 
-            return optimized;
-        }
+            // Додаємо першу точку
+            optimized.Add(route[0]);
 
-        private List<RoutePoint> GetWindowPoints(List<RoutePoint> route, int center, int size)
-        {
-            var window = new List<RoutePoint>();
-            int radius = size / 2;
-
-            for (int i = -radius; i <= radius; i++)
+            // Оптимізуємо кожен поворот
+            for (int i = 1; i < route.Count - 1; i++)
             {
-                int index = center + i;
-                if (index >= 0 && index < route.Count)
+                var turnPoints = optimizer.OptimizeTurn(
+                    route[i - 1],
+                    route[i],
+                    route[i + 1]
+                );
+
+                // Додаємо всі точки крім першої та останньої,
+                // щоб уникнути дублювання
+                for (int j = 1; j < turnPoints.Count - 1; j++)
                 {
-                    window.Add(route[index]);
+                    optimized.Add(turnPoints[j]);
                 }
             }
 
-            return window;
+            // Додаємо останню точку
+            optimized.Add(route[route.Count - 1]);
+
+            return optimized;
         }
 
         private class RouteSegment
@@ -185,18 +183,6 @@ namespace WindowsFormsApp4.Logic
             public Point Start { get; set; }
             public Point End { get; set; }
             public Vector Direction { get; set; }  // Напрямок в кінці сегмента
-        }
-
-        private class Vector
-        {
-            public double X { get; set; }
-            public double Y { get; set; }
-
-            public Vector Normalize()
-            {
-                double length = Math.Sqrt(X * X + Y * Y);
-                return new Vector { X = X / length, Y = Y / length };
-            }
         }
     }
 }

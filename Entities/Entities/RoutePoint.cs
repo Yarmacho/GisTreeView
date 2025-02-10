@@ -11,10 +11,14 @@ namespace Entities.Entities
         {
         }
 
-        public RoutePoint(Point point)
+        public RoutePoint(Point point) : this(point.x, point.y)
         {
-            X = point.x;
-            Y = point.y;
+        }
+
+        public RoutePoint(double x, double y)
+        {
+            X = x;
+            Y = y;
         }
 
         [JsonPropertyName("routeId")]

@@ -95,6 +95,7 @@
     <Compile Include="Dtos\RoutePointDto.cs" />
     <Compile Include="Dtos\SceneDto.cs" />
     <Compile Include="Dtos\ShipDto.cs" />
+    <Compile Include="Dtos\Vector.cs" />
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\Experiment.cs" />
     <Compile Include="Entities\Gas.cs" />
