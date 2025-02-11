@@ -11,11 +11,12 @@ using System.Linq;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.Extensions;
+using WindowsFormsApp4.Forms.Abstractions;
 using WindowsFormsApp4.Initializers;
 
 namespace WindowsFormsApp4.Forms
 {
-    public partial class ShipForm : Form, IEntityFormWithMap<Ship>
+    public partial class ShipForm : Form, IEntityFormWithMap<Ship>, IEntityFormWithMapAndDepthLabel<Ship>
     {
         public ShipForm(Ship ship, EditMode editMode)
         {
@@ -110,6 +111,9 @@ namespace WindowsFormsApp4.Forms
                 }
             };
 
+            this.ConfigureMouseMoveEvent();
+            this.TryAddDepthIndication(Entity.SceneId);
+
             Map.AxMap.ZoomToShape(Map.LayersInfo.SceneLayerHandle,
                 getSceneShapeId(Entity.SceneId));
         }
@@ -140,6 +144,8 @@ namespace WindowsFormsApp4.Forms
         public Initializers.Map Map { get; }
 
         public Shapefile Shapefile { get; }
+
+        public System.Windows.Forms.Label DepthLabel => depth;
 
         public event Action<Point> OnMapMouseDown;
         public event Func<Point, Shape, bool> ValidShape;

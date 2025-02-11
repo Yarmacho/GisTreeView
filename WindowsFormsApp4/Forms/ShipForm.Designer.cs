@@ -55,6 +55,7 @@
             this.length = new WindowsFormsApp4.Components.NumericTextBox(this.components);
             this.addShape = new System.Windows.Forms.Button();
             this.panBtn = new System.Windows.Forms.Button();
+            this.depth = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -269,11 +270,21 @@
             this.panBtn.Text = "Pan";
             this.panBtn.UseVisualStyleBackColor = true;
             // 
+            // depth
+            // 
+            this.depth.AutoSize = true;
+            this.depth.Location = new System.Drawing.Point(857, 23);
+            this.depth.Name = "depth";
+            this.depth.Size = new System.Drawing.Size(39, 13);
+            this.depth.TabIndex = 40;
+            this.depth.Text = "Depth:";
+            // 
             // ShipForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(990, 454);
+            this.Controls.Add(this.depth);
             this.Controls.Add(this.addShape);
             this.Controls.Add(this.panBtn);
             this.Controls.Add(this.maxSpeed);
@@ -334,5 +345,6 @@
         private Components.NumericTextBox maxSpeed;
         private System.Windows.Forms.Button addShape;
         private System.Windows.Forms.Button panBtn;
+        private System.Windows.Forms.Label depth;
     }
 }

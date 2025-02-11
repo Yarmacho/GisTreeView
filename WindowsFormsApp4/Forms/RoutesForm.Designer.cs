@@ -34,6 +34,7 @@
             this.routePoints = new System.Windows.Forms.TreeView();
             this.addShape = new System.Windows.Forms.Button();
             this.panBtn = new System.Windows.Forms.Button();
+            this.depth = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -80,11 +81,21 @@
             this.panBtn.Text = "Pan";
             this.panBtn.UseVisualStyleBackColor = true;
             // 
+            // depth
+            // 
+            this.depth.AutoSize = true;
+            this.depth.Location = new System.Drawing.Point(748, 18);
+            this.depth.Name = "depth";
+            this.depth.Size = new System.Drawing.Size(39, 13);
+            this.depth.TabIndex = 41;
+            this.depth.Text = "Depth:";
+            // 
             // RoutesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(886, 450);
+            this.Controls.Add(this.depth);
             this.Controls.Add(this.addShape);
             this.Controls.Add(this.panBtn);
             this.Controls.Add(this.routePoints);
@@ -94,6 +105,7 @@
             this.Text = "TracePointForm";
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -104,5 +116,6 @@
         private System.Windows.Forms.TreeView routePoints;
         private System.Windows.Forms.Button addShape;
         private System.Windows.Forms.Button panBtn;
+        private System.Windows.Forms.Label depth;
     }
 }

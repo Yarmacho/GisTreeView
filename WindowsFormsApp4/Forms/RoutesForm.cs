@@ -16,13 +16,15 @@ using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.Logic;
 using Point = MapWinGIS.Point;
 using Image = MapWinGIS.Image;
+using WindowsFormsApp4.Forms.Abstractions;
 
 namespace WindowsFormsApp4.Forms
 {
-    public partial class RoutesForm : Form, IEntityFormWithMap<Route>
+    public partial class RoutesForm : Form, IEntityFormWithMap<Route>, IEntityFormWithMapAndDepthLabel<Route>
     {
         private readonly Ship _ship;
         private readonly Image _battimetry;
+        private readonly Shape _sceneShape;
 
         public RoutesForm(Route route, EditMode editMode)
         {
@@ -59,8 +61,6 @@ namespace WindowsFormsApp4.Forms
                 return;
             }
 
-            _routeBuilder = new RouteBuilder(new ShipParameters(_ship), _battimetry, Map);
-
             var shipShape = Map.ShipShapeFile.Shape[
                 context.ChangeTracker.GetShapeIndex(_ship)];
 
@@ -68,9 +68,12 @@ namespace WindowsFormsApp4.Forms
             InsertPoint(shipShape.Point[0]);
              
             var sceneShapeIndex = context.ChangeTracker.GetShapeIndex(scene);
-            var sceneShape = Map.SceneShapeFile.Shape[sceneShapeIndex];
+            _sceneShape = Map.SceneShapeFile.Shape[sceneShapeIndex];
 
             _battimetry = Map.AxMap.get_Image(Map.SceneBattimetries[scene.Id]);
+
+            _routeBuilder = new RouteBuilder(new ShipParameters(_ship), _battimetry, Map,
+                _sceneShape);
 
             Map.ZoomToShape<Scene>(sceneShapeIndex);
             ValidShape += (point, _) =>
@@ -83,7 +86,7 @@ namespace WindowsFormsApp4.Forms
                 var pointIndex = 0;
                 shape.InsertPoint(point, ref pointIndex);
 
-                return shape.Intersects(sceneShape);
+                return shape.Intersects(_sceneShape);
             };
 
             AfterShapeValid += (shape) =>
@@ -102,6 +105,9 @@ namespace WindowsFormsApp4.Forms
             var item = new MenuItem("Delete");
             item.Click += deleteNode;
             routePoints.ContextMenu.MenuItems.Add(item);
+
+            this.ConfigureMouseMoveEvent();
+            this.TryAddDepthIndication(scene.Id);
         }
 
         public Route Entity { get; }
@@ -117,6 +123,8 @@ namespace WindowsFormsApp4.Forms
         private RouteBuilder _routeBuilder;
 
         public Shapefile Shapefile { get; }
+
+        public System.Windows.Forms.Label DepthLabel => depth;
 
         public event Action<Point> OnMapMouseDown;
         public event Func<Point, Shape, bool> ValidShape;
@@ -223,7 +231,8 @@ namespace WindowsFormsApp4.Forms
                         var endPoint = Shape.Point[nextNode.PointIndex];
                         var startPoint = Shape.Point[prevNode.PointIndex];
 
-                        _routeBuilder = new RouteBuilder(new ShipParameters(_ship), _battimetry, Map);
+                        _routeBuilder = new RouteBuilder(new ShipParameters(_ship), _battimetry, Map,
+                            _sceneShape);
 
                         var shapeClone = Shape.Clone();
                         Shape.DeleteAllPoints();

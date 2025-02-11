@@ -16,6 +16,7 @@ namespace WindowsFormsApp4.Logic
             MaxSpeed = ship.MaxSpeed;
             Acceleration = ship.Acceleration;
             Deceleration = ship.Deceleration;
+            MinDepth = 10;
         }
 
         public double Length { get; set; }          // довжина човна в метрах
@@ -25,6 +26,7 @@ namespace WindowsFormsApp4.Logic
         public double Deceleration { get; set; }    // уповільнення в м/с²
         public double Width { get; set; }       // Ширина човна в метрах
         public double Weight { get; set; }      // Вага човна в кг
+        public double MinDepth { get; set; }
     }
 
     internal class RouteBuilder
@@ -32,19 +34,20 @@ namespace WindowsFormsApp4.Logic
         private readonly ShipParameters _shipParameters;
         private readonly Image _battimetry;
         private readonly Initializers.Map _map;
-
+        private readonly Shape _scene;
         private List<RouteSegment> _segments = new List<RouteSegment>();
 
         public RouteBuilder(ShipParameters shipParameters, Image battimetry,
-            Initializers.Map map)
+            Initializers.Map map, Shape scene)
         {
             _shipParameters = shipParameters;
             _battimetry = battimetry;
             _map = map;
+            _scene = scene;
         }
 
 
-        public List<RoutePoint> CalculateRouteBetweenPoints(Point startPoint, Point endPoint, double distanceBetweenPoints = 100d)
+        public List<RoutePoint> CalculateRouteBetweenPoints(Point startPoint, Point endPoint)
         {
             var baseRoute = CreateBaseRoute(startPoint, endPoint);
 
@@ -55,6 +58,18 @@ namespace WindowsFormsApp4.Logic
 
         private List<RoutePoint> CreateBaseRoute(Point start, Point end)
         {
+            if (!ValidatePoint(start))
+            {
+                NotificationsManager.Popup("Початкова точка маршруту не відповідає вимогам безпеки");
+                return new List<RoutePoint>();
+            }
+
+            if (!ValidatePoint(end))
+            {
+                NotificationsManager.Popup("Кінцева точка маршруту не відповідає вимогам безпеки");
+                return new List<RoutePoint>();
+            }
+
             var route = new List<RoutePoint>();
 
             // Розрахунок відстані між точками
@@ -72,7 +87,25 @@ namespace WindowsFormsApp4.Logic
 
                 // Використовуємо сферичну інтерполяцію для більшої точності
                 var point = InterpolateSpherical(start, end, t, lastDirection);
-                route.Add(new RoutePoint(point));
+                
+                // Перевіряємо кожну проміжну точку
+                if (!ValidatePoint(point))
+                {
+                    // Спроба знайти безпечну точку поблизу
+                    var safePoint = FindSafePoint(point);
+                    if (safePoint != null)
+                    {
+                        route.Add(new RoutePoint(safePoint));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Неможливо побудувати безпечний маршрут через точку {point.x}, {point.y}");
+                    }
+                }
+                else
+                {
+                    route.Add(new RoutePoint(point));
+                }
             }
 
             return route;
@@ -176,6 +209,129 @@ namespace WindowsFormsApp4.Logic
             optimized.Add(route[route.Count - 1]);
 
             return optimized;
+        }
+
+        private bool ValidatePoint(Point point)
+        {
+            if (!IsPointInScene(point))
+            {
+                return false;
+            }
+
+            if (!IsDepthSufficient(point))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsPointInScene(Point point)
+        {
+            if (_scene == null)
+            {
+                return true;
+            }
+
+            var pointShape = new Shape();
+            pointShape.Create(ShpfileType.SHP_POINT);
+            var pointIndex = pointShape.numPoints;
+            pointShape.InsertPoint(point, pointIndex);
+
+            return _scene.Intersects(pointShape);
+        }
+
+        private bool IsDepthSufficient(Point point)
+        {
+            if (_battimetry == null)
+            {
+                return true;
+            }
+
+            try
+            {
+                // Перетворюємо географічні координати в координати растру
+                _battimetry.ProjectionToImage(point.x, point.y, out var column, out var row);
+
+                var band = _battimetry.ActiveBand ?? _battimetry.Band[1];
+
+                var depth = 0d;
+                var hasValue = band != null && band.Value[column, row, out depth];
+
+                // Перевіряємо чи глибина достатня
+                // Враховуємо, що значення глибини може бути від'ємним
+                return !hasValue || (depth < 0 && Math.Abs(depth) >= _shipParameters.MinDepth);
+            }
+            catch (Exception)
+            {
+                // Якщо виникла помилка при отриманні значення глибини,
+                // вважаємо точку небезпечною
+                return false;
+            }
+        }
+
+        private Point FindSafePoint(Point unsafePoint)
+        {
+            try
+            {
+                if (_scene == null)
+                {
+                    return null;
+                }
+
+                var extents = _scene.Extents;
+
+                // Початковий радіус пошуку - 1% від розміру сцени
+                double sceneSize = Math.Max(extents.xMax - extents.xMin, extents.yMax - extents.yMin);
+                double initialRadius = sceneSize * 0.01;
+                double maxRadius = sceneSize * 0.1; // Максимальний радіус - 10% від розміру сцени
+                double currentRadius = initialRadius;
+
+                const int maxAttempts = 16; // Кількість напрямків пошуку
+
+                while (currentRadius <= maxRadius)
+                {
+                    for (int i = 0; i < maxAttempts; i++)
+                    {
+                        double angle = (2 * Math.PI * i) / maxAttempts;
+                        double dx = currentRadius * Math.Cos(angle);
+                        double dy = currentRadius * Math.Sin(angle);
+
+                        // Перевіряємо точку в поточному напрямку
+                        var testPoint = new Point
+                        {
+                            x = unsafePoint.x + dx,
+                            y = unsafePoint.y + dy
+                        };
+
+                        if (ValidatePoint(testPoint))
+                        {
+                            return testPoint;
+                        }
+
+                        // Перевіряємо точку в протилежному напрямку
+                        testPoint = new Point
+                        {
+                            x = unsafePoint.x - dx,
+                            y = unsafePoint.y - dy
+                        };
+
+                        if (ValidatePoint(testPoint))
+                        {
+                            return testPoint;
+                        }
+                    }
+
+                    currentRadius *= 1.5;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Помилка при пошуку безпечної точки: {ex.Message}");
+                return null;
+            }
         }
 
         private class RouteSegment
