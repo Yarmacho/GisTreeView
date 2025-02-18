@@ -89,6 +89,12 @@ namespace WindowsFormsApp4.Forms
             length.Text = Entity.Lenght.ToString();
             coordX.Text = Entity.X.ToString();
             coordY.Text = Entity.Y.ToString();
+            maxSpeed.Text = Entity.MaxSpeed.ToString();
+            width.Text = Entity.Width.ToString();
+            turnRate.Text = Entity.TurnRate.ToString();
+            deceleration.Text = Entity.Deceleration.ToString();
+            acceleration.Text = Entity.Acceleration.ToString();
+
             name.TextChanged += (s, e) => Entity.Name = name.Text;
             length.TextChanged += (s, e) => Entity.Lenght = length.Value;
             maxSpeed.TextChanged += (s, e) => Entity.MaxSpeed = maxSpeed.Value;

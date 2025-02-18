@@ -87,25 +87,9 @@ namespace WindowsFormsApp4.Logic
 
                 // Використовуємо сферичну інтерполяцію для більшої точності
                 var point = InterpolateSpherical(start, end, t, lastDirection);
-                
-                // Перевіряємо кожну проміжну точку
-                if (!ValidatePoint(point))
-                {
-                    // Спроба знайти безпечну точку поблизу
-                    var safePoint = FindSafePoint(point);
-                    if (safePoint != null)
-                    {
-                        route.Add(new RoutePoint(safePoint));
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Неможливо побудувати безпечний маршрут через точку {point.x}, {point.y}");
-                    }
-                }
-                else
-                {
-                    route.Add(new RoutePoint(point));
-                }
+                    
+                route.Add(new RoutePoint(point));
+
             }
 
             return route;
