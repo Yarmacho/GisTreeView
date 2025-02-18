@@ -160,6 +160,7 @@
     <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
     <Compile Include="Logic\Exporters\ExporterBase.cs" />
     <Compile Include="Logic\RouteBuilder.cs" />
+    <Compile Include="Logic\TurnOptimizer.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
     </Compile>

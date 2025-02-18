@@ -11,15 +11,17 @@ using System.Linq;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.Extensions;
+using WindowsFormsApp4.Forms.Abstractions;
 using WindowsFormsApp4.Initializers;
 
 namespace WindowsFormsApp4.Forms
 {
-    public partial class ShipForm : Form, IEntityFormWithMap<Ship>
+    public partial class ShipForm : Form, IEntityFormWithMap<Ship>, IEntityFormWithMapAndDepthLabel<Ship>
     {
         public ShipForm(Ship ship, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = true;
             AcceptButton = submit;
@@ -28,6 +30,9 @@ namespace WindowsFormsApp4.Forms
             {
                 submit.Text = "Update";
             }
+
+            addShape.Click += (s, e) => Map.CursorMode = tkCursorMode.cmAddShape;
+            panBtn.Click += (s, e) => Map.CursorMode = tkCursorMode.cmPan;
 
             this.ConfigureMouseDownEvent();
             Map.CursorMode = tkCursorMode.cmAddShape;
@@ -84,6 +89,12 @@ namespace WindowsFormsApp4.Forms
             length.Text = Entity.Lenght.ToString();
             coordX.Text = Entity.X.ToString();
             coordY.Text = Entity.Y.ToString();
+            maxSpeed.Text = Entity.MaxSpeed.ToString();
+            width.Text = Entity.Width.ToString();
+            turnRate.Text = Entity.TurnRate.ToString();
+            deceleration.Text = Entity.Deceleration.ToString();
+            acceleration.Text = Entity.Acceleration.ToString();
+
             name.TextChanged += (s, e) => Entity.Name = name.Text;
             length.TextChanged += (s, e) => Entity.Lenght = length.Value;
             maxSpeed.TextChanged += (s, e) => Entity.MaxSpeed = maxSpeed.Value;
@@ -105,6 +116,9 @@ namespace WindowsFormsApp4.Forms
                     MapDesigner.ConnectShipWithGases(Map, Entity);
                 }
             };
+
+            this.ConfigureMouseMoveEvent();
+            this.TryAddDepthIndication(Entity.SceneId);
 
             Map.AxMap.ZoomToShape(Map.LayersInfo.SceneLayerHandle,
                 getSceneShapeId(Entity.SceneId));
@@ -136,6 +150,8 @@ namespace WindowsFormsApp4.Forms
         public Initializers.Map Map { get; }
 
         public Shapefile Shapefile { get; }
+
+        public System.Windows.Forms.Label DepthLabel => depth;
 
         public event Action<Point> OnMapMouseDown;
         public event Func<Point, Shape, bool> ValidShape;

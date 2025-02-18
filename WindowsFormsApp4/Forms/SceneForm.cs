@@ -38,6 +38,7 @@ namespace Forms.Forms
         public SceneForm(Scene scene, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = false;
             Map.CursorMode = tkCursorMode.cmAddShape;
