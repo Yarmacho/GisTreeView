@@ -35,5 +35,6 @@ namespace Entities.Entities
         public double Depth { get; set; }
         public double Temperature { get; set; }
         public double Salinity { get; set; }
+        public TimeSpan TimeOffset { get; set; }
     }
 }

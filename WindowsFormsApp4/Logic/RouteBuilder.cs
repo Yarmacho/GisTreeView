@@ -87,9 +87,9 @@ namespace WindowsFormsApp4.Logic
 
                 // Використовуємо сферичну інтерполяцію для більшої точності
                 var point = InterpolateSpherical(start, end, t, lastDirection);
-                    
-                route.Add(new RoutePoint(point));
+                var routePoint = new RoutePoint(point);
 
+                route.Add(routePoint);
             }
 
             return route;
@@ -223,6 +223,21 @@ namespace WindowsFormsApp4.Logic
             pointShape.InsertPoint(point, pointIndex);
 
             return _scene.Intersects(pointShape);
+        }
+
+        private double calculateAngleBetweenVectors(Vector v1, Vector v2)
+        {
+            // Нормалізація векторів
+            var v1Normalized = v1.Normalize();
+            var v2Normalized = v2.Normalize();
+
+            // Розрахунок кута через скалярний добуток
+            var dotProduct = v1Normalized.X * v2Normalized.X + v1Normalized.Y * v2Normalized.Y;
+
+            // Обмеження значення для уникнення помилок через неточності обчислень
+            dotProduct = Math.Max(-1.0, Math.Min(1.0, dotProduct));
+
+            return Math.Acos(dotProduct);
         }
 
         private bool IsDepthSufficient(Point point)

@@ -38,18 +38,12 @@ namespace WindowsFormsApp4
             this.refresh = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.ObjectsTree = new System.Windows.Forms.TabPage();
+            this.treeView1 = new WindowsFormsApp4.MapTreeView();
             this.layersManager = new System.Windows.Forms.TabPage();
             this.eventsDispathTimer = new System.Windows.Forms.Timer(this.components);
-            this.axMap2 = new AxMapWinGIS.AxMap();
-            this.axMap3 = new AxMapWinGIS.AxMap();
-            this.temperatureLabel = new System.Windows.Forms.Label();
-            this.salnityLabel = new System.Windows.Forms.Label();
-            this.treeView1 = new WindowsFormsApp4.MapTreeView();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.ObjectsTree.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axMap2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.axMap3)).BeginInit();
             this.SuspendLayout();
             // 
             // axMap1
@@ -74,9 +68,9 @@ namespace WindowsFormsApp4
             // entityDesc
             // 
             this.entityDesc.Enabled = false;
-            this.entityDesc.Location = new System.Drawing.Point(3, 444);
+            this.entityDesc.Location = new System.Drawing.Point(794, 55);
             this.entityDesc.Name = "entityDesc";
-            this.entityDesc.Size = new System.Drawing.Size(785, 127);
+            this.entityDesc.Size = new System.Drawing.Size(208, 383);
             this.entityDesc.TabIndex = 4;
             this.entityDesc.Text = "";
             // 
@@ -120,6 +114,15 @@ namespace WindowsFormsApp4
             this.ObjectsTree.Text = "Objects tree";
             this.ObjectsTree.UseVisualStyleBackColor = true;
             // 
+            // treeView1
+            // 
+            this.treeView1.ImageIndex = 0;
+            this.treeView1.Location = new System.Drawing.Point(0, 0);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.SelectedImageIndex = 0;
+            this.treeView1.Size = new System.Drawing.Size(189, 357);
+            this.treeView1.TabIndex = 3;
+            // 
             // layersManager
             // 
             this.layersManager.Location = new System.Drawing.Point(4, 22);
@@ -135,60 +138,11 @@ namespace WindowsFormsApp4
             this.eventsDispathTimer.Enabled = true;
             this.eventsDispathTimer.Interval = 5000;
             // 
-            // axMap2
-            // 
-            this.axMap2.Enabled = true;
-            this.axMap2.Location = new System.Drawing.Point(806, 77);
-            this.axMap2.Name = "axMap2";
-            this.axMap2.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap2.OcxState")));
-            this.axMap2.Size = new System.Drawing.Size(393, 166);
-            this.axMap2.TabIndex = 8;
-            // 
-            // axMap3
-            // 
-            this.axMap3.Enabled = true;
-            this.axMap3.Location = new System.Drawing.Point(806, 272);
-            this.axMap3.Name = "axMap3";
-            this.axMap3.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap3.OcxState")));
-            this.axMap3.Size = new System.Drawing.Size(393, 166);
-            this.axMap3.TabIndex = 9;
-            // 
-            // temperatureLabel
-            // 
-            this.temperatureLabel.AutoSize = true;
-            this.temperatureLabel.Location = new System.Drawing.Point(803, 55);
-            this.temperatureLabel.Name = "temperatureLabel";
-            this.temperatureLabel.Size = new System.Drawing.Size(70, 13);
-            this.temperatureLabel.TabIndex = 10;
-            this.temperatureLabel.Text = "Tempareture:";
-            // 
-            // salnityLabel
-            // 
-            this.salnityLabel.AutoSize = true;
-            this.salnityLabel.Location = new System.Drawing.Point(803, 256);
-            this.salnityLabel.Name = "salnityLabel";
-            this.salnityLabel.Size = new System.Drawing.Size(43, 13);
-            this.salnityLabel.TabIndex = 11;
-            this.salnityLabel.Text = "Salinity:";
-            // 
-            // treeView1
-            // 
-            this.treeView1.ImageIndex = 0;
-            this.treeView1.Location = new System.Drawing.Point(0, 0);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.SelectedImageIndex = 0;
-            this.treeView1.Size = new System.Drawing.Size(189, 357);
-            this.treeView1.TabIndex = 3;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1211, 583);
-            this.Controls.Add(this.salnityLabel);
-            this.Controls.Add(this.temperatureLabel);
-            this.Controls.Add(this.axMap3);
-            this.Controls.Add(this.axMap2);
+            this.ClientSize = new System.Drawing.Size(1009, 447);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.refresh);
             this.Controls.Add(this.depth);
@@ -201,8 +155,6 @@ namespace WindowsFormsApp4
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.ObjectsTree.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.axMap2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.axMap3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -220,10 +172,6 @@ namespace WindowsFormsApp4
         private System.Windows.Forms.TabPage ObjectsTree;
         private System.Windows.Forms.TabPage layersManager;
         private System.Windows.Forms.Timer eventsDispathTimer;
-        private AxMapWinGIS.AxMap axMap2;
-        private AxMapWinGIS.AxMap axMap3;
-        private System.Windows.Forms.Label temperatureLabel;
-        private System.Windows.Forms.Label salnityLabel;
     }
 }
 

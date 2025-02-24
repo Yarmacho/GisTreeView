@@ -35,7 +35,11 @@ namespace Events.Handlers
             }
 
             var battimetry = new MapWinGIS.Image();
-            battimetry.Open(Program.MainForm.Map.Batimetry.Filename);
+            if (!battimetry.Open(Program.MainForm.Map?.Batimetry?.Filename))
+            {
+                return new ValueTask();
+            }
+
             var battimetryPath = BattimetryInterpolator.CreateBatimetryIDW(battimetry, scene.Shape,
                 Program.MainForm.Map.AxMap.Width, scene.Id);
 

@@ -18,9 +18,8 @@ using WindowsFormsApp4.Events.Handlers;
 using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.ShapeConverters;
 using GeoDatabase.ORM;
-using WindowsFormsApp4.Logic;
-using System.IO;
-using MapWinGIS;
+using WindowsFormsApp4.Forms;
+using WindowsFormsApp4.Events.Handlers.Scenes;
 
 namespace WindowsFormsApp4
 {
@@ -66,7 +65,7 @@ namespace WindowsFormsApp4
             try
             {
                 InitDispatchEventsScheduler(cancellationTokenSource.Token);
-                Application.Run(MainForm);
+                Application.Run(ServiceProvider.GetRequiredService<Form1>());
             }
             finally
             {
@@ -90,6 +89,7 @@ namespace WindowsFormsApp4
                     var mapPath = Configuration.GetValue<string>("MapsPath");
                     
                     services.AddTransient<Form1>();
+                    services.AddTransient<ProfilesForm>();
                     services.AddSingleton(Configuration);
                     services.AddShapeConverters();
                     services.AddDataBase(Configuration);
@@ -115,6 +115,7 @@ namespace WindowsFormsApp4
             services.AddTransient<IEventBus, EventBus>();
             services.AddSingleton<EventsDispather>();
             services.AddTransient<IEventHandler<SceneCreated>, InterpolateBattimetryHandler>();
+            services.AddTransient<IEventHandler<ProfilesRequested>, CalculateProfilesConsumer>();
 
             return services;
         }

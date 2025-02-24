@@ -101,6 +101,7 @@
     <Compile Include="Events\EventsDispather.cs" />
     <Compile Include="Events\Handlers\Abstractions\EventHandlerBase.cs" />
     <Compile Include="Events\Handlers\Abstractions\IEventHandler.cs" />
+    <Compile Include="Events\Handlers\Scenes\CalculateProfilesConsumer.cs" />
     <Compile Include="Events\Handlers\Scenes\InterpolateBattimetryConsumer.cs" />
     <Compile Include="Extensions\CallFormEventsExtensions.cs" />
     <Compile Include="Extensions\MapExtensions.cs" />
@@ -125,6 +126,12 @@
     </Compile>
     <Compile Include="Forms\GasForm.Designer.cs">
       <DependentUpon>GasForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ProfilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProfilesForm.Designer.cs">
+      <DependentUpon>ProfilesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\SceneForm.cs">
       <SubType>Form</SubType>
@@ -160,6 +167,9 @@
     <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
     <Compile Include="Logic\Exporters\ExporterBase.cs" />
     <Compile Include="Logic\RouteBuilder.cs" />
+    <Compile Include="Logic\TimeOffsetCalculator.cs" />
+    <Compile Include="Logic\TSProfileBuilder.cs" />
+    <Compile Include="Logic\TsTableProcessor.cs" />
     <Compile Include="Logic\TurnOptimizer.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
@@ -220,6 +230,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\GasForm.resx">
       <DependentUpon>GasForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ProfilesForm.resx">
+      <DependentUpon>ProfilesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SceneForm.resx">
       <DependentUpon>SceneForm.cs</DependentUpon>
