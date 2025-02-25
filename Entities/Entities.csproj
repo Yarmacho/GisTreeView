@@ -99,6 +99,7 @@
     <Compile Include="Dtos\Vector.cs" />
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\Experiment.cs" />
+    <Compile Include="Entities\ExperimentEnvironment.cs" />
     <Compile Include="Entities\Gas.cs" />
     <Compile Include="Entities\IDictionaryEntity.cs" />
     <Compile Include="Entities\Profil.cs" />

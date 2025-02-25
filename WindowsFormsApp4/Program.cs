@@ -20,6 +20,8 @@ using WindowsFormsApp4.ShapeConverters;
 using GeoDatabase.ORM;
 using WindowsFormsApp4.Forms;
 using WindowsFormsApp4.Events.Handlers.Scenes;
+using System.IO;
+using MapWinGIS;
 
 namespace WindowsFormsApp4
 {
@@ -43,8 +45,8 @@ namespace WindowsFormsApp4
             BattimetryInterpolator.ShapesPath = Configuration.GetValue<string>("MapsPath");
             MapDesigner.ServiceProvider = host.Services;
 
-
-            var battimetryPath = BattimetryInterpolator.ShapesPath;
+            var battimetryPath = Path.Combine(Configuration.GetValue<string>("MapsPath"),
+                Configuration.GetValue<string>("BattimetryFileName"));
 
             //var batimetryFilename = Path.Combine(battimetryPath, "Batimetry.tif");
             //var temperatureFilename = Path.Combine(battimetryPath, Configuration.GetValue<string>("TemperatureProfileFileName"));
@@ -56,8 +58,8 @@ namespace WindowsFormsApp4
             //    .ReCreateAsync().GetAwaiter().GetResult();
             //ServiceProvider.GetRequiredService<GeoDbContext>()
             //    .DeleteAllShapes();
-            //ServiceProvider.GetRequiredService<GeoDbContext>()
-            //    .EnsureShapefilesStructure();
+            ServiceProvider.GetRequiredService<GeoDbContext>()
+                .EnsureShapefilesStructure();
 
             MainForm = ServiceProvider.GetRequiredService<Form1>();
 
@@ -65,7 +67,8 @@ namespace WindowsFormsApp4
             try
             {
                 InitDispatchEventsScheduler(cancellationTokenSource.Token);
-                Application.Run(ServiceProvider.GetRequiredService<Form1>());
+
+                Application.Run(MainForm);
             }
             finally
             {

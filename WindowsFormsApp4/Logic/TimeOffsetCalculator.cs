@@ -100,17 +100,17 @@ namespace WindowsFormsApp4.Logic
 
         private void initEnvProperties(RoutePoint point)
         {
-            if (!_map.TryGetDepth(point.X, point.Y, out var depth))
+            if (_map.TryGetDepth(point.X, point.Y, out var depth))
             {
                 point.Depth = depth;
             }
 
-            if (!_map.TryGetTemperature(point.X, point.Y, out var temperature))
+            if (_map.TryGetTemperature(point.X, point.Y, out var temperature))
             {
                 point.Temperature = temperature;
             }
 
-            if (!_map.TryGetSalinity(point.X, point.Y, out var salinity))
+            if (_map.TryGetSalinity(point.X, point.Y, out var salinity))
             {
                 point.Salinity = salinity;
             }
