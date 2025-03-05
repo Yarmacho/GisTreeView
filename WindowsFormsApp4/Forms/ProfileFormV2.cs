@@ -1,8 +1,10 @@
 ﻿using Entities.Entities;
+using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -15,7 +17,7 @@ namespace WindowsFormsApp4.Forms
             ChartType = SeriesChartType.Line,
             Color = Color.Red,
             MarkerStyle = MarkerStyle.Circle,
-            MarkerSize = 3
+            MarkerSize = 3,
         };
 
         private Series salinitySeries = new Series("salinity")
@@ -71,42 +73,87 @@ namespace WindowsFormsApp4.Forms
                 }
             }
 
-            chart1.Series.Clear();
-            chart1.Series.Add(temperatureSeries);
-            chart1.Series.Add(salinitySeries);
-            chart1.Series.Add(soundSpeedSeries);
-            chart1.Series.Add(absorbtionSeries);
-            chart1.BackColor = Color.WhiteSmoke;
-            chart1.BorderlineColor = Color.LightGray;
-            chart1.BorderlineDashStyle = ChartDashStyle.Solid;
-            chart1.BorderlineWidth = 1;
-
-            // Налаштування сітки
-            chart1.ChartAreas[0].AxisX.MajorGrid.LineColor = Color.LightGray;
-            chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = Color.LightGray;
-            chart1.ChartAreas[0].AxisX.MinorGrid.Enabled = true;
-            chart1.ChartAreas[0].AxisX.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
-            chart1.ChartAreas[0].AxisY.MinorGrid.Enabled = true;
-            chart1.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
-
-            // Налаштування фону
-            chart1.ChartAreas[0].BackColor = Color.FromArgb(240, 240, 240);
-
-            chart1.ChartAreas[0].AxisX.Minimum = 0;
-            chart1.ChartAreas[0].AxisX.Maximum = Math.Abs(Convert.ToDouble(battimetry.Minimum));
-
-            var xInterval = chart1.ChartAreas[0].AxisX.Maximum / 10;
-
-            chart1.ChartAreas[0].AxisY.Minimum = 0;
-            chart1.ChartAreas[0].AxisY.Maximum = 100;
-            chart1.ChartAreas[0].AxisX.Interval = xInterval;
-            chart1.ChartAreas[0].AxisY.Interval = 10;
-            chart1.ChartAreas[0].AxisX.Title = "Depth";
-            chart1.ChartAreas[0].AxisY.Title = "Profiles value";
-
-            chart1.MouseClick += chart_MouseClick;
+            configureChart(tempChart, temperatureSeries, battimetry, "Temperature", -20, 50);
+            configureChart(salinityChart, salinitySeries, battimetry, "Salinity", 0, 100);
+            configureChart(soundSpeedChart, soundSpeedSeries, battimetry, "Sound speed", 0, 100);
+            configureChart(absorbtionChart, absorbtionSeries, battimetry, "Absorbtion", 0, 100);
 
             dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
+        }
+
+        private void configureChart(Chart chart, Series series, MapWinGIS.Grid battimetry, string title, double min, double max)
+        {
+            chart.Series.Clear();
+            chart.Series.Add(series);
+            chart.BackColor = Color.WhiteSmoke;
+            chart.BorderlineColor = Color.LightGray;
+            chart.BorderlineDashStyle = ChartDashStyle.Solid;
+            chart.BorderlineWidth = 1;
+
+            // Налаштування сітки
+            chart.ChartAreas[0].AxisX.MajorGrid.LineColor = Color.LightGray;
+            chart.ChartAreas[0].AxisY.MajorGrid.LineColor = Color.LightGray;
+            chart.ChartAreas[0].AxisX.MinorGrid.Enabled = true;
+            chart.ChartAreas[0].AxisX.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
+            chart.ChartAreas[0].AxisY.MinorGrid.Enabled = true;
+            chart.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
+
+            // Налаштування фону
+            chart.ChartAreas[0].BackColor = Color.FromArgb(240, 240, 240);
+
+            chart.ChartAreas[0].AxisX.Minimum = 0;
+            chart.ChartAreas[0].AxisX.Maximum = Math.Abs(Convert.ToDouble(battimetry.Minimum));
+
+            var xInterval = chart.ChartAreas[0].AxisX.Maximum / 10;
+
+            chart.ChartAreas[0].AxisY.Minimum = min;
+            chart.ChartAreas[0].AxisY.Maximum = max;
+            chart.ChartAreas[0].AxisX.Interval = xInterval;
+            chart.ChartAreas[0].AxisY.Interval = 10;
+            chart.ChartAreas[0].AxisX.Title = "Depth";
+            chart.ChartAreas[0].AxisY.Title = title;
+
+            chart.MouseClick += (s, e) =>
+            {
+                // Перетворення координат миші в координати графіка
+                Point mousePoint = new Point(e.X, e.Y);
+                ChartArea chartArea = chart.ChartAreas[0];
+
+                double xValue = 0;
+                double yValue = 0;
+
+                try
+                {
+                    // Отримання координат кліку відносно графіка
+                    xValue = roundToNearest((int)chart.ChartAreas[0].AxisX.PixelPositionToValue(e.X));
+                    yValue = chart.ChartAreas[0].AxisY.PixelPositionToValue(e.Y);
+
+                    // Перевірка, чи координати знаходяться в межах графіка
+                    if (xValue >= chartArea.AxisX.Minimum && xValue <= chartArea.AxisX.Maximum &&
+                        yValue >= chartArea.AxisY.Minimum && yValue <= chartArea.AxisY.Maximum)
+                    {
+                        var temperature = tabControl1.SelectedIndex == 0 ? yValue : 0;
+                        var salinity = tabControl1.SelectedIndex == 1 ? yValue : 0;
+                        var soundSpeed = tabControl1.SelectedIndex == 2 ? yValue : 0;
+                        var absorbtion = tabControl1.SelectedIndex == 3 ? yValue : 0;
+
+                        setValue(temperatureSeries, xValue, temperature);
+                        setValue(salinitySeries, xValue, salinity);
+                        setValue(soundSpeedSeries, xValue, soundSpeed);
+                        setValue(absorbtionSeries, xValue, absorbtion);
+
+                        sortAllSeriesPoints();
+
+                        dataGridView1.Rows.Add(xValue, temperature, salinity, soundSpeed, absorbtion);
+                        updateCharts();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Помилка при додаванні точки: {ex.Message}", "Помилка",
+                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
         }
 
         private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -126,59 +173,71 @@ namespace WindowsFormsApp4.Forms
                 series.Points[e.RowIndex].SetValueY(value);
             }
 
-            chart1.Update();
-            chart1.Refresh();
+            updateCharts();
         }
 
-        private void chart_MouseClick(object sender, MouseEventArgs e)
+        private void updateCharts()
         {
-            // Перетворення координат миші в координати графіка
-            Point mousePoint = new Point(e.X, e.Y);
-            ChartArea chartArea = chart1.ChartAreas[0];
+            updateChart(tempChart);
+            updateChart(salinityChart);
+            updateChart(soundSpeedChart);
+            updateChart(absorbtionChart);
+        }
 
-            double xValue = 0;
-            double yValue = 0;
+        private void updateChart(Chart chart)
+        {
+            chart.Update();
+            chart.Refresh();
+        }
 
-            try
+        private void sortAllSeriesPoints()
+        {
+            sortSeriesPoints(temperatureSeries);
+            sortSeriesPoints(salinitySeries);
+            sortSeriesPoints(soundSpeedSeries);
+            sortSeriesPoints(absorbtionSeries);
+        }
+
+        private void sortSeriesPoints(Series series)
+        {
+            var points = series.Points.OrderBy(p => p.XValue).ToList();
+
+            series.Points.Clear();
+
+            foreach (var point in points)
             {
-                // Отримання координат кліку відносно графіка
-                xValue = chart1.ChartAreas[0].AxisX.PixelPositionToValue(e.X);
-                yValue = chart1.ChartAreas[0].AxisY.PixelPositionToValue(e.Y);
-
-                // Перевірка, чи координати знаходяться в межах графіка
-                if (xValue >= chartArea.AxisX.Minimum && xValue <= chartArea.AxisX.Maximum &&
-                    yValue >= chartArea.AxisY.Minimum && yValue <= chartArea.AxisY.Maximum)
-                {
-                    var form = new DepthProfileForm(xValue, yValue, yValue, yValue, yValue);
-                    form.ShowDialog();
-
-                    temperatureSeries.Points.Add(new DataPoint(xValue, form.Temperature)
-                    {
-                        ToolTip = $"X: {Math.Round(xValue, 2)}, Y: {Math.Round(yValue, 2)}"
-                    });
-
-                    salinitySeries.Points.Add(new DataPoint(xValue, form.Salinity)
-                    {
-                        ToolTip = $"X: {Math.Round(xValue, 2)}, Y: {Math.Round(yValue, 2)}"
-                    });
-
-                    soundSpeedSeries.Points.Add(new DataPoint(xValue, form.SoundSpeed)
-                    {
-                        ToolTip = $"X: {Math.Round(xValue, 2)}, Y: {Math.Round(yValue, 2)}"
-                    });
-
-                    absorbtionSeries.Points.Add(new DataPoint(xValue, form.Absorbtion)
-                    {
-                        ToolTip = $"X: {Math.Round(xValue, 2)}, Y: {Math.Round(yValue, 2)}"
-                    });
-
-                    dataGridView1.Rows.Add(xValue, form.Temperature, form.Salinity, form.SoundSpeed, form.Absorbtion);
-                }
+                series.Points.Add(point);
             }
-            catch (Exception ex)
+        }
+
+        private void setValue(Series series, double depth, double value)
+        {
+            var point = series.Points.FirstOrDefault(p => (int)p.XValue == (int)depth);
+            if (point != null)
             {
-                MessageBox.Show($"Помилка при додаванні точки: {ex.Message}", "Помилка",
-                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+                point.SetValueY(value);
+            }
+            else
+            {
+                series.Points.Add(new DataPoint(depth, value));
+            }
+        }
+
+        private int roundToNearest(int value)
+        {
+            const int roundStep = 10;
+
+            // Знаходимо остачу від ділення на 10
+            int remainder = value % roundStep;
+
+            // Якщо остача менше 5, округлюємо вниз, інакше - вгору
+            if (remainder < 5)
+            {
+                return value - remainder;
+            }
+            else
+            {
+                return value + (roundStep - remainder);
             }
         }
 

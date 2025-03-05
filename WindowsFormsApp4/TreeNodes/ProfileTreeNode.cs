@@ -38,7 +38,7 @@ namespace WindowsFormsApp4.TreeNodes
             var desc = new StringBuilder();
             foreach (var profile in _profiles)
             {
-                desc.AppendLine($"Depth: {profile.Depth} | Temp: {profile.Temperature:2F} | Salinity: {profile.Salinity:2F} | Sound speed: {profile.SoundSpeed:2F} | Absorbtion: {profile.Absorbsion:2F}");
+                desc.AppendLine($"Depth: {profile.Depth} | Temp: {profile.Temperature} | Salinity: {profile.Salinity} | Sound speed: {profile.SoundSpeed} | Absorbtion: {profile.Absorbsion}");
             }
 
             return desc.ToString();

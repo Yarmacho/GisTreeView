@@ -30,10 +30,10 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
                 nodes[experiment.Id] = node;
 
-                if (environments.TryGetValue(experiment.Id, out var env))
-                {
-                    node.Nodes.Add(new EnvironmentTreeNode(env));
-                }
+                //if (environments.TryGetValue(experiment.Id, out var env))
+                //{
+                //    node.Nodes.Add(new EnvironmentTreeNode(env));
+                //}
 
                 var experimentProfiles = profiles[experiment.Id];
                 if (experimentProfiles.Any())

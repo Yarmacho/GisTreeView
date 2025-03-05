@@ -56,46 +56,46 @@ namespace WindowsFormsApp4.TreeNodes
                 Nodes.Add(new ProfileTreeNode(ExperimentId, profiles));
             }));
 
-            menu.MenuItems.Add(new MenuItem("Add environment settings", async (s, e) =>
-            {
-                var repository = TreeView.ServiceProvider.GetRequiredService<IExperimentEnvironmentRepository>();
+            //menu.MenuItems.Add(new MenuItem("Add environment settings", async (s, e) =>
+            //{
+            //    var repository = TreeView.ServiceProvider.GetRequiredService<IExperimentEnvironmentRepository>();
 
-                var existsInDb = true;
-                var environment = await repository.GetAsync(ExperimentId);
-                if (environment == null)
-                {
-                    existsInDb = false;
-                    environment = new ExperimentEnvironment() { ExperimentId = ExperimentId };
-                }
+            //    var existsInDb = true;
+            //    var environment = await repository.GetAsync(ExperimentId);
+            //    if (environment == null)
+            //    {
+            //        existsInDb = false;
+            //        environment = new ExperimentEnvironment() { ExperimentId = ExperimentId };
+            //    }
 
-                var form = new EnvironmentForm(environment);
-                if (form.ShowDialog() != DialogResult.OK)
-                {
-                    return;
-                }
+            //    var form = new EnvironmentForm(environment);
+            //    if (form.ShowDialog() != DialogResult.OK)
+            //    {
+            //        return;
+            //    }
 
-                environment.ReflectionCoef = form.ReflectionCoef;
+            //    environment.ReflectionCoef = form.ReflectionCoef;
 
-                if (existsInDb)
-                {
-                    await repository.UpdateAsync(environment);
-                }
-                else
-                {
-                    await repository.AddAsync(environment);
-                }
+            //    if (existsInDb)
+            //    {
+            //        await repository.UpdateAsync(environment);
+            //    }
+            //    else
+            //    {
+            //        await repository.AddAsync(environment);
+            //    }
 
-                if (await repository.SaveChanges())
-                {
-                    var envNode = Nodes.OfType<EnvironmentTreeNode>().FirstOrDefault();
-                    if (envNode != null)
-                    {
-                        Nodes.Remove(envNode);
-                    }
+            //    if (await repository.SaveChanges())
+            //    {
+            //        var envNode = Nodes.OfType<EnvironmentTreeNode>().FirstOrDefault();
+            //        if (envNode != null)
+            //        {
+            //            Nodes.Remove(envNode);
+            //        }
 
-                    Nodes.Add(new EnvironmentTreeNode(environment));
-                }
-            }));
+            //        Nodes.Add(new EnvironmentTreeNode(environment));
+            //    }
+            //}));
 
             var exportMenuItem = new MenuItem("Export");
             exportMenuItem.MenuItems.Add(new MenuItem("json", exportJsonAsync));
