@@ -20,7 +20,7 @@ namespace WindowsFormsApp4.Logic.Exporters
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(ExperimentDto));
+                var serializer = new ExperimentXmlSerializer();
                 using (var fileStream = File.Open(outputFileName, FileMode.OpenOrCreate))
                 {
                     serializer.Serialize(fileStream, experiment);

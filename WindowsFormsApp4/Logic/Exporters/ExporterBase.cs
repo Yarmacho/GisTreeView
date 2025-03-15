@@ -20,6 +20,7 @@ namespace WindowsFormsApp4.Logic.Exporters
         private readonly GeoDbContext _geoDbContext;
         private readonly IExperimentsRepository _experimentsRepository;
         private readonly IRoutePointsRepository _routePointsRepository;
+        private readonly IProfilesRepository _profilesRepository;
 
         private string _battimetriesPath;
 
@@ -28,6 +29,7 @@ namespace WindowsFormsApp4.Logic.Exporters
             _geoDbContext = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
             _experimentsRepository = Program.ServiceProvider.GetRequiredService<IExperimentsRepository>();
             _routePointsRepository = Program.ServiceProvider.GetRequiredService<IRoutePointsRepository>();
+            _profilesRepository = Program.ServiceProvider.GetRequiredService<IProfilesRepository>();
             _battimetriesPath = Path.Combine(Program.Configuration.GetValue<string>("MapsPath"), "Battimetries");
         }
 
@@ -83,6 +85,7 @@ namespace WindowsFormsApp4.Logic.Exporters
                 sceneDto.Bathymetry = tryCreateBathymetryGrid(sceneDto);
                 await tryAddSensorsToScene(sceneDto);
                 await tryAddShipsToScene(sceneDto);
+                await tryAddProfilesToScene(sceneDto);
 
                 experiment.Scenes.Add(sceneDto);
             }
@@ -207,6 +210,21 @@ namespace WindowsFormsApp4.Logic.Exporters
             }
 
             return File.OpenRead(sceneBatimetryPath);
+        }
+
+        private async ValueTask tryAddProfilesToScene(SceneDto scene)
+        {
+            var profiles = await _profilesRepository.GetSceneProfiles(scene.Id);
+
+            scene.Profiles = profiles.Select(p => new ProfilDto()
+            {
+                SceneId = scene.Id,
+                Depth = p.Depth,
+                Absorbsion = p.Absorbsion,
+                Salinity = p.Salinity,
+                SoundSpeed = p.SoundSpeed,
+                Temperature = p.Temperature
+            }).ToList();
         }
     }
 }

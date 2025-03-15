@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
+using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using WindowsFormsApp4.JsonConverters;
 
@@ -44,8 +46,14 @@ namespace Entities.Dtos
         [XmlArrayItem("sensors")]
         public List<GasDto> Sensors { get; set; }
 
+        [JsonPropertyName("profiles")]
+        [XmlArray("profiles")]
+        [XmlArrayItem("profile")]
+        public List<ProfilDto> Profiles { get; set; }
+
         [JsonPropertyName("bathymetry")]
         [JsonConverter(typeof(BathymetryStreamConverter))]
+        [XmlIgnore]
         public Stream Bathymetry { get; set; }
     }
 }

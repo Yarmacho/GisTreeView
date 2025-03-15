@@ -92,6 +92,7 @@
     <Compile Include="Dtos\ExperimentDto.cs" />
     <Compile Include="Dtos\GasDto.cs" />
     <Compile Include="Dtos\GeoArea.cs" />
+    <Compile Include="Dtos\ProfilDto.cs" />
     <Compile Include="Dtos\RouteDto.cs" />
     <Compile Include="Dtos\RoutePointDto.cs" />
     <Compile Include="Dtos\SceneDto.cs" />

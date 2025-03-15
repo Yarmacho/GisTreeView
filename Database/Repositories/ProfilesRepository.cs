@@ -25,6 +25,7 @@ namespace Database.Repositories
             return await _dbContext.Set<Profil>()
                 .AsNoTracking()
                 .Where(p => p.SceneId == sceneId)
+                .OrderBy(p => p.Depth)
                 .ToListAsync();
         }
     }

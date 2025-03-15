@@ -184,6 +184,7 @@
     <Compile Include="Logic\ChinaSeasSalinityConverter.cs" />
     <Compile Include="Logic\Exporters\ExperimentJsonExporter.cs" />
     <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
+    <Compile Include="Logic\Exporters\ExperimentXmlSerializer.cs" />
     <Compile Include="Logic\Exporters\ExporterBase.cs" />
     <Compile Include="Logic\RouteBuilder.cs" />
     <Compile Include="Logic\TimeOffsetCalculator.cs" />
