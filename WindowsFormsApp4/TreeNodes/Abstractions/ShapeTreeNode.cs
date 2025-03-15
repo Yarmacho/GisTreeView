@@ -22,19 +22,23 @@ namespace WindowsFormsApp4.TreeNodes.Abstractions
             Entity = entity;
         }
 
-        public override ValueTask Delete()
+        public override ValueTask<bool> Delete()
         {
             if (Nodes.Count != 0)
             {
                 MessageBox.Show("Node has child nodes!");
-                return new ValueTask(Task.CompletedTask);
+                return new ValueTask<bool>(false);
             }
 
             var context = TreeView.ServiceProvider.GetRequiredService<GeoDbContext>();
             context.Set<TEntity>().Delete(Entity);
-            context.SaveChanges();
+            if (context.SaveChanges())
+            {
+                TreeView.Redraw();
+                Remove();
+            }
 
-            return new ValueTask(Task.CompletedTask);
+            return new ValueTask<bool>(true);
         }
 
         public override ValueTask Update()

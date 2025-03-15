@@ -16,6 +16,8 @@ namespace WindowsFormsApp4.TreeNodes
         {
             Name = gas.Name;
             Text = gas.Name;
+            ImageKey = "gas";
+            SelectedImageKey = "gas";
         }
 
         public IReadOnlyList<SceneTreeNode> SceneNodes => Nodes.OfType<SceneTreeNode>().ToList();
@@ -27,30 +29,26 @@ namespace WindowsFormsApp4.TreeNodes
 
         protected override void ConfigureChildNodeEntity(object childEntity)
         {
-            if (childEntity is Scene scene)
-            {
-                scene.GasId = Entity.Id;
-            }
         }
 
-        protected override ContextMenu BuildContextMenu()
-        {
-            var menu = base.BuildContextMenu();
+        //protected override ContextMenu BuildContextMenu()
+        //{
+        //    var menu = base.BuildContextMenu();
 
-            var addBtn = new MenuItem("Add scene", async (s, e) =>
-            {
-                if (Nodes.Count > 0)
-                {
-                    MessageBox.Show("Only one scene can be created for a GAS");
-                    return;
-                }
-                await AppendChild<Scene, SceneTreeNode>();
-            });
+        //    //var addBtn = new MenuItem("Add scene", async (s, e) =>
+        //    //{
+        //    //    if (Nodes.Count > 0)
+        //    //    {
+        //    //        MessageBox.Show("Only one scene can be created for a GAS");
+        //    //        return;
+        //    //    }
+        //    //    await AppendChild<Scene, SceneTreeNode>();
+        //    //});
 
-            menu.MenuItems.Add(0, addBtn);
+        //    //menu.MenuItems.Add(0, addBtn);
 
-            return menu;
-        }
+        //    return menu;
+        //}
 
         protected override void OnUpdate(Gas entity)
         {

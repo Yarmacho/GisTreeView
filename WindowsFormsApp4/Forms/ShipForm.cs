@@ -8,24 +8,31 @@ using MapWinGIS;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4.Extensions;
+using WindowsFormsApp4.Forms.Abstractions;
 using WindowsFormsApp4.Initializers;
 
 namespace WindowsFormsApp4.Forms
 {
-    public partial class ShipForm : Form, IEntityFormWithMap<Ship>
+    public partial class ShipForm : Form, IEntityFormWithMap<Ship>, IEntityFormWithMapAndDepthLabel<Ship>
     {
         public ShipForm(Ship ship, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = true;
             AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
+            if (editMode == EditMode.Edit)
+            {
+                submit.Text = "Update";
+            }
+
+            addShape.Click += (s, e) => Map.CursorMode = tkCursorMode.cmAddShape;
+            panBtn.Click += (s, e) => Map.CursorMode = tkCursorMode.cmPan;
 
             this.ConfigureMouseDownEvent();
             Map.CursorMode = tkCursorMode.cmAddShape;
@@ -78,7 +85,23 @@ namespace WindowsFormsApp4.Forms
                 return shape.Intersects(sceneShape);
             };
 
+            name.Text = Entity.Name;
+            length.Text = Entity.Lenght.ToString();
+            coordX.Text = Entity.X.ToString();
+            coordY.Text = Entity.Y.ToString();
+            maxSpeed.Text = Entity.MaxSpeed.ToString();
+            width.Text = Entity.Width.ToString();
+            turnRate.Text = Entity.TurnRate.ToString();
+            deceleration.Text = Entity.Deceleration.ToString();
+            acceleration.Text = Entity.Acceleration.ToString();
+
             name.TextChanged += (s, e) => Entity.Name = name.Text;
+            length.TextChanged += (s, e) => Entity.Lenght = length.Value;
+            maxSpeed.TextChanged += (s, e) => Entity.MaxSpeed = maxSpeed.Value;
+            turnRate.TextChanged += (s, e) => Entity.TurnRate = turnRate.Value;
+            deceleration.TextChanged += (s, e) => Entity.Deceleration = deceleration.Value;
+            acceleration.TextChanged += (s, e) => Entity.Acceleration = acceleration.Value;
+            width.TextChanged += (s, e) => Entity.Width = width.Value;
 
             AfterShapeValid += (shape) =>
             {
@@ -90,9 +113,12 @@ namespace WindowsFormsApp4.Forms
                     coordX.Text = point.x.ToString();
                     coordY.Text = point.y.ToString();
 
-                    MapDesigner.ConnectShipWithGas(Map, Entity);
+                    MapDesigner.ConnectShipWithGases(Map, Entity);
                 }
             };
+
+            this.ConfigureMouseMoveEvent();
+            this.TryAddDepthIndication(Entity.SceneId);
 
             Map.AxMap.ZoomToShape(Map.LayersInfo.SceneLayerHandle,
                 getSceneShapeId(Entity.SceneId));
@@ -124,6 +150,8 @@ namespace WindowsFormsApp4.Forms
         public Initializers.Map Map { get; }
 
         public Shapefile Shapefile { get; }
+
+        public System.Windows.Forms.Label DepthLabel => depth;
 
         public event Action<Point> OnMapMouseDown;
         public event Func<Point, Shape, bool> ValidShape;
@@ -194,6 +222,12 @@ namespace WindowsFormsApp4.Forms
             Entity.Name = selectedShip.Name;
             Entity.X = selectedShip.X;
             Entity.Y = selectedShip.Y;
+            Entity.Lenght = selectedShip.Lenght;
+            Entity.Width = selectedShip.Width;
+            Entity.TurnRate = selectedShip.TurnRate;
+            Entity.Acceleration = selectedShip.Acceleration;
+            Entity.Deceleration = selectedShip.Deceleration;
+            Entity.MaxSpeed = selectedShip.MaxSpeed;
 
             var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
             context.Set<Ship>().Add(Entity);

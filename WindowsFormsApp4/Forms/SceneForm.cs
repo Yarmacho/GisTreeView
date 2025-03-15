@@ -1,5 +1,6 @@
 ﻿using AxMapWinGIS;
 using DynamicForms.Abstractions;
+using Entities.Contracts;
 using Entities.Entities;
 using GeoDatabase.ORM;
 using GeoDatabase.ORM.Set.Extensions;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Tools;
 using WindowsFormsApp4;
+using WindowsFormsApp4.Events;
 using WindowsFormsApp4.Extensions;
 using WindowsFormsApp4.Initializers;
 using Point = MapWinGIS.Point;
@@ -36,11 +38,15 @@ namespace Forms.Forms
         public SceneForm(Scene scene, EditMode editMode)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Map = MapInitializer.Init(axMap1);
             Map.SendMouseMove = false;
-            Map.CursorMode = tkCursorMode.cmPan;
+            Map.CursorMode = tkCursorMode.cmAddShape;
             AcceptButton = submit;
             AcceptButton.DialogResult = DialogResult.OK;
+
+            addShape.Click += (s, e) => Map.CursorMode = tkCursorMode.cmAddShape;
+            panBtn.Click += (s, e) => Map.CursorMode = tkCursorMode.cmPan;
 
             var context = Program.ServiceProvider
                 .GetRequiredService<GeoDbContext>();
@@ -77,25 +83,13 @@ namespace Forms.Forms
 
         protected void configureFormEvents(GeoDbContext context)
         {
+            this.ConfigureMouseDownEvent();
             this.ConfigureSaveShapeOnFormClosed<Scene, int>();
 
-            if (Entity == null || Entity.GasId == 0)
+            if (Entity == null)
             {
                 return;
             }
-
-            var gas = context.Set<Gas>()
-                .FirstOrDefault(g => g.Id == Entity.GasId);
-            var gasShapeIndex = context.ChangeTracker.GetShapeIndex(gas);
-            if (gasShapeIndex == -1)
-            {
-                throw new Exception("Scene is not associated to a GAS");
-            }
-
-            Map.ZoomToShape<Gas>(gasShapeIndex);
-
-            _sceneCenter = Map.GasShapeFile.Shape[gasShapeIndex]
-                .Point[0];
 
             name.TextChanged += (s, e) => Entity.Name = name.Text;
 
@@ -167,10 +161,22 @@ namespace Forms.Forms
 
                 return shape.numPoints != 4;
             };
+
+            OnEntityFormClosed += () =>
+            {
+                Program.ServiceProvider.GetService<IEventBus>()
+                    .Publish(new SceneCreated(Entity.Id));
+            };
         }
 
         private void sceneParametersChanged(object sender, EventArgs e)
         {
+            if (_sceneCenter == null)
+            {
+                NotificationsManager.Popup("Scene center not selected", MessageBoxIcon.Warning);
+                return;
+            }
+
             buildScene(TypeTools.Convert<double>(angle.Text), TypeTools.Convert<double>(side.Text));
 
             if (!CallValidateShapeEvents(null))
@@ -182,12 +188,16 @@ namespace Forms.Forms
             Entity.Side = TypeTools.Convert<double>(side.Text);
             Entity.Angle = TypeTools.Convert<double>(angle.Text);
             Entity.Area = Shape.Area;
-
             Map.Redraw();
         }
 
         private void buildScene(double angle, double sideLength)
         {
+            if (_sceneCenter == null)
+            {
+                return;
+            }
+
             if (Shapefile.NumShapes != 0)
             {
                 Shapefile.StartEditingShapes();
@@ -264,7 +274,8 @@ namespace Forms.Forms
 
         public void InsertPoint(Point point)
         {
-            throw new NotImplementedException();
+            _sceneCenter = point;
+            sceneParametersChanged(null, null);
         }
     }
 }

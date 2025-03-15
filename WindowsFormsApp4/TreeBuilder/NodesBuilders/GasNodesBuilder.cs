@@ -10,11 +10,11 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
     internal class GasNodesBuilder : ShapeNodesBuilder<GasTreeNode, Gas>
     {
-        private readonly IReadOnlyDictionary<int, ExperimentTreeNode> _experimentNodes;
+        private readonly IReadOnlyDictionary<int, SceneTreeNode> _sceneNodes;
 
-        public GasNodesBuilder(IReadOnlyDictionary<int, ExperimentTreeNode> experimentNodes)
+        public GasNodesBuilder(IReadOnlyDictionary<int, SceneTreeNode> sceneNodes)
         {
-            _experimentNodes = experimentNodes;
+            _sceneNodes = sceneNodes;
         }
         public GasNodesBuilder()
         {
@@ -30,15 +30,10 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 var node = new GasTreeNode(gas);
                 nodes[gas.Id] = node;
 
-                if (_experimentNodes.TryGetValue(gas.ExperimentId, out var experimentTreeNode))
+                if (_sceneNodes.TryGetValue(gas.SceneId, out var sceneNode))
                 {
-                    experimentTreeNode.Nodes.Add(node);
+                    sceneNode.Nodes.Add(node);
                 }
-            }
-
-            if (nodes.Count > 0 && buildNodesParams.SceneLayerHandle != -1)
-            {
-                await new SceneNodesBuider(nodes).BuildNodes(buildNodesParams);
             }
 
             foreach (var node in nodes.Values)

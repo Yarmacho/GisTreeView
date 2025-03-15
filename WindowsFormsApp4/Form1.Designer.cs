@@ -29,16 +29,18 @@ namespace WindowsFormsApp4
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.axMap1 = new AxMapWinGIS.AxMap();
             this.addExperimentBtn = new System.Windows.Forms.Button();
-            this.treeView1 = new WindowsFormsApp4.MapTreeView();
             this.entityDesc = new System.Windows.Forms.RichTextBox();
             this.depth = new System.Windows.Forms.Label();
             this.refresh = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.ObjectsTree = new System.Windows.Forms.TabPage();
+            this.treeView1 = new WindowsFormsApp4.MapTreeView();
             this.layersManager = new System.Windows.Forms.TabPage();
+            this.eventsDispathTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.ObjectsTree.SuspendLayout();
@@ -63,19 +65,12 @@ namespace WindowsFormsApp4
             this.addExperimentBtn.UseVisualStyleBackColor = true;
             this.addExperimentBtn.Click += new System.EventHandler(this.addExperimentBtn_Click);
             // 
-            // treeView1
-            // 
-            this.treeView1.Location = new System.Drawing.Point(0, 0);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(189, 357);
-            this.treeView1.TabIndex = 3;
-            // 
             // entityDesc
             // 
             this.entityDesc.Enabled = false;
-            this.entityDesc.Location = new System.Drawing.Point(806, 55);
+            this.entityDesc.Location = new System.Drawing.Point(794, 55);
             this.entityDesc.Name = "entityDesc";
-            this.entityDesc.Size = new System.Drawing.Size(267, 383);
+            this.entityDesc.Size = new System.Drawing.Size(208, 383);
             this.entityDesc.TabIndex = 4;
             this.entityDesc.Text = "";
             // 
@@ -119,6 +114,15 @@ namespace WindowsFormsApp4
             this.ObjectsTree.Text = "Objects tree";
             this.ObjectsTree.UseVisualStyleBackColor = true;
             // 
+            // treeView1
+            // 
+            this.treeView1.ImageIndex = 0;
+            this.treeView1.Location = new System.Drawing.Point(0, 0);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.SelectedImageIndex = 0;
+            this.treeView1.Size = new System.Drawing.Size(189, 357);
+            this.treeView1.TabIndex = 3;
+            // 
             // layersManager
             // 
             this.layersManager.Location = new System.Drawing.Point(4, 22);
@@ -129,11 +133,16 @@ namespace WindowsFormsApp4
             this.layersManager.Text = "Layers manager";
             this.layersManager.UseVisualStyleBackColor = true;
             // 
+            // eventsDispathTimer
+            // 
+            this.eventsDispathTimer.Enabled = true;
+            this.eventsDispathTimer.Interval = 5000;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1085, 450);
+            this.ClientSize = new System.Drawing.Size(1009, 447);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.refresh);
             this.Controls.Add(this.depth);
@@ -162,6 +171,7 @@ namespace WindowsFormsApp4
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage ObjectsTree;
         private System.Windows.Forms.TabPage layersManager;
+        private System.Windows.Forms.Timer eventsDispathTimer;
     }
 }
 

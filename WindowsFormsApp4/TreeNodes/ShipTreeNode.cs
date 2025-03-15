@@ -10,6 +10,8 @@ namespace WindowsFormsApp4.TreeNodes
         {
             Name = ship.Name;
             Text = ship.Name;
+            ImageKey = "ship";
+            SelectedImageKey = "ship";
         }
 
         protected override ContextMenu BuildContextMenu()

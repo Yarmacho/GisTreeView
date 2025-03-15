@@ -4,9 +4,9 @@ using Tulpep.NotificationWindow;
 
 namespace WindowsFormsApp4
 {
-    internal class NotificationsManager
+    public class NotificationsManager
     {
-        public static void Popup(string message, MessageBoxIcon icon = MessageBoxIcon.Error)
+        public static void Popup(string message, MessageBoxIcon icon)
         {
             PopupNotifier notifier = new PopupNotifier();
             notifier.TitleText = icon.ToString();
@@ -17,6 +17,11 @@ namespace WindowsFormsApp4
             notifier.ContentFont = new Font("Century Gothic", 12);
 
             notifier.Popup();
+        }
+        
+        public static void Popup(string message)
+        {
+            Popup(message, MessageBoxIcon.Error);
         }
     }
 }

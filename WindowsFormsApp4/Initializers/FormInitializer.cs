@@ -7,34 +7,73 @@ using Entities;
 using Microsoft.Extensions.DependencyInjection;
 using GeoDatabase.ORM;
 using GeoDatabase.ORM.Set.Extensions;
+using Tools;
 
 namespace WindowsFormsApp4.Initializers
 {
     public static class FormInitializer
     {
-        public static void TryAddDepthIndication(this IEntityFormWithMapAndDepthLabel form)
+        public static void TryAddDepthIndication(this IEntityFormWithMapAndDepthLabel form, int? sceneId = null)
         {
             if (form.Map.LayersInfo.BatimetryLayerHandle <= 0 || !form.Map.SendMouseMove)
             {
                 return;
             }
+            form.DepthLabel.AutoSize = true;
 
-            var batimetry = form.Map.Batimetry;
-            if (batimetry is null)
-            {
-                return;
-            }
-
-            var activeBand = batimetry.ActiveBand;
             if (form.DepthLabel != null)
             {
                 form.OnMouseMoveOnMap += (x, y) =>
                 {
-                    batimetry.ProjectionToImage(x, y, out int column, out int row);
+                    var pointShape = new Shape();
+                    pointShape.Create(ShpfileType.SHP_POINT);
 
-                    var hasValue = activeBand.Value[column, row, out var depth];
-                    form.DepthLabel.AutoSize = true;
-                    form.DepthLabel.Text = hasValue ? $"Depth: {depth}" : string.Empty;
+                    var point = new Point();
+                    point.Set(x, y);
+
+                    var pointIndex = 0;
+                    pointShape.InsertPoint(point, ref pointIndex);
+
+                    var battimetry = sceneId.HasValue && form.Map.SceneBattimetries.TryGetValue(sceneId.Value, out var sceneBattimetryLayerHandle)
+                        ? form.Map.AxMap.get_Image(sceneBattimetryLayerHandle)
+                        : form.Map.Batimetry;
+                    if (battimetry is null)
+                    {
+                        form.DepthLabel.Text = "Depth undefined";
+                        return;
+                    }
+
+                    var column = 0;
+                    var row = 0;
+                    if (!sceneId.HasValue)
+                    {
+                        for (var i = 0; i < form.Map.SceneShapeFile.NumShapes; i++)
+                        {
+                            var sceneShape = form.Map.SceneShapeFile.Shape[i];
+
+                            if (sceneShape.Intersects(pointShape))
+                            {
+                                var sceneIdFieldIndex = form.Map.SceneShapeFile.FieldIndexByName["SceneId"];
+
+                                var intersectedSceneId = TypeTools
+                                    .Convert<int>(form.Map.SceneShapeFile.CellValue[sceneIdFieldIndex, i]);
+
+                                if (form.Map.SceneBattimetries.TryGetValue(intersectedSceneId, out var layerHandle))
+                                {
+                                    battimetry = form.Map.AxMap.get_Image(layerHandle);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    battimetry.ProjectionToImage(x, y, out column, out row);
+
+                    var band = battimetry.ActiveBand ?? battimetry.Band[1];
+
+                    var depth = 0d;
+                    var hasValue = band != null && band.Value[column, row, out depth];
+
+                    form.DepthLabel.Text = hasValue ? $"Depth: {-depth}" : "Depth undefined";
                 };
             }
         }
@@ -101,12 +140,14 @@ namespace WindowsFormsApp4.Initializers
             {
                 if (form.Entity is null) 
                 {
-                    throw new Exception("Entity not initialized");
+                    NotificationsManager.Popup("Entity not initialized");
+                    return;
                 }
 
                 if (form.Shape is null || !form.Shape.IsValid)
                 {
-                    throw new Exception("Shape is not valid");
+                    NotificationsManager.Popup("Shape is not valid");
+                    return;
                 }
 
                 var context = Program.ServiceProvider

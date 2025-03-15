@@ -51,8 +51,10 @@
     <Compile Include="Abstractions\IWriteOnlyRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Abstractions\IRepository.cs" />
+    <Compile Include="Repositories\IExperimentEnvironmentRepository.cs" />
     <Compile Include="Repositories\IExperimentsRepository.cs" />
     <Compile Include="Repositories\IGasRepository.cs" />
+    <Compile Include="Repositories\IProfilesRepository.cs" />
     <Compile Include="Repositories\IRoutePointsRepository.cs" />
     <Compile Include="Repositories\IRoutesRepository.cs" />
     <Compile Include="Repositories\ISceneRepository.cs" />

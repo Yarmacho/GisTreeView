@@ -1,5 +1,8 @@
-﻿using Entities.Entities;
+﻿using Entities;
+using Entities.Entities;
 using GeoDatabase.ORM;
+using Interfaces.Database.Abstractions;
+using Interfaces.Database.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +13,17 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 {
     internal class SceneNodesBuider : ShapeNodesBuilder<SceneTreeNode, Scene>
     {
-        private readonly IReadOnlyDictionary<int, GasTreeNode> _gasNodes;
-        public SceneNodesBuider(IReadOnlyDictionary<int, GasTreeNode> gasNodes)
+        private readonly IReadOnlyDictionary<int, ExperimentTreeNode> _experimentNodes;
+        public SceneNodesBuider(IReadOnlyDictionary<int, ExperimentTreeNode> exprimentNodes)
         {
-            _gasNodes = gasNodes;
+            _experimentNodes = exprimentNodes;
         }
 
         public override async ValueTask<IEnumerable<SceneTreeNode>> BuildNodes(BuildNodesParams buildNodesParams)
         {
+            var repositoriesProvider = buildNodesParams.ServiceProvider.GetRequiredService<IRepositoriesProvider>();
+            var profilesRepository = repositoriesProvider.Get<IProfilesRepository>();
+            var profiles = (await profilesRepository.GetAllAsync()).ToLookup(e => e.SceneId);
             var nodes = new Dictionary<int, SceneTreeNode>();
 
             var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
@@ -26,15 +32,26 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 var node = new SceneTreeNode(scene);
                 nodes[scene.Id] = node;
 
-                if (_gasNodes.TryGetValue(scene.GasId, out var gasNode))
+                if (_experimentNodes.TryGetValue(scene.ExperimentId, out var experimentTreeNode))
                 {
-                    gasNode.AddNode(node);
+                    experimentTreeNode.Nodes.Add(node);
+                }
+
+                var experimentProfiles = profiles[scene.Id];
+                if (experimentProfiles.Any())
+                {
+                    node.Nodes.Add(new ProfileTreeNode(scene.Id, experimentProfiles.ToList()));
                 }
             }
 
             if (nodes.Count > 0 && buildNodesParams.ShipLayerHandle != -1)
             {
                 await new ShipNodesBuilder(nodes).BuildNodes(buildNodesParams);
+            }
+
+            if (nodes.Count > 0 && buildNodesParams.GasLayerHandle != -1)
+            {
+                await new GasNodesBuilder(nodes).BuildNodes(buildNodesParams);
             }
 
             return nodes.Values;

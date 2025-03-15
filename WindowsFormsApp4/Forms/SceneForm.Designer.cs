@@ -39,6 +39,8 @@
             this.side = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.submit = new System.Windows.Forms.Button();
+            this.addShape = new System.Windows.Forms.Button();
+            this.panBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -78,10 +80,10 @@
             // axMap1
             // 
             this.axMap1.Enabled = true;
-            this.axMap1.Location = new System.Drawing.Point(131, 12);
+            this.axMap1.Location = new System.Drawing.Point(131, 49);
             this.axMap1.Name = "axMap1";
             this.axMap1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axMap1.OcxState")));
-            this.axMap1.Size = new System.Drawing.Size(657, 426);
+            this.axMap1.Size = new System.Drawing.Size(657, 389);
             this.axMap1.TabIndex = 9;
             // 
             // angle
@@ -127,11 +129,31 @@
             this.submit.Text = "Create";
             this.submit.UseVisualStyleBackColor = true;
             // 
+            // addShape
+            // 
+            this.addShape.Location = new System.Drawing.Point(211, 14);
+            this.addShape.Name = "addShape";
+            this.addShape.Size = new System.Drawing.Size(75, 21);
+            this.addShape.TabIndex = 20;
+            this.addShape.Text = "Add shape";
+            this.addShape.UseVisualStyleBackColor = true;
+            // 
+            // panBtn
+            // 
+            this.panBtn.Location = new System.Drawing.Point(130, 12);
+            this.panBtn.Name = "panBtn";
+            this.panBtn.Size = new System.Drawing.Size(75, 23);
+            this.panBtn.TabIndex = 19;
+            this.panBtn.Text = "Pan";
+            this.panBtn.UseVisualStyleBackColor = true;
+            // 
             // SceneForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.addShape);
+            this.Controls.Add(this.panBtn);
             this.Controls.Add(this.submit);
             this.Controls.Add(this.side);
             this.Controls.Add(this.label3);
@@ -161,5 +183,7 @@
         private System.Windows.Forms.TextBox side;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button submit;
+        private System.Windows.Forms.Button addShape;
+        private System.Windows.Forms.Button panBtn;
     }
 }
