@@ -471,6 +471,74 @@ namespace WindowsFormsApp4.Initializers
         public Image Temperature => AxMap.get_Image(LayersInfo.TemperatureLayerHandle);
         public Image Salnity => AxMap.get_Image(LayersInfo.SalnityLayerHandle);
 
+        public bool TryGetDepth(double x, double y, out double depth)
+        {
+            depth = 0;
+            var battimetry = Batimetry;
+            if (battimetry == null)
+            {
+                return false;
+            }
+
+            var band = battimetry.ActiveBand == null
+                ? battimetry.Band[1]
+                : battimetry.ActiveBand;
+
+            battimetry.ProjectionToImage(x, y, out var col, out var row);
+            if (!band.Value[col, row, out depth])
+            {
+                return false;
+            }
+
+            depth = -depth;
+
+            return true;
+        }
+
+        public bool TryGetTemperature(double x, double y, out double temperature)
+        {
+            temperature = 0;
+            var temp = Temperature;
+            if (temp == null)
+            {
+                return false;
+            }
+
+            var band = temp.ActiveBand == null
+                ? temp.Band[1]
+                : temp.ActiveBand;
+
+            temp.ProjectionToImage(x, y, out var col, out var row);
+            if (!band.Value[col, row, out temperature])
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool TryGetSalinity(double x, double y, out double salinity)
+        {
+            salinity = 0;
+            var salinityLayer = Temperature;
+            if (salinityLayer == null)
+            {
+                return false;
+            }
+
+            var band = salinityLayer.ActiveBand == null
+                ? salinityLayer.Band[1]
+                : salinityLayer.ActiveBand;
+
+            salinityLayer.ProjectionToImage(x, y, out var col, out var row);
+            if (!band.Value[col, row, out salinity])
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public void ZoomToLayer<T>()
         {
             AxMap.ZoomToLayer(LayersInfo.GetLayerHandle<T>());

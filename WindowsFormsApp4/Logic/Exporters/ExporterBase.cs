@@ -9,12 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using static MassTransit.Util.ChartTable;
 
 namespace WindowsFormsApp4.Logic.Exporters
 {
@@ -22,6 +19,7 @@ namespace WindowsFormsApp4.Logic.Exporters
     {
         private readonly GeoDbContext _geoDbContext;
         private readonly IExperimentsRepository _experimentsRepository;
+        private readonly IRoutePointsRepository _routePointsRepository;
 
         private string _battimetriesPath;
 
@@ -29,6 +27,7 @@ namespace WindowsFormsApp4.Logic.Exporters
         {
             _geoDbContext = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
             _experimentsRepository = Program.ServiceProvider.GetRequiredService<IExperimentsRepository>();
+            _routePointsRepository = Program.ServiceProvider.GetRequiredService<IRoutePointsRepository>();
             _battimetriesPath = Path.Combine(Program.Configuration.GetValue<string>("MapsPath"), "Battimetries");
         }
 
@@ -78,9 +77,10 @@ namespace WindowsFormsApp4.Logic.Exporters
                     Name = scene.Name,
                     Side = scene.Side,
                     Sensors = new List<GasDto>(),
-                    Ships = new List<ShipDto>()
+                    Ships = new List<ShipDto>(),
                 };
 
+                sceneDto.Bathymetry = tryCreateBathymetryGrid(sceneDto);
                 await tryAddSensorsToScene(sceneDto);
                 await tryAddShipsToScene(sceneDto);
 
@@ -167,93 +167,46 @@ namespace WindowsFormsApp4.Logic.Exporters
                 {
                     ShipId = route.ShipId,
                     Description = route.Description,
-                    Name = route.Name,
+                    Name = route.Name ?? $"Route {route.Id}",
                     Points = new List<RoutePointDto>()
                 };
 
-                await tryAddPointsToRoute(routeDto);
+                await tryAddPointsToRoute(route.Id, routeDto);
 
                 ship.Routes.Add(routeDto);
             }
         }
-        private ValueTask tryAddPointsToRoute(RouteDto route)
+        private async ValueTask tryAddPointsToRoute(int routeId, RouteDto route)
         {
-            return new ValueTask();
+            var points = await _routePointsRepository.GetAllAsync(routeId);
+            if (points == null || points.Count == 0)
+            {
+                return;
+            }
+
+            route.Points = points.Select(p => new RoutePointDto() 
+            {
+                RouteId = routeId,
+                X = p.X,
+                Y = p.Y,
+                Depth = p.Depth,
+                Salinity = p.Salinity,
+                Speed = p.Speed,
+                Temperature = p.Temperature,
+                TimeOffset = p.TimeOffset
+            }).ToList();
         }
 
-        private async ValueTask<BathymetryGrid> tryCreateBathymetryGrid(SceneDto scene)
+        private Stream tryCreateBathymetryGrid(SceneDto scene)
         {
-            var grid = new BathymetryGrid();
-
-            var path = Path.Combine(_battimetriesPath, $"Scene_{scene.Id}.asc");
-            if (!File.Exists(path))
+            var sceneBatimetryPath = Path.Combine(_battimetriesPath, $"Scene_{scene.Id}.asc");
+            if (!Directory.Exists(_battimetriesPath) ||
+                !File.Exists(sceneBatimetryPath))
             {
-                return grid;
+                return Stream.Null;
             }
 
-            var columns = 0;
-            var rows = 0;
-            var cellsize = 0d;
-            var xllcorner = 0d;
-            var yllcorner = 0d;
-            using (var reader = File.OpenText(path))
-            {
-                string line;
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
-                    if (Regex.IsMatch("^[a-zA-Z]+\\s+\\-?[0-9,;]+$", line))
-                    {
-                        var splitedLine = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-                        var key = splitedLine[0];
-                        var value = splitedLine[1];
-                        grid.Metadata.Add(key, value);
-
-                        switch (key)
-                        {
-                            case "ncols":
-                                columns = int.Parse(value);
-                                break;
-                            case "nrows":
-                                rows = int.Parse(value);
-                                break;
-                            case "cellsize":
-                                cellsize = double.Parse(value);
-                                break;
-                            case "xllcorner":
-                                xllcorner = double.Parse(value);
-                                break;
-                            case "yllcorner":
-                                yllcorner = double.Parse(value);
-                                break;
-                        }
-                        continue;
-                    }
-
-                    var bathymetryValues = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    var row = 0;
-                    var col = 0;
-                    foreach (var value in bathymetryValues)
-                    {
-                        var depth = double.Parse(value);
-
-                        //var point = new BathymetryPoint
-                        //{
-                        //    X = xllcorner + (col * cellsize),
-                        //    Y = cornerLatitude + (row * cellsize),
-                        //    Depth = depth,
-                        //    XRangeStart = xllcorner + (col * cellsize) - (cellsize / 2),
-                        //    XRangeEnd = xllcorner + (col * cellsize) + (cellsize / 2),
-                        //    YRangeStart = cornerLatitude + (row * cellsize) - (cellsize / 2),
-                        //    YRangeEnd = cornerLatitude + (row * cellsize) + (cellsize / 2)
-                        //};
-
-                        //grid.Points.Add(point);
-                    }
-                }
-            }
-
-            return grid;
+            return File.OpenRead(sceneBatimetryPath);
         }
     }
 }

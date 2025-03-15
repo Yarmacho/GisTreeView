@@ -18,7 +18,8 @@ using WindowsFormsApp4.Events.Handlers;
 using WindowsFormsApp4.Initializers;
 using WindowsFormsApp4.ShapeConverters;
 using GeoDatabase.ORM;
-using WindowsFormsApp4.Logic;
+using WindowsFormsApp4.Forms;
+using WindowsFormsApp4.Events.Handlers.Scenes;
 using System.IO;
 using MapWinGIS;
 
@@ -44,8 +45,8 @@ namespace WindowsFormsApp4
             BattimetryInterpolator.ShapesPath = Configuration.GetValue<string>("MapsPath");
             MapDesigner.ServiceProvider = host.Services;
 
-
-            var battimetryPath = BattimetryInterpolator.ShapesPath;
+            var battimetryPath = Path.Combine(Configuration.GetValue<string>("MapsPath"),
+                Configuration.GetValue<string>("BattimetryFileName"));
 
             //var batimetryFilename = Path.Combine(battimetryPath, "Batimetry.tif");
             //var temperatureFilename = Path.Combine(battimetryPath, Configuration.GetValue<string>("TemperatureProfileFileName"));
@@ -66,6 +67,7 @@ namespace WindowsFormsApp4
             try
             {
                 InitDispatchEventsScheduler(cancellationTokenSource.Token);
+
                 Application.Run(MainForm);
             }
             finally
@@ -90,6 +92,7 @@ namespace WindowsFormsApp4
                     var mapPath = Configuration.GetValue<string>("MapsPath");
                     
                     services.AddTransient<Form1>();
+                    services.AddTransient<ProfilesForm>();
                     services.AddSingleton(Configuration);
                     services.AddShapeConverters();
                     services.AddDataBase(Configuration);
@@ -115,6 +118,7 @@ namespace WindowsFormsApp4
             services.AddTransient<IEventBus, EventBus>();
             services.AddSingleton<EventsDispather>();
             services.AddTransient<IEventHandler<SceneCreated>, InterpolateBattimetryHandler>();
+            services.AddTransient<IEventHandler<ProfilesRequested>, CalculateProfilesConsumer>();
 
             return services;
         }

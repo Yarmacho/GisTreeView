@@ -12,6 +12,8 @@ using System.Runtime.Remoting.Contexts;
 using WindowsFormsApp4.Initializers;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace Events.Handlers
 {
@@ -35,7 +37,11 @@ namespace Events.Handlers
             }
 
             var battimetry = new MapWinGIS.Image();
-            battimetry.Open(Program.MainForm.Map.Batimetry.Filename);
+            if (!battimetry.Open(Program.MainForm.Map.Batimetry.Filename))
+            {
+                return new ValueTask();
+            }
+
             var battimetryPath = BattimetryInterpolator.CreateBatimetryIDW(battimetry, scene.Shape,
                 Program.MainForm.Map.AxMap.Width, scene.Id);
 

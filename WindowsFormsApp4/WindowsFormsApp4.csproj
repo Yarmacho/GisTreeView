@@ -80,6 +80,7 @@
     <Reference Include="System.Messaging" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -101,6 +102,7 @@
     <Compile Include="Events\EventsDispather.cs" />
     <Compile Include="Events\Handlers\Abstractions\EventHandlerBase.cs" />
     <Compile Include="Events\Handlers\Abstractions\IEventHandler.cs" />
+    <Compile Include="Events\Handlers\Scenes\CalculateProfilesConsumer.cs" />
     <Compile Include="Events\Handlers\Scenes\InterpolateBattimetryConsumer.cs" />
     <Compile Include="Extensions\CallFormEventsExtensions.cs" />
     <Compile Include="Extensions\MapExtensions.cs" />
@@ -108,11 +110,23 @@
     <Compile Include="Forms\Abstractions\IEntityForm.cs" />
     <Compile Include="Forms\Abstractions\IEntityFormWithMap.cs" />
     <Compile Include="Forms\Abstractions\IEntityFormWithMapAndDepthLabel.cs" />
+    <Compile Include="Forms\DepthProfileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DepthProfileForm.Designer.cs">
+      <DependentUpon>DepthProfileForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\DictionaryForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\DictionaryForm.Designer.cs">
       <DependentUpon>DictionaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\EnvironmentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EnvironmentForm.Designer.cs">
+      <DependentUpon>EnvironmentForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ExperimentForm.cs">
       <SubType>Form</SubType>
@@ -125,6 +139,18 @@
     </Compile>
     <Compile Include="Forms\GasForm.Designer.cs">
       <DependentUpon>GasForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ProfileFormV2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProfileFormV2.Designer.cs">
+      <DependentUpon>ProfileFormV2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ProfilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProfilesForm.Designer.cs">
+      <DependentUpon>ProfilesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\SceneForm.cs">
       <SubType>Form</SubType>
@@ -160,6 +186,9 @@
     <Compile Include="Logic\Exporters\ExperimentXmlExporter.cs" />
     <Compile Include="Logic\Exporters\ExporterBase.cs" />
     <Compile Include="Logic\RouteBuilder.cs" />
+    <Compile Include="Logic\TimeOffsetCalculator.cs" />
+    <Compile Include="Logic\TSProfileBuilder.cs" />
+    <Compile Include="Logic\TsTableProcessor.cs" />
     <Compile Include="Logic\TurnOptimizer.cs" />
     <Compile Include="MapTreeView.cs">
       <SubType>Component</SubType>
@@ -201,7 +230,9 @@
     <Compile Include="TreeNodes\Abstractions\INodeWithDescription.cs" />
     <Compile Include="TreeNodes\Abstractions\INodeWithMap.cs" />
     <Compile Include="TreeNodes\Abstractions\MapTreeNodeBase.cs" />
+    <Compile Include="TreeNodes\EnvironmentTreeNode.cs" />
     <Compile Include="TreeNodes\ExperimentTreeNode.cs" />
+    <Compile Include="TreeNodes\ProfileTreeNode.cs" />
     <Compile Include="TreeNodes\ProfilTreeNode.cs" />
     <Compile Include="TreeNodes\RoutePointTreeNode.cs" />
     <Compile Include="TreeNodes\RouteTreeNode.cs" />
@@ -212,14 +243,26 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DepthProfileForm.resx">
+      <DependentUpon>DepthProfileForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\DictionaryForm.resx">
       <DependentUpon>DictionaryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EnvironmentForm.resx">
+      <DependentUpon>EnvironmentForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ExperimentForm.resx">
       <DependentUpon>ExperimentForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\GasForm.resx">
       <DependentUpon>GasForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ProfileFormV2.resx">
+      <DependentUpon>ProfileFormV2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ProfilesForm.resx">
+      <DependentUpon>ProfilesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SceneForm.resx">
       <DependentUpon>SceneForm.cs</DependentUpon>

@@ -85,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\ProfilesRequested.cs" />
     <Compile Include="Contracts\SceneCreated.cs" />
     <Compile Include="Dtos\BathymetryPoint.cs" />
     <Compile Include="Dtos\BattimetryGrid.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Dtos\Vector.cs" />
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\Experiment.cs" />
+    <Compile Include="Entities\ExperimentEnvironment.cs" />
     <Compile Include="Entities\Gas.cs" />
     <Compile Include="Entities\IDictionaryEntity.cs" />
     <Compile Include="Entities\Profil.cs" />
@@ -107,6 +109,7 @@
     <Compile Include="Entities\Ship.cs" />
     <Compile Include="IEntityWithCoordinates.cs" />
     <Compile Include="IShapeEntity.cs" />
+    <Compile Include="JsonConverters\BathymetryStreamConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -14,7 +14,7 @@ namespace WindowsFormsApp4
     {
         public async ValueTask<IEnumerable<MapTreeNodeBase>> BuidNodes(BuildNodesParams buildNodesParams)
         {
-            if (buildNodesParams.Map == null || buildNodesParams.GasLayerHandle == -1)
+            if (buildNodesParams.Map == null)
             {
                 return new List<MapTreeNodeBase>();
             }
