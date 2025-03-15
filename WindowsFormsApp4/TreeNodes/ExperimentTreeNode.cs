@@ -36,25 +36,6 @@ namespace WindowsFormsApp4.TreeNodes
             var menu = base.BuildContextMenu();
 
             menu.MenuItems.Add(0, new MenuItem("Add scene", async (s, e) => await AppendChild<Scene, SceneTreeNode>()));
-            menu.MenuItems.Add(new MenuItem("Add profiles", async (s, e) =>
-            {
-                var form = new ProfileFormV2(Map.Batimetry.OpenAsGrid());
-                if (form.ShowDialog() != DialogResult.OK)
-                {
-                    return;
-                }
-
-                var profiles = form.Profiles;
-                var repository = TreeView.ServiceProvider.GetRequiredService<IProfilesRepository>();
-                foreach (var profil in profiles)
-                {
-                    profil.ExperimentId = ExperimentId;
-                    await repository.AddAsync(profil);
-                }
-
-                await repository.SaveChanges();
-                Nodes.Add(new ProfileTreeNode(ExperimentId, profiles));
-            }));
 
             //menu.MenuItems.Add(new MenuItem("Add environment settings", async (s, e) =>
             //{

@@ -1,6 +1,5 @@
 ﻿using Entities.Entities;
 using Microsoft.EntityFrameworkCore.Internal;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,7 +9,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WindowsFormsApp4.Forms
 {
-    public partial class ProfileFormV2 : Form
+    public partial class ProfileFormV2 : Form 
     {
         private Series temperatureSeries = new Series("temperature")
         {
@@ -49,6 +48,7 @@ namespace WindowsFormsApp4.Forms
         public ProfileFormV2(MapWinGIS.Grid battimetry, IEnumerable<Profil> profiles = null)
         {
             InitializeComponent();
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             AcceptButton = button1;
             AcceptButton.DialogResult = DialogResult.OK;
 
@@ -64,24 +64,31 @@ namespace WindowsFormsApp4.Forms
             {
                 foreach (var profil in profiles)
                 {
-                    dataGridView1.Rows.Add(profil.Depth, profil.Temperature, profil.Salinity, profil.SoundSpeed, profil.Absorbsion);
+                    temperatureGrid.Rows.Add(profil.Depth, profil.Temperature);
+                    salinityGrid.Rows.Add(profil.Depth, profil.Salinity);
+                    speedGrid.Rows.Add(profil.Depth, profil.SoundSpeed);
+                    absrobtionGrid.Rows.Add(profil.Depth, profil.Absorbsion);
 
-                    temperatureSeries.Points.AddXY(profil.Depth, profil.Temperature);
-                    salinitySeries.Points.AddXY(profil.Depth, profil.Salinity);
-                    soundSpeedSeries.Points.AddXY(profil.Depth, profil.SoundSpeed);
-                    absorbtionSeries.Points.AddXY(profil.Depth, profil.Absorbsion);
+                    temperatureSeries.Points.AddXY(profil.Temperature, profil.Depth);
+                    salinitySeries.Points.AddXY(profil.Salinity, profil.Depth);
+                    soundSpeedSeries.Points.AddXY(profil.SoundSpeed, profil.Depth);
+                    absorbtionSeries.Points.AddXY(profil.Absorbsion, profil.Depth);
                 }
+                sortAllSeriesPoints();
             }
 
-            configureChart(tempChart, temperatureSeries, battimetry, "Temperature", -20, 50);
-            configureChart(salinityChart, salinitySeries, battimetry, "Salinity", 0, 100);
-            configureChart(soundSpeedChart, soundSpeedSeries, battimetry, "Sound speed", 0, 100);
-            configureChart(absorbtionChart, absorbtionSeries, battimetry, "Absorbtion", 0, 100);
+            configureChart(tempChart, temperatureGrid, temperatureSeries, battimetry, "Temperature", -20, 50);
+            configureChart(salinityChart, salinityGrid, salinitySeries, battimetry, "Salinity", 0, 100);
+            configureChart(soundSpeedChart, speedGrid, soundSpeedSeries, battimetry, "Sound speed", 0, 100);
+            configureChart(absorbtionChart, absrobtionGrid, absorbtionSeries, battimetry, "Absorbtion", 0, 100);
 
-            dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
+            configureGridView(tempChart, temperatureGrid, temperatureSeries);
+            configureGridView(salinityChart, salinityGrid, salinitySeries);
+            configureGridView(soundSpeedChart, speedGrid, soundSpeedSeries);
+            configureGridView(absorbtionChart, absrobtionGrid, absorbtionSeries);
         }
 
-        private void configureChart(Chart chart, Series series, MapWinGIS.Grid battimetry, string title, double min, double max)
+        private void configureChart(Chart chart, DataGridView gridView, Series series, MapWinGIS.Grid battimetry, string title, double min, double max)
         {
             chart.Series.Clear();
             chart.Series.Add(series);
@@ -97,21 +104,22 @@ namespace WindowsFormsApp4.Forms
             chart.ChartAreas[0].AxisX.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
             chart.ChartAreas[0].AxisY.MinorGrid.Enabled = true;
             chart.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
+            chart.ChartAreas[0].AxisY.IsReversed = true;
 
             // Налаштування фону
             chart.ChartAreas[0].BackColor = Color.FromArgb(240, 240, 240);
 
-            chart.ChartAreas[0].AxisX.Minimum = 0;
-            chart.ChartAreas[0].AxisX.Maximum = Math.Abs(Convert.ToDouble(battimetry.Minimum));
+            chart.ChartAreas[0].AxisY.Minimum = 0;
+            chart.ChartAreas[0].AxisY.Maximum = Math.Abs(Convert.ToDouble(battimetry.Minimum));
+            
+            var yInterval = Math.Abs(Convert.ToDouble(battimetry.Minimum)) / 10;
+            chart.ChartAreas[0].AxisY.Interval = yInterval;
+            chart.ChartAreas[0].AxisY.Title = "Depth";
 
-            var xInterval = chart.ChartAreas[0].AxisX.Maximum / 10;
-
-            chart.ChartAreas[0].AxisY.Minimum = min;
-            chart.ChartAreas[0].AxisY.Maximum = max;
-            chart.ChartAreas[0].AxisX.Interval = xInterval;
-            chart.ChartAreas[0].AxisY.Interval = 10;
-            chart.ChartAreas[0].AxisX.Title = "Depth";
-            chart.ChartAreas[0].AxisY.Title = title;
+            chart.ChartAreas[0].AxisX.Minimum = min;
+            chart.ChartAreas[0].AxisX.Maximum = max;
+            chart.ChartAreas[0].AxisX.Interval = 10;
+            chart.ChartAreas[0].AxisX.Title = title;
 
             chart.MouseClick += (s, e) =>
             {
@@ -119,33 +127,38 @@ namespace WindowsFormsApp4.Forms
                 Point mousePoint = new Point(e.X, e.Y);
                 ChartArea chartArea = chart.ChartAreas[0];
 
-                double xValue = 0;
-                double yValue = 0;
+                double profileValue = 0;
+                double depthValue = 0;
 
                 try
                 {
                     // Отримання координат кліку відносно графіка
-                    xValue = roundToNearest((int)chart.ChartAreas[0].AxisX.PixelPositionToValue(e.X));
-                    yValue = chart.ChartAreas[0].AxisY.PixelPositionToValue(e.Y);
+                    depthValue = roundToNearest((int)chart.ChartAreas[0].AxisY.PixelPositionToValue(e.Y));
+                    profileValue = chart.ChartAreas[0].AxisX.PixelPositionToValue(e.X);
 
                     // Перевірка, чи координати знаходяться в межах графіка
-                    if (xValue >= chartArea.AxisX.Minimum && xValue <= chartArea.AxisX.Maximum &&
-                        yValue >= chartArea.AxisY.Minimum && yValue <= chartArea.AxisY.Maximum)
+                    if (profileValue >= chartArea.AxisX.Minimum && profileValue <= chartArea.AxisX.Maximum &&
+                        depthValue >= chartArea.AxisY.Minimum && depthValue <= chartArea.AxisY.Maximum)
                     {
-                        var temperature = tabControl1.SelectedIndex == 0 ? yValue : 0;
-                        var salinity = tabControl1.SelectedIndex == 1 ? yValue : 0;
-                        var soundSpeed = tabControl1.SelectedIndex == 2 ? yValue : 0;
-                        var absorbtion = tabControl1.SelectedIndex == 3 ? yValue : 0;
+                        profileValue = tabControl1.SelectedIndex == 0
+                            ? Math.Round(profileValue, 1)
+                            : Math.Round(profileValue, 3);
 
-                        setValue(temperatureSeries, xValue, temperature);
-                        setValue(salinitySeries, xValue, salinity);
-                        setValue(soundSpeedSeries, xValue, soundSpeed);
-                        setValue(absorbtionSeries, xValue, absorbtion);
+                        setValue(series, depthValue, profileValue);
+                        sortSeriesPoints(series);
 
-                        sortAllSeriesPoints();
+                        var row = gridView.Rows.OfType<DataGridViewRow>()
+                            .FirstOrDefault(r => Convert.ToInt32(r.Cells[0].Value) == depthValue);
+                        if (row == null)
+                        {
+                            gridView.Rows.Add(depthValue, profileValue);
+                        }
+                        else
+                        {
+                            row.Cells[1].Value = profileValue;
+                        }
 
-                        dataGridView1.Rows.Add(xValue, temperature, salinity, soundSpeed, absorbtion);
-                        updateCharts();
+                        updateChart(chart);
                     }
                 }
                 catch (Exception ex)
@@ -156,24 +169,30 @@ namespace WindowsFormsApp4.Forms
             };
         }
 
-        private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+
+        private void configureGridView(Chart chart, DataGridView gridView, Series series)
         {
-            if (e.ColumnIndex == 0)
+            gridView.CellValueChanged += (s, e) =>
             {
-                var depth = Convert.ToDouble(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
-                temperatureSeries.Points[e.RowIndex].XValue = depth;
-                salinitySeries.Points[e.RowIndex].XValue = depth;
-                absorbtionSeries.Points[e.RowIndex].XValue = depth;
-                soundSpeedSeries.Points[e.RowIndex].XValue = depth;
-            }
+                var depth = Convert.ToDouble(gridView.Rows[e.RowIndex].Cells[0].Value);
+                var depthPoint = series.Points.FirstOrDefault(p => p.XValue == depth);
+                if (depthPoint == null)
+                {
+                    return;
+                }
 
-            if (columnsSeries.TryGetValue(e.ColumnIndex, out var series))
-            {
-                var value = Convert.ToDouble(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
-                series.Points[e.RowIndex].SetValueY(value);
-            }
+                if (e.ColumnIndex == 0)
+                {
+                    depthPoint.XValue = depth;
+                }
+                else
+                {
+                    var value = Convert.ToDouble(gridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
+                    depthPoint.SetValueY(value);
+                }
 
-            updateCharts();
+                updateChart(chart);
+            };
         }
 
         private void updateCharts()
@@ -212,14 +231,14 @@ namespace WindowsFormsApp4.Forms
 
         private void setValue(Series series, double depth, double value)
         {
-            var point = series.Points.FirstOrDefault(p => (int)p.XValue == (int)depth);
+            var point = series.Points.FirstOrDefault(p => p.YValues.Any(v => (int)v == (int)depth));
             if (point != null)
             {
                 point.SetValueY(value);
             }
             else
             {
-                series.Points.Add(new DataPoint(depth, value));
+                series.Points.Add(new DataPoint(value, depth));
             }
         }
 
@@ -241,21 +260,93 @@ namespace WindowsFormsApp4.Forms
             }
         }
 
+        private static double calculateWilsonFormula(double temperature, double salinity, double depth)
+        {
+            // Формула Вільсона (спрощена версія)
+            // C(T,S,P) = 1449.2 + 4.6T - 0.055T^2 + 0.00029T^3 + (1.34 - 0.01T)(S - 35) + 0.016D
+            // де T - температура (°C), S - солоність (ppt), D - глибина (м)
+
+            double t = temperature;
+            double s = salinity;
+            double d = depth;
+
+            double c = 1449.2 + 4.6 * t - 0.055 * t * t + 0.00029 * t * t * t +
+                      (1.34 - 0.01 * t) * (s - 35) + 0.016 * d;
+
+            return Math.Round(c, 3);
+        }
+
+        private static double calculateThropFormula(double temperature, double salinity, double depth, double frequency = 10d)
+        {
+            // Спрощена формула Торпа для поглинання звуку
+            // α = (0.11 * f^2 / (1 + f^2)) + (44 * f^2 / (4100 + f^2)) + (2.75 * 10^-4 * f^2) + 0.003
+            // де f - частота в кГц
+
+            double f = frequency; // частота в кГц
+            double f2 = f * f;
+
+            // Базове поглинання за формулою Торпа
+            double absorption = (0.11 * f2 / (1 + f2)) +
+                               (44 * f2 / (4100 + f2)) +
+                               (2.75e-4 * f2) + 0.003;
+
+            // Корекція для температури (спрощено)
+            absorption *= Math.Pow(1.017, (temperature - 15.0));
+
+            // Корекція для солоності (спрощено)
+            if (salinity < 30)
+            {
+                absorption *= 0.95 + 0.0017 * salinity;
+            }
+
+            // Корекція для тиску/глибини (спрощено)
+            double pressureCorrection = 1.0 - (0.00005 * depth);
+            absorption *= pressureCorrection;
+
+            return Math.Round(absorption, 3);
+        }
+
         public List<Profil> Profiles
         {
             get
             {
+                var tempProfiles = temperatureGrid.Rows.OfType<DataGridViewRow>()
+                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
+                var salinityProfiles = salinityGrid.Rows.OfType<DataGridViewRow>()
+                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
+                var soundProfiles = speedGrid.Rows.OfType<DataGridViewRow>()
+                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
+                var absorbtionProfiles = absrobtionGrid.Rows.OfType<DataGridViewRow>()
+                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
+
+                var depths = new HashSet<int>(tempProfiles.Keys);
+                depths.UnionWith(salinityProfiles.Keys);
+                depths.UnionWith(soundProfiles.Keys);
+                depths.UnionWith(absorbtionProfiles.Keys);
+
                 var profiles = new List<Profil>();
-                for (var i = 0; i < dataGridView1.Rows.Count; i++)
+                foreach (var depth in depths)
                 {
-                    var row = dataGridView1.Rows[i];
+                    tempProfiles.TryGetValue(depth, out var temperature);
+                    salinityProfiles.TryGetValue(depth, out var salinity);
+
+                    if (!soundProfiles.TryGetValue(depth, out var soundSpeed))
+                    {
+                        soundSpeed = calculateWilsonFormula(temperature, salinity, depth);
+                    }
+
+                    if (!absorbtionProfiles.TryGetValue(depth, out var absorbtion))
+                    {
+                        absorbtion = calculateThropFormula(temperature, salinity, depth);
+                    }
+
                     profiles.Add(new Profil()
                     {
-                        Depth = Convert.ToDouble(row.Cells[0].Value),
-                        Temperature = Convert.ToDouble(row.Cells[1].Value),
-                        Salinity = Convert.ToDouble(row.Cells[2].Value),
-                        SoundSpeed = Convert.ToDouble(row.Cells[3].Value),
-                        Absorbsion = Convert.ToDouble(row.Cells[4].Value),
+                        Depth = depth,
+                        Temperature = temperature,
+                        SoundSpeed = soundSpeed,
+                        Absorbsion = absorbtion,
+                        Salinity = salinity,
                     });
                 }
 

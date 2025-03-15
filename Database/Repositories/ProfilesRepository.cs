@@ -20,11 +20,11 @@ namespace Database.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IReadOnlyCollection<Profil>> GetExperimentProfiles(int experimentId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<Profil>> GetSceneProfiles(int sceneId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Set<Profil>()
                 .AsNoTracking()
-                .Where(p => p.ExperimentId == experimentId)
+                .Where(p => p.SceneId == sceneId)
                 .ToListAsync();
         }
     }

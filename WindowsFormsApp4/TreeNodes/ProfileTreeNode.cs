@@ -16,12 +16,12 @@ namespace WindowsFormsApp4.TreeNodes
 {
     internal class ProfileTreeNode : MapTreeNodeBase, INodeWithMap
     {
-        private readonly int _experimentId;
+        private readonly int _sceneId;
         private List<Profil> _profiles;
 
-        public ProfileTreeNode(int experimentId, List<Profil> profiles)
+        public ProfileTreeNode(int sceneId, List<Profil> profiles)
         {
-            _experimentId = experimentId;
+            _sceneId = sceneId;
             _profiles = profiles;
             Text = "Profiles";
         }
@@ -59,7 +59,7 @@ namespace WindowsFormsApp4.TreeNodes
                 var repository = TreeView.ServiceProvider.GetRequiredService<IProfilesRepository>();
                 foreach (var profil in _profiles)
                 {
-                    profil.ExperimentId = _experimentId;
+                    profil.SceneId = _sceneId;
                     await repository.AddAsync(profil);
                 }
 

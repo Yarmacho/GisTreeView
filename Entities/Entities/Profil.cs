@@ -8,7 +8,7 @@ namespace Entities.Entities
 {
     public class Profil : EntityBase<int>
     {
-        public int ExperimentId { get; set; }
+        public int SceneId { get; set; }
         public double Depth { get; set; }
         public double Temperature { get; set; }
         public double SoundSpeed { get; set; }

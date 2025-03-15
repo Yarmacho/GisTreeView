@@ -58,8 +58,8 @@ namespace WindowsFormsApp4
             //    .ReCreateAsync().GetAwaiter().GetResult();
             //ServiceProvider.GetRequiredService<GeoDbContext>()
             //    .DeleteAllShapes();
-            ServiceProvider.GetRequiredService<GeoDbContext>()
-                .EnsureShapefilesStructure();
+            //ServiceProvider.GetRequiredService<GeoDbContext>()
+            //    .EnsureShapefilesStructure();
 
             MainForm = ServiceProvider.GetRequiredService<Form1>();
 

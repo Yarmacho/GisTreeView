@@ -7,6 +7,6 @@ namespace Interfaces.Database.Repositories
 {
     public interface IProfilesRepository : IRepository<Profil, int>
     {
-        Task<IReadOnlyCollection<Profil>> GetExperimentProfiles(int experimentId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<Profil>> GetSceneProfiles(int sceneId, CancellationToken cancellationToken = default);
     }
 }

@@ -1,5 +1,8 @@
-﻿using Entities.Entities;
+﻿using Entities;
+using Entities.Entities;
 using GeoDatabase.ORM;
+using Interfaces.Database.Abstractions;
+using Interfaces.Database.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +21,9 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
 
         public override async ValueTask<IEnumerable<SceneTreeNode>> BuildNodes(BuildNodesParams buildNodesParams)
         {
+            var repositoriesProvider = buildNodesParams.ServiceProvider.GetRequiredService<IRepositoriesProvider>();
+            var profilesRepository = repositoriesProvider.Get<IProfilesRepository>();
+            var profiles = (await profilesRepository.GetAllAsync()).ToLookup(e => e.SceneId);
             var nodes = new Dictionary<int, SceneTreeNode>();
 
             var dbContext = buildNodesParams.ServiceProvider.GetRequiredService<GeoDbContext>();
@@ -29,6 +35,12 @@ namespace WindowsFormsApp4.TreeBuilder.NodesBuilders
                 if (_experimentNodes.TryGetValue(scene.ExperimentId, out var experimentTreeNode))
                 {
                     experimentTreeNode.Nodes.Add(node);
+                }
+
+                var experimentProfiles = profiles[scene.Id];
+                if (experimentProfiles.Any())
+                {
+                    node.Nodes.Add(new ProfileTreeNode(scene.Id, experimentProfiles.ToList()));
                 }
             }
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+using WindowsFormsApp4.JsonConverters;
 
 namespace Entities.Dtos
 {
@@ -43,8 +45,7 @@ namespace Entities.Dtos
         public List<GasDto> Sensors { get; set; }
 
         [JsonPropertyName("bathymetry")]
-        //[XmlElement("bathymetry")]
-        [XmlIgnore]
-        public BathymetryGrid Bathymetry { get; set; }
+        [JsonConverter(typeof(BathymetryStreamConverter))]
+        public Stream Bathymetry { get; set; }
     }
 }
