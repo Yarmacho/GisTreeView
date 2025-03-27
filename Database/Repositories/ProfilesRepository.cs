@@ -20,6 +20,15 @@ namespace Database.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task DeleteSceneProfiles(int sceneId, CancellationToken cancellationToken = default)
+        {
+            var profiles = await GetSceneProfiles(sceneId);
+            foreach (var profile in profiles)
+            {
+                await DeleteAsync(profile);
+            }
+        }
+
         public async Task<IReadOnlyCollection<Profil>> GetSceneProfiles(int sceneId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Set<Profil>()
@@ -27,6 +36,13 @@ namespace Database.Repositories
                 .Where(p => p.SceneId == sceneId)
                 .OrderBy(p => p.Depth)
                 .ToListAsync();
+        }
+
+        public async Task<bool> HasProfiles(int sceneId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Set<Profil>()
+                .AsNoTracking()
+                .AnyAsync(p => p.SceneId == sceneId, cancellationToken);
         }
     }
 }

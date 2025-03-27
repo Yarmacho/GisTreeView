@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace Entities.Dtos
 {
@@ -13,6 +10,9 @@ namespace Entities.Dtos
         public double Temperature { get; set; }
         public double SoundSpeed { get; set; }
         public double Salinity { get; set; }
+        
+        [JsonIgnore]
+        [XmlIgnore]
         public double Absorbsion { get; set; }
     }
 }

@@ -28,18 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend7 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend8 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.temperatureGrid = new System.Windows.Forms.DataGridView();
             this.Depth = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Temperature = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -48,33 +45,25 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tempChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.salinityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.soundSpeedChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.absorbtionChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.salinityGrid = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.salinityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.speedGrid = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.absrobtionGrid = new System.Windows.Forms.DataGridView();
-            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soundSpeedChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.temperatureGrid)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tempChart)).BeginInit();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.salinityGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.salinityChart)).BeginInit();
             this.tabPage3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.soundSpeedChart)).BeginInit();
-            this.tabPage4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.absorbtionChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.salinityGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.speedGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.absrobtionGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.soundSpeedChart)).BeginInit();
             this.SuspendLayout();
             // 
             // temperatureGrid
@@ -112,7 +101,6 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(12, 21);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -134,16 +122,16 @@
             // tempChart
             // 
             this.tempChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea5.Name = "ChartArea1";
-            this.tempChart.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.tempChart.Legends.Add(legend5);
+            chartArea4.Name = "ChartArea1";
+            this.tempChart.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.tempChart.Legends.Add(legend4);
             this.tempChart.Location = new System.Drawing.Point(279, 6);
             this.tempChart.Name = "tempChart";
-            series5.ChartArea = "ChartArea1";
-            series5.Legend = "Legend1";
-            series5.Name = "Series1";
-            this.tempChart.Series.Add(series5);
+            series4.ChartArea = "ChartArea1";
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            this.tempChart.Series.Add(series4);
             this.tempChart.Size = new System.Drawing.Size(820, 379);
             this.tempChart.TabIndex = 1;
             this.tempChart.Text = "chart1";
@@ -159,81 +147,6 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Salinity";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // salinityChart
-            // 
-            this.salinityChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea6.Name = "ChartArea1";
-            this.salinityChart.ChartAreas.Add(chartArea6);
-            legend6.Name = "Legend1";
-            this.salinityChart.Legends.Add(legend6);
-            this.salinityChart.Location = new System.Drawing.Point(282, 0);
-            this.salinityChart.Name = "salinityChart";
-            series6.ChartArea = "ChartArea1";
-            series6.Legend = "Legend1";
-            series6.Name = "Series1";
-            this.salinityChart.Series.Add(series6);
-            this.salinityChart.Size = new System.Drawing.Size(817, 385);
-            this.salinityChart.TabIndex = 2;
-            this.salinityChart.Text = "chart2";
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Controls.Add(this.speedGrid);
-            this.tabPage3.Controls.Add(this.soundSpeedChart);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(1105, 391);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Sound speed";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // soundSpeedChart
-            // 
-            this.soundSpeedChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea7.Name = "ChartArea1";
-            this.soundSpeedChart.ChartAreas.Add(chartArea7);
-            legend7.Name = "Legend1";
-            this.soundSpeedChart.Legends.Add(legend7);
-            this.soundSpeedChart.Location = new System.Drawing.Point(279, 6);
-            this.soundSpeedChart.Name = "soundSpeedChart";
-            series7.ChartArea = "ChartArea1";
-            series7.Legend = "Legend1";
-            series7.Name = "Series1";
-            this.soundSpeedChart.Series.Add(series7);
-            this.soundSpeedChart.Size = new System.Drawing.Size(820, 379);
-            this.soundSpeedChart.TabIndex = 2;
-            this.soundSpeedChart.Text = "soundSpeedChart";
-            // 
-            // tabPage4
-            // 
-            this.tabPage4.Controls.Add(this.absrobtionGrid);
-            this.tabPage4.Controls.Add(this.absorbtionChart);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(1105, 391);
-            this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "Absorbtion";
-            this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // absorbtionChart
-            // 
-            this.absorbtionChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea8.Name = "ChartArea1";
-            this.absorbtionChart.ChartAreas.Add(chartArea8);
-            legend8.Name = "Legend1";
-            this.absorbtionChart.Legends.Add(legend8);
-            this.absorbtionChart.Location = new System.Drawing.Point(279, 6);
-            this.absorbtionChart.Name = "absorbtionChart";
-            series8.ChartArea = "ChartArea1";
-            series8.Legend = "Legend1";
-            series8.Name = "Series1";
-            this.absorbtionChart.Series.Add(series8);
-            this.absorbtionChart.Size = new System.Drawing.Size(820, 379);
-            this.absorbtionChart.TabIndex = 2;
-            this.absorbtionChart.Text = "chart2";
             // 
             // salinityGrid
             // 
@@ -256,6 +169,35 @@
             this.dataGridViewTextBoxColumn2.HeaderText = "Salinity";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             // 
+            // salinityChart
+            // 
+            this.salinityChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
+            chartArea5.Name = "ChartArea1";
+            this.salinityChart.ChartAreas.Add(chartArea5);
+            legend5.Name = "Legend1";
+            this.salinityChart.Legends.Add(legend5);
+            this.salinityChart.Location = new System.Drawing.Point(282, 0);
+            this.salinityChart.Name = "salinityChart";
+            series5.ChartArea = "ChartArea1";
+            series5.Legend = "Legend1";
+            series5.Name = "Series1";
+            this.salinityChart.Series.Add(series5);
+            this.salinityChart.Size = new System.Drawing.Size(817, 385);
+            this.salinityChart.TabIndex = 2;
+            this.salinityChart.Text = "chart2";
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.speedGrid);
+            this.tabPage3.Controls.Add(this.soundSpeedChart);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(1105, 391);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Sound speed";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
             // speedGrid
             // 
             this.speedGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -277,26 +219,22 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "Sound speed";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             // 
-            // absrobtionGrid
+            // soundSpeedChart
             // 
-            this.absrobtionGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.absrobtionGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn5,
-            this.dataGridViewTextBoxColumn6});
-            this.absrobtionGrid.Location = new System.Drawing.Point(3, 4);
-            this.absrobtionGrid.Name = "absrobtionGrid";
-            this.absrobtionGrid.Size = new System.Drawing.Size(270, 381);
-            this.absrobtionGrid.TabIndex = 5;
-            // 
-            // dataGridViewTextBoxColumn5
-            // 
-            this.dataGridViewTextBoxColumn5.HeaderText = "Depth";
-            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
-            // 
-            // dataGridViewTextBoxColumn6
-            // 
-            this.dataGridViewTextBoxColumn6.HeaderText = "Absorbtion";
-            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            this.soundSpeedChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
+            chartArea6.Name = "ChartArea1";
+            this.soundSpeedChart.ChartAreas.Add(chartArea6);
+            legend6.Name = "Legend1";
+            this.soundSpeedChart.Legends.Add(legend6);
+            this.soundSpeedChart.Location = new System.Drawing.Point(279, 6);
+            this.soundSpeedChart.Name = "soundSpeedChart";
+            series6.ChartArea = "ChartArea1";
+            series6.Legend = "Legend1";
+            series6.Name = "Series1";
+            this.soundSpeedChart.Series.Add(series6);
+            this.soundSpeedChart.Size = new System.Drawing.Size(820, 379);
+            this.soundSpeedChart.TabIndex = 2;
+            this.soundSpeedChart.Text = "soundSpeedChart";
             // 
             // ProfileFormV2
             // 
@@ -312,14 +250,11 @@
             this.tabPage1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tempChart)).EndInit();
             this.tabPage2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.salinityGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.salinityChart)).EndInit();
             this.tabPage3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.soundSpeedChart)).EndInit();
-            this.tabPage4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.absorbtionChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.salinityGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.speedGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.absrobtionGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.soundSpeedChart)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -334,8 +269,6 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart salinityChart;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.DataVisualization.Charting.Chart soundSpeedChart;
-        private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.DataVisualization.Charting.Chart absorbtionChart;
         private System.Windows.Forms.DataGridViewTextBoxColumn Depth;
         private System.Windows.Forms.DataGridViewTextBoxColumn Temperature;
         private System.Windows.Forms.DataGridView salinityGrid;
@@ -344,8 +277,5 @@
         private System.Windows.Forms.DataGridView speedGrid;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.DataGridView absrobtionGrid;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
     }
 }

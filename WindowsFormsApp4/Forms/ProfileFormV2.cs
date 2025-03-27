@@ -35,13 +35,13 @@ namespace WindowsFormsApp4.Forms
             MarkerSize = 3
         };
 
-        private Series absorbtionSeries = new Series("absorbsion")
-        {
-            ChartType = SeriesChartType.Line,
-            Color = Color.Lime,
-            MarkerStyle = MarkerStyle.Circle,
-            MarkerSize = 3
-        };
+        //private Series absorbtionSeries = new Series("absorbsion")
+        //{
+        //    ChartType = SeriesChartType.Line,
+        //    Color = Color.Lime,
+        //    MarkerStyle = MarkerStyle.Circle,
+        //    MarkerSize = 3
+        //};
 
         private readonly IReadOnlyDictionary<int, Series> columnsSeries;
 
@@ -57,35 +57,39 @@ namespace WindowsFormsApp4.Forms
                 [1] = temperatureSeries,
                 [2] = salinitySeries,
                 [3] = soundSpeedSeries,
-                [4] = absorbtionSeries,
+                //[4] = absorbtionSeries,
             };
 
             if (profiles != null)
             {
+                temperatureGrid.Rows.Clear();
+                salinityGrid.Rows.Clear();
+                speedGrid.Rows.Clear();
+
                 foreach (var profil in profiles)
                 {
                     temperatureGrid.Rows.Add(profil.Depth, profil.Temperature);
                     salinityGrid.Rows.Add(profil.Depth, profil.Salinity);
                     speedGrid.Rows.Add(profil.Depth, profil.SoundSpeed);
-                    absrobtionGrid.Rows.Add(profil.Depth, profil.Absorbsion);
+                    //absrobtionGrid.Rows.Add(profil.Depth, profil.Absorbsion);
 
                     temperatureSeries.Points.AddXY(profil.Temperature, profil.Depth);
                     salinitySeries.Points.AddXY(profil.Salinity, profil.Depth);
                     soundSpeedSeries.Points.AddXY(profil.SoundSpeed, profil.Depth);
-                    absorbtionSeries.Points.AddXY(profil.Absorbsion, profil.Depth);
+                    //absorbtionSeries.Points.AddXY(profil.Absorbsion, profil.Depth);
                 }
                 sortAllSeriesPoints();
             }
 
-            configureChart(tempChart, temperatureGrid, temperatureSeries, battimetry, "Temperature", -20, 50);
-            configureChart(salinityChart, salinityGrid, salinitySeries, battimetry, "Salinity", 0, 100);
-            configureChart(soundSpeedChart, speedGrid, soundSpeedSeries, battimetry, "Sound speed", 0, 100);
-            configureChart(absorbtionChart, absrobtionGrid, absorbtionSeries, battimetry, "Absorbtion", 0, 100);
+            configureChart(tempChart, temperatureGrid, temperatureSeries, battimetry, "Temperature, °C", -2, 40);
+            configureChart(salinityChart, salinityGrid, salinitySeries, battimetry, "Salinity, ‰ or PSU", 0, 40);
+            configureChart(soundSpeedChart, speedGrid, soundSpeedSeries, battimetry, "Sound speed, m/s", 1400, 1600);
+            //configureChart(absorbtionChart, absrobtionGrid, absorbtionSeries, battimetry, "Absorbtion", 0, 100);
 
             configureGridView(tempChart, temperatureGrid, temperatureSeries);
             configureGridView(salinityChart, salinityGrid, salinitySeries);
             configureGridView(soundSpeedChart, speedGrid, soundSpeedSeries);
-            configureGridView(absorbtionChart, absrobtionGrid, absorbtionSeries);
+            //configureGridView(absorbtionChart, absrobtionGrid, absorbtionSeries);
         }
 
         private void configureChart(Chart chart, DataGridView gridView, Series series, MapWinGIS.Grid battimetry, string title, double min, double max)
@@ -124,7 +128,6 @@ namespace WindowsFormsApp4.Forms
             chart.MouseClick += (s, e) =>
             {
                 // Перетворення координат миші в координати графіка
-                Point mousePoint = new Point(e.X, e.Y);
                 ChartArea chartArea = chart.ChartAreas[0];
 
                 double profileValue = 0;
@@ -133,8 +136,8 @@ namespace WindowsFormsApp4.Forms
                 try
                 {
                     // Отримання координат кліку відносно графіка
-                    depthValue = roundToNearest((int)chart.ChartAreas[0].AxisY.PixelPositionToValue(e.Y));
-                    profileValue = chart.ChartAreas[0].AxisX.PixelPositionToValue(e.X);
+                    depthValue = roundToNearest((int)chartArea.AxisY.PixelPositionToValue(e.Y));
+                    profileValue = chartArea.AxisX.PixelPositionToValue(e.X);
 
                     // Перевірка, чи координати знаходяться в межах графіка
                     if (profileValue >= chartArea.AxisX.Minimum && profileValue <= chartArea.AxisX.Maximum &&
@@ -200,7 +203,7 @@ namespace WindowsFormsApp4.Forms
             updateChart(tempChart);
             updateChart(salinityChart);
             updateChart(soundSpeedChart);
-            updateChart(absorbtionChart);
+            //updateChart(absorbtionChart);
         }
 
         private void updateChart(Chart chart)
@@ -214,7 +217,7 @@ namespace WindowsFormsApp4.Forms
             sortSeriesPoints(temperatureSeries);
             sortSeriesPoints(salinitySeries);
             sortSeriesPoints(soundSpeedSeries);
-            sortSeriesPoints(absorbtionSeries);
+            //sortSeriesPoints(absorbtionSeries);
         }
 
         private void sortSeriesPoints(Series series)
@@ -310,19 +313,16 @@ namespace WindowsFormsApp4.Forms
         {
             get
             {
-                var tempProfiles = temperatureGrid.Rows.OfType<DataGridViewRow>()
-                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
-                var salinityProfiles = salinityGrid.Rows.OfType<DataGridViewRow>()
-                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
-                var soundProfiles = speedGrid.Rows.OfType<DataGridViewRow>()
-                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
-                var absorbtionProfiles = absrobtionGrid.Rows.OfType<DataGridViewRow>()
-                    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
+                var tempProfiles = rowsToDictionary(temperatureGrid.Rows);
+                var salinityProfiles = rowsToDictionary(salinityGrid.Rows);
+                var soundProfiles = rowsToDictionary(speedGrid.Rows);
+                //var absorbtionProfiles = absrobtionGrid.Rows.OfType<DataGridViewRow>()
+                //    .ToDictionary(r => Convert.ToInt32(r.Cells[0].Value), r => Convert.ToDouble(r.Cells[1].Value));
 
                 var depths = new HashSet<int>(tempProfiles.Keys);
                 depths.UnionWith(salinityProfiles.Keys);
                 depths.UnionWith(soundProfiles.Keys);
-                depths.UnionWith(absorbtionProfiles.Keys);
+                //depths.UnionWith(absorbtionProfiles.Keys);
 
                 var profiles = new List<Profil>();
                 foreach (var depth in depths)
@@ -335,23 +335,36 @@ namespace WindowsFormsApp4.Forms
                         soundSpeed = calculateWilsonFormula(temperature, salinity, depth);
                     }
 
-                    if (!absorbtionProfiles.TryGetValue(depth, out var absorbtion))
-                    {
-                        absorbtion = calculateThropFormula(temperature, salinity, depth);
-                    }
+                    //if (!absorbtionProfiles.TryGetValue(depth, out var absorbtion))
+                    //{
+                    //    absorbtion = calculateThropFormula(temperature, salinity, depth);
+                    //}
 
                     profiles.Add(new Profil()
                     {
                         Depth = depth,
                         Temperature = temperature,
                         SoundSpeed = soundSpeed,
-                        Absorbsion = absorbtion,
+                        //Absorbsion = absorbtion,
                         Salinity = salinity,
                     });
                 }
 
                 return profiles;
             }
+        }
+
+        private Dictionary<int, double> rowsToDictionary(DataGridViewRowCollection rows)
+        {
+            var result = new Dictionary<int, double>();
+            foreach (var row in rows.OfType<DataGridViewRow>())
+            {
+                var key = Convert.ToInt32(row.Cells[0].Value);
+
+                result[key] = Convert.ToInt32(row.Cells[1].Value);
+            }
+
+            return result;
         }
     }
 }

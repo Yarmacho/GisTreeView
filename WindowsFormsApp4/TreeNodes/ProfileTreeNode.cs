@@ -55,8 +55,10 @@ namespace WindowsFormsApp4.TreeNodes
                     return;
                 }
 
-                _profiles = form.Profiles;
                 var repository = TreeView.ServiceProvider.GetRequiredService<IProfilesRepository>();
+                await repository.DeleteSceneProfiles(_sceneId);
+
+                _profiles = form.Profiles;
                 foreach (var profil in _profiles)
                 {
                     profil.SceneId = _sceneId;
@@ -64,6 +66,16 @@ namespace WindowsFormsApp4.TreeNodes
                 }
 
                 await repository.SaveChanges();
+            });
+
+            contextMenu.MenuItems.Add("Delete", async (s, e) =>
+            {
+                var repository = TreeView.ServiceProvider.GetRequiredService<IProfilesRepository>();
+
+                await repository.DeleteSceneProfiles(_sceneId);
+                await repository.SaveChanges();
+
+                this.Remove();
             });
 
             return contextMenu;

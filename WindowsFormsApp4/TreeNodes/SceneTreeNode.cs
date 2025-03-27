@@ -37,6 +37,13 @@ namespace WindowsFormsApp4.TreeNodes
             menu.MenuItems.Add(0, new MenuItem("Add gas", async (s, e) => await AppendChild<Gas, GasTreeNode>()));
             menu.MenuItems.Add(new MenuItem("Add profiles", async (s, e) =>
             {
+                var repository = TreeView.ServiceProvider.GetRequiredService<IProfilesRepository>();
+                if (await repository.HasProfiles(Entity.Id))
+                {
+                    MessageBox.Show("Profiles already created. Use update button on profiles node");
+                    return;
+                }
+
                 var form = new ProfileFormV2(Map.Batimetry.OpenAsGrid());
                 if (form.ShowDialog() != DialogResult.OK)
                 {
@@ -44,7 +51,6 @@ namespace WindowsFormsApp4.TreeNodes
                 }
 
                 var profiles = form.Profiles;
-                var repository = TreeView.ServiceProvider.GetRequiredService<IProfilesRepository>();
                 foreach (var profil in profiles)
                 {
                     profil.SceneId = Entity.Id;
