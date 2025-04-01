@@ -66,6 +66,10 @@ namespace WindowsFormsApp4.Forms
                 salinityGrid.Rows.Clear();
                 speedGrid.Rows.Clear();
 
+                temperatureGrid.Sort(temperatureGrid.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+                salinityGrid.Sort(temperatureGrid.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+                speedGrid.Sort(temperatureGrid.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+
                 foreach (var profil in profiles)
                 {
                     temperatureGrid.Rows.Add(profil.Depth, profil.Temperature);
@@ -106,7 +110,9 @@ namespace WindowsFormsApp4.Forms
             chart.ChartAreas[0].AxisY.MajorGrid.LineColor = Color.LightGray;
             chart.ChartAreas[0].AxisX.MinorGrid.Enabled = true;
             chart.ChartAreas[0].AxisX.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
+            chart.ChartAreas[0].AxisX.MinorGrid.IntervalType = DateTimeIntervalType.Number;
             chart.ChartAreas[0].AxisY.MinorGrid.Enabled = true;
+            chart.ChartAreas[0].AxisY.MinorGrid.IntervalType = DateTimeIntervalType.Number;
             chart.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.FromArgb(230, 230, 230);
             chart.ChartAreas[0].AxisY.IsReversed = true;
 
@@ -162,6 +168,7 @@ namespace WindowsFormsApp4.Forms
                         }
 
                         updateChart(chart);
+                        gridView.Sort(gridView.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
                     }
                 }
                 catch (Exception ex)
@@ -222,7 +229,7 @@ namespace WindowsFormsApp4.Forms
 
         private void sortSeriesPoints(Series series)
         {
-            var points = series.Points.OrderBy(p => p.XValue).ToList();
+            var points = series.Points.OrderBy(p => p.YValues.FirstOrDefault()).ToList();
 
             series.Points.Clear();
 
@@ -237,7 +244,7 @@ namespace WindowsFormsApp4.Forms
             var point = series.Points.FirstOrDefault(p => p.YValues.Any(v => (int)v == (int)depth));
             if (point != null)
             {
-                point.SetValueY(value);
+                point.XValue = value;
             }
             else
             {

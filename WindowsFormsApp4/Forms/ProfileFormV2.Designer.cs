@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.temperatureGrid = new System.Windows.Forms.DataGridView();
             this.Depth = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Temperature = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -122,16 +122,18 @@
             // tempChart
             // 
             this.tempChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea4.Name = "ChartArea1";
-            this.tempChart.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.tempChart.Legends.Add(legend4);
+            chartArea1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            chartArea1.BorderDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+            chartArea1.Name = "ChartArea1";
+            this.tempChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.tempChart.Legends.Add(legend1);
             this.tempChart.Location = new System.Drawing.Point(279, 6);
             this.tempChart.Name = "tempChart";
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.tempChart.Series.Add(series4);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.tempChart.Series.Add(series1);
             this.tempChart.Size = new System.Drawing.Size(820, 379);
             this.tempChart.TabIndex = 1;
             this.tempChart.Text = "chart1";
@@ -172,16 +174,16 @@
             // salinityChart
             // 
             this.salinityChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea5.Name = "ChartArea1";
-            this.salinityChart.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.salinityChart.Legends.Add(legend5);
+            chartArea2.Name = "ChartArea1";
+            this.salinityChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.salinityChart.Legends.Add(legend2);
             this.salinityChart.Location = new System.Drawing.Point(282, 0);
             this.salinityChart.Name = "salinityChart";
-            series5.ChartArea = "ChartArea1";
-            series5.Legend = "Legend1";
-            series5.Name = "Series1";
-            this.salinityChart.Series.Add(series5);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.salinityChart.Series.Add(series2);
             this.salinityChart.Size = new System.Drawing.Size(817, 385);
             this.salinityChart.TabIndex = 2;
             this.salinityChart.Text = "chart2";
@@ -222,16 +224,16 @@
             // soundSpeedChart
             // 
             this.soundSpeedChart.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.Center;
-            chartArea6.Name = "ChartArea1";
-            this.soundSpeedChart.ChartAreas.Add(chartArea6);
-            legend6.Name = "Legend1";
-            this.soundSpeedChart.Legends.Add(legend6);
+            chartArea3.Name = "ChartArea1";
+            this.soundSpeedChart.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.soundSpeedChart.Legends.Add(legend3);
             this.soundSpeedChart.Location = new System.Drawing.Point(279, 6);
             this.soundSpeedChart.Name = "soundSpeedChart";
-            series6.ChartArea = "ChartArea1";
-            series6.Legend = "Legend1";
-            series6.Name = "Series1";
-            this.soundSpeedChart.Series.Add(series6);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.soundSpeedChart.Series.Add(series3);
             this.soundSpeedChart.Size = new System.Drawing.Size(820, 379);
             this.soundSpeedChart.TabIndex = 2;
             this.soundSpeedChart.Text = "soundSpeedChart";
