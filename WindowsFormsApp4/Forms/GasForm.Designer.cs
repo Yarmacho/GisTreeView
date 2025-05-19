@@ -28,12 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GasForm));
             this.axMap1 = new AxMapWinGIS.AxMap();
             this.label1 = new System.Windows.Forms.Label();
             this.name = new System.Windows.Forms.TextBox();
-            this.experimentId = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.coordX = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -45,6 +44,12 @@
             this.panBtn = new System.Windows.Forms.Button();
             this.selectFromDict = new System.Windows.Forms.Button();
             this.submit = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.maxFrequency = new WindowsFormsApp4.Components.NumericTextBox(this.components);
+            this.minFrquency = new WindowsFormsApp4.Components.NumericTextBox(this.components);
+            this.depthValue = new WindowsFormsApp4.Components.NumericTextBox(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.axMap1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -73,26 +78,10 @@
             this.name.Size = new System.Drawing.Size(100, 20);
             this.name.TabIndex = 2;
             // 
-            // experimentId
-            // 
-            this.experimentId.Location = new System.Drawing.Point(34, 157);
-            this.experimentId.Name = "experimentId";
-            this.experimentId.Size = new System.Drawing.Size(100, 20);
-            this.experimentId.TabIndex = 4;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(31, 130);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(68, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "ExperimentId";
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(32, 192);
+            this.label3.Location = new System.Drawing.Point(32, 421);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 5;
@@ -101,7 +90,7 @@
             // coordX
             // 
             this.coordX.AutoSize = true;
-            this.coordX.Location = new System.Drawing.Point(73, 192);
+            this.coordX.Location = new System.Drawing.Point(73, 421);
             this.coordX.Name = "coordX";
             this.coordX.Size = new System.Drawing.Size(35, 13);
             this.coordX.TabIndex = 6;
@@ -110,7 +99,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(31, 224);
+            this.label5.Location = new System.Drawing.Point(31, 453);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(14, 13);
             this.label5.TabIndex = 7;
@@ -119,7 +108,7 @@
             // coordY
             // 
             this.coordY.AutoSize = true;
-            this.coordY.Location = new System.Drawing.Point(73, 224);
+            this.coordY.Location = new System.Drawing.Point(73, 453);
             this.coordY.Name = "coordY";
             this.coordY.Size = new System.Drawing.Size(35, 13);
             this.coordY.TabIndex = 8;
@@ -194,11 +183,65 @@
             this.submit.UseVisualStyleBackColor = true;
             this.submit.Click += new System.EventHandler(this.submit_Click);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(36, 130);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(50, 13);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "Depth, m";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(36, 179);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(93, 13);
+            this.label4.TabIndex = 20;
+            this.label4.Text = "Min frequency, Hz";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(36, 231);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(96, 13);
+            this.label6.TabIndex = 22;
+            this.label6.Text = "Max frequency, Hz";
+            // 
+            // maxFrequency
+            // 
+            this.maxFrequency.Location = new System.Drawing.Point(35, 247);
+            this.maxFrequency.Name = "maxFrequency";
+            this.maxFrequency.Size = new System.Drawing.Size(100, 20);
+            this.maxFrequency.TabIndex = 21;
+            // 
+            // minFrquency
+            // 
+            this.minFrquency.Location = new System.Drawing.Point(35, 195);
+            this.minFrquency.Name = "minFrquency";
+            this.minFrquency.Size = new System.Drawing.Size(100, 20);
+            this.minFrquency.TabIndex = 19;
+            // 
+            // depthValue
+            // 
+            this.depthValue.Location = new System.Drawing.Point(35, 146);
+            this.depthValue.Name = "depthValue";
+            this.depthValue.Size = new System.Drawing.Size(100, 20);
+            this.depthValue.TabIndex = 17;
+            // 
             // GasForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(907, 483);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.maxFrequency);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.minFrquency);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.depthValue);
             this.Controls.Add(this.submit);
             this.Controls.Add(this.selectFromDict);
             this.Controls.Add(this.ZoomOut);
@@ -210,8 +253,6 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.coordX);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.experimentId);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.name);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.axMap1);
@@ -228,8 +269,6 @@
         private AxMapWinGIS.AxMap axMap1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox name;
-        private System.Windows.Forms.TextBox experimentId;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label coordX;
         private System.Windows.Forms.Label label5;
@@ -241,5 +280,11 @@
         private System.Windows.Forms.Button panBtn;
         private System.Windows.Forms.Button selectFromDict;
         private System.Windows.Forms.Button submit;
+        private WindowsFormsApp4.Components.NumericTextBox depthValue;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label4;
+        private WindowsFormsApp4.Components.NumericTextBox minFrquency;
+        private System.Windows.Forms.Label label6;
+        private WindowsFormsApp4.Components.NumericTextBox maxFrequency;
     }
 }

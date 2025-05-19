@@ -22,6 +22,7 @@ using WindowsFormsApp4.Forms;
 using WindowsFormsApp4.Events.Handlers.Scenes;
 using System.IO;
 using MapWinGIS;
+using WindowsFormsApp4.Events.Handlers.Export;
 
 namespace WindowsFormsApp4
 {
@@ -87,10 +88,10 @@ namespace WindowsFormsApp4
                 .Build();
 
             return Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) => 
+                .ConfigureServices((context, services) =>
                 {
                     var mapPath = Configuration.GetValue<string>("MapsPath");
-                    
+
                     services.AddTransient<Form1>();
                     services.AddTransient<ProfilesForm>();
                     services.AddSingleton(Configuration);
@@ -119,6 +120,7 @@ namespace WindowsFormsApp4
             services.AddSingleton<EventsDispather>();
             services.AddTransient<IEventHandler<SceneCreated>, InterpolateBattimetryHandler>();
             services.AddTransient<IEventHandler<ProfilesRequested>, CalculateProfilesConsumer>();
+            services.AddTransient<IEventHandler<ExportRequested>, ExportHandler>();
 
             return services;
         }
@@ -126,8 +128,17 @@ namespace WindowsFormsApp4
         public static void InitDispatchEventsScheduler(CancellationToken cancellationToken) =>
            Task.Run(async () =>
            {
-               var eventsDispatcher = ServiceProvider.GetRequiredService<EventsDispather>();
-               await eventsDispatcher.ExecuteAsync(cancellationToken);
+               while (true)
+               {
+                   try
+                   {
+                       var eventsDispatcher = ServiceProvider.GetRequiredService<EventsDispather>();
+                       await eventsDispatcher.ExecuteAsync(cancellationToken);
+                   }
+                   catch
+                   {
+                   }
+               }
            }, cancellationToken);
     }
 }

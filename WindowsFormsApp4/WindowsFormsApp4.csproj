@@ -102,6 +102,7 @@
     <Compile Include="Events\EventsDispather.cs" />
     <Compile Include="Events\Handlers\Abstractions\EventHandlerBase.cs" />
     <Compile Include="Events\Handlers\Abstractions\IEventHandler.cs" />
+    <Compile Include="Events\Handlers\Export\ExportHandler.cs" />
     <Compile Include="Events\Handlers\Scenes\CalculateProfilesConsumer.cs" />
     <Compile Include="Events\Handlers\Scenes\InterpolateBattimetryConsumer.cs" />
     <Compile Include="Extensions\CallFormEventsExtensions.cs" />

@@ -85,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\ExportRequested.cs" />
     <Compile Include="Contracts\ProfilesRequested.cs" />
     <Compile Include="Contracts\SceneCreated.cs" />
     <Compile Include="Dtos\BathymetryPoint.cs" />

@@ -26,7 +26,7 @@ namespace WindowsFormsApp4.Events
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await dispatchEvents();
+                dispatchEvents();
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             };
         }

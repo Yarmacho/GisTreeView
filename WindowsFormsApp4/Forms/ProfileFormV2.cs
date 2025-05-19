@@ -9,7 +9,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WindowsFormsApp4.Forms
 {
-    public partial class ProfileFormV2 : Form 
+    public partial class ProfileFormV2 : Form
     {
         private Series temperatureSeries = new Series("temperature")
         {
@@ -85,9 +85,9 @@ namespace WindowsFormsApp4.Forms
                 sortAllSeriesPoints();
             }
 
-            configureChart(tempChart, temperatureGrid, temperatureSeries, battimetry, "Temperature, °C", -2, 40);
-            configureChart(salinityChart, salinityGrid, salinitySeries, battimetry, "Salinity, ‰ or PSU", 0, 40);
-            configureChart(soundSpeedChart, speedGrid, soundSpeedSeries, battimetry, "Sound speed, m/s", 1400, 1600);
+            configureChart(tempChart, temperatureGrid, temperatureSeries, battimetry, "Temperature, °C", 0, 30);
+            configureChart(salinityChart, salinityGrid, salinitySeries, battimetry, "Salinity, ‰ or PSU", 33, 36);
+            configureChart(soundSpeedChart, speedGrid, soundSpeedSeries, battimetry, "Sound speed, m/s", 1440, 1550);
             //configureChart(absorbtionChart, absrobtionGrid, absorbtionSeries, battimetry, "Absorbtion", 0, 100);
 
             configureGridView(tempChart, temperatureGrid, temperatureSeries);
@@ -121,14 +121,15 @@ namespace WindowsFormsApp4.Forms
 
             chart.ChartAreas[0].AxisY.Minimum = 0;
             chart.ChartAreas[0].AxisY.Maximum = Math.Abs(Convert.ToDouble(battimetry.Minimum));
-            
+
             var yInterval = Math.Abs(Convert.ToDouble(battimetry.Minimum)) / 10;
             chart.ChartAreas[0].AxisY.Interval = yInterval;
             chart.ChartAreas[0].AxisY.Title = "Depth";
 
+            var xInterval = Math.Abs(max - min) / 10;
             chart.ChartAreas[0].AxisX.Minimum = min;
             chart.ChartAreas[0].AxisX.Maximum = max;
-            chart.ChartAreas[0].AxisX.Interval = 10;
+            chart.ChartAreas[0].AxisX.Interval = xInterval;
             chart.ChartAreas[0].AxisX.Title = title;
 
             chart.MouseClick += (s, e) =>
@@ -160,7 +161,7 @@ namespace WindowsFormsApp4.Forms
                             .FirstOrDefault(r => Convert.ToInt32(r.Cells[0].Value) == depthValue);
                         if (row == null)
                         {
-                            gridView.Rows.Add(depthValue, profileValue);
+                            gridView.Rows.Add(depthValue.ToString(), profileValue.ToString());
                         }
                         else
                         {
@@ -202,6 +203,16 @@ namespace WindowsFormsApp4.Forms
                 }
 
                 updateChart(chart);
+            };
+
+            gridView.SortCompare += (s, e) =>
+            {
+                //Suppose your interested column has index 1
+                if (e.Column.Index == 0)
+                {
+                    e.SortResult = int.Parse(e.CellValue1.ToString()).CompareTo(int.Parse(e.CellValue2.ToString()));
+                    e.Handled = true;//pass by the default sorting
+                }
             };
         }
 
@@ -368,7 +379,7 @@ namespace WindowsFormsApp4.Forms
             {
                 var key = Convert.ToInt32(row.Cells[0].Value);
 
-                result[key] = Convert.ToInt32(row.Cells[1].Value);
+                result[key] = Convert.ToDouble(row.Cells[1].Value);
             }
 
             return result;

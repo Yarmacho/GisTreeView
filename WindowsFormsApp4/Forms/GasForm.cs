@@ -52,7 +52,6 @@ namespace Forms.Forms
 
             if (editMode == EditMode.Add)
             {
-                experimentId.Visible = false;
                 coordX.Text = string.Empty;
                 coordY.Text = string.Empty;
             }
@@ -60,6 +59,10 @@ namespace Forms.Forms
             {
                 coordX.Text = Entity.X.ToString() ?? string.Empty;
                 coordY.Text = Entity.Y.ToString() ?? string.Empty;
+                name.Text = Entity.Name.ToString();
+                minFrquency.Text = Entity.MinFrequency.ToString();
+                maxFrequency.Text = Entity.MaxFrequency.ToString();
+                depthValue.Text = Entity.Depth.ToString();
             }
 
             AfterShapeValid += (s) =>
@@ -182,6 +185,9 @@ namespace Forms.Forms
                 Entity.Name = selectedGas.Name;
                 Entity.X = selectedGas.X;
                 Entity.Y = selectedGas.Y;
+                Entity.MinFrequency = selectedGas.MinFrequency;
+                Entity.MaxFrequency = selectedGas.MaxFrequency;
+                Entity.Depth = selectedGas.Depth;
 
                 // TODO: Find another way of resolving dbContext
                 var context = Program.ServiceProvider.GetRequiredService<GeoDbContext>();
@@ -200,6 +206,9 @@ namespace Forms.Forms
             Entity.Name = name.Text;
             Entity.X = TypeTools.Convert<double>(coordX.Text);
             Entity.Y = TypeTools.Convert<double>(coordY.Text);
+            Entity.MinFrequency = minFrquency.Value;
+            Entity.MaxFrequency = maxFrequency.Value;
+            Entity.Depth = depthValue.Value;
         }
     }
 }

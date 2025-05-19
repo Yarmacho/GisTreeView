@@ -26,6 +26,7 @@ namespace WindowsFormsApp4.Logic.Exporters
         {
             try
             {
+                experiment.Scenes.RemoveAt(0);
                 using (var fileStream = File.Open(outputFileName, FileMode.OpenOrCreate))
                 {
                     await JsonSerializer.SerializeAsync(fileStream, experiment, cancellationToken: cancellationToken);
